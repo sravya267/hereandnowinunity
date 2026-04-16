@@ -1,0 +1,99 @@
+"""FastAPI route handlers for the chart API."""
+from __future__ import annotations
+
+import logging
+
+import numpy as np
+import pandas as pd
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import HTMLResponse, Response
+
+from app.api.schemas import BirthMomentResponse, ChartRequest, ChartResponse
+from app.core.chart import compute_chart
+from app.core.geocoding import LocationNotFound
+from app.core.visualization import generate_wordclouds, generate_zodiac_chart
+
+logger = logging.getLogger(__name__)
+router = APIRouter()
+
+
+def _df_to_records(df: pd.DataFrame) -> list[dict]:
+    """Convert a DataFrame to JSON-safe records (NaN → None, numpy → native)."""
+    return df.replace({np.nan: None}).to_dict(orient="records")
+
+
+@router.get("/health")
+def health() -> dict[str, str]:
+    """Liveness probe for Cloud Run."""
+    return {"status": "ok"}
+
+
+@router.post("/chart", response_model=ChartResponse)
+def create_chart(req: ChartRequest) -> ChartResponse:
+    """Compute a full natal chart as JSON."""
+    try:
+        chart = compute_chart(
+            birth_datetime=req.birth_datetime,
+            location_name=req.location,
+            zodiac_system=req.zodiac_system,
+        )
+    except LocationNotFound as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("Chart computation failed")
+        raise HTTPException(status_code=500, detail=f"Chart computation failed: {exc}") from exc
+
+    return ChartResponse(
+        birth_datetime=chart.birth_datetime,
+        location=chart.location_name,
+        zodiac_system=chart.zodiac_system,
+        moment=BirthMomentResponse(
+            latitude=chart.moment.latitude,
+            longitude=chart.moment.longitude,
+            timezone=chart.moment.timezone,
+            julian_day_ut=chart.moment.julian_day_ut,
+        ),
+        bodies=_df_to_records(chart.bodies),
+        aspects=_df_to_records(chart.aspects),
+    )
+
+
+@router.post("/chart/wheel", response_class=HTMLResponse)
+def chart_wheel(req: ChartRequest) -> HTMLResponse:
+    """Render the zodiac wheel as standalone HTML."""
+    try:
+        chart = compute_chart(
+            birth_datetime=req.birth_datetime,
+            location_name=req.location,
+            zodiac_system=req.zodiac_system,
+        )
+    except LocationNotFound as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    fig = generate_zodiac_chart(chart.bodies, chart.aspects)
+    return HTMLResponse(content=fig.to_html(include_plotlyjs="cdn", full_html=True))
+
+
+@router.post(
+    "/chart/wordcloud",
+    responses={200: {"content": {"image/png": {}}}},
+    response_class=Response,
+)
+def chart_wordcloud(req: ChartRequest) -> Response:
+    """Render the strengths/stress word-cloud image as PNG."""
+    try:
+        chart = compute_chart(
+            birth_datetime=req.birth_datetime,
+            location_name=req.location,
+            zodiac_system=req.zodiac_system,
+        )
+        png_bytes = generate_wordclouds(chart.bodies)
+    except FileNotFoundError as exc:
+        raise HTTPException(
+            status_code=500,
+            detail="Personalities CSV not found. Ensure app/data/ai_personalities.csv exists.",
+        ) from exc
+    except LocationNotFound as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return Response(content=png_bytes, media_type="image/png")
