@@ -21,22 +21,16 @@ jobs:
 
       - uses: google-github-actions/setup-gcloud@v2
 
-      - name: Build and push to Artifact Registry
-        run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
-          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/astro-chart/app:${{ github.sha }} .
-          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/astro-chart/app:${{ github.sha }}
-
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy astro-chart \
-            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/astro-chart/app:${{ github.sha }} \
+            --source . \
             --region us-central1 \
-            --platform managed \
             --allow-unauthenticated \
             --port 8080 \
             --memory 1Gi \
-            --project ${{ secrets.GCP_PROJECT_ID }}
+            --project ${{ secrets.GCP_PROJECT_ID }} \
+            --quiet
 
       - name: Show service URL
         run: |
