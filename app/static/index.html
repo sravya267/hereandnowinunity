@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Astro Chart</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0f0f1a;
+    color: #e0dfe4;
+    min-height: 100vh;
+  }
+
+  header {
+    text-align: center;
+    padding: 2.5rem 1rem 1.5rem;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-bottom: 1px solid #2a2a4a;
+  }
+
+  header h1 {
+    font-size: 2rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    color: #c8b6ff;
+  }
+
+  header p { color: #8888aa; margin-top: 0.4rem; font-size: 0.95rem; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 2rem 1rem; }
+
+  .card {
+    background: #1a1a2e;
+    border: 1px solid #2a2a4a;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  label { font-size: 0.85rem; color: #9999bb; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  input, select {
+    padding: 0.7rem 0.9rem;
+    border: 1px solid #2a2a4a;
+    border-radius: 8px;
+    background: #12121f;
+    color: #e0dfe4;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: #c8b6ff;
+  }
+
+  .btn {
+    grid-column: 1 / -1;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #7b2ff7, #c8b6ff);
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .btn:hover { opacity: 0.9; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .error {
+    grid-column: 1 / -1;
+    background: #2e1a1a;
+    border: 1px solid #4a2a2a;
+    color: #ff8888;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    display: none;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #2a2a4a;
+    margin-bottom: 1.5rem;
+  }
+
+  .tab {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    color: #8888aa;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .tab:hover { color: #c8b6ff; }
+  .tab.active { color: #c8b6ff; border-bottom-color: #c8b6ff; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  #results { display: none; }
+
+  .spinner {
+    display: none;
+    text-align: center;
+    padding: 3rem;
+    color: #8888aa;
+  }
+
+  .spinner::after {
+    content: '';
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border: 3px solid #2a2a4a;
+    border-top-color: #c8b6ff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 0.75rem;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  th {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid #2a2a4a;
+    color: #9999bb;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  td {
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid #1f1f35;
+  }
+
+  tr:hover td { background: #1f1f35; }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .meta-item {
+    background: #12121f;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+  }
+
+  .meta-label { font-size: 0.75rem; color: #8888aa; text-transform: uppercase; }
+  .meta-value { font-size: 1rem; margin-top: 0.2rem; color: #c8b6ff; }
+
+  #wheel-container iframe {
+    width: 100%;
+    height: 600px;
+    border: none;
+    border-radius: 8px;
+    background: #fff;
+  }
+
+  #wordcloud-container { text-align: center; }
+
+  #wordcloud-container img {
+    max-width: 100%;
+    border-radius: 8px;
+  }
+
+  .wordcloud-note {
+    color: #8888aa;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+  }
+
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .tabs { overflow-x: auto; }
+    #wheel-container iframe { height: 400px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Astro Chart</h1>
+  <p>Natal chart calculation and visualization</p>
+</header>
+
+<div class="container">
+  <div class="card">
+    <form id="chart-form" class="form-grid">
+      <div class="form-group">
+        <label for="birth-date">Birth Date</label>
+        <input type="date" id="birth-date" required>
+      </div>
+      <div class="form-group">
+        <label for="birth-time">Birth Time</label>
+        <input type="time" id="birth-time" step="60" required>
+      </div>
+      <div class="form-group">
+        <label for="location">Birth Location</label>
+        <input type="text" id="location" placeholder="e.g. Mannheim, Germany" required>
+      </div>
+      <div class="form-group">
+        <label for="zodiac">Zodiac System</label>
+        <select id="zodiac">
+          <option value="Tropical">Tropical</option>
+          <option value="Sidereal">Sidereal</option>
+        </select>
+      </div>
+      <div id="error-box" class="error"></div>
+      <button type="submit" class="btn" id="submit-btn">Generate Chart</button>
+    </form>
+  </div>
+
+  <div class="spinner" id="spinner">Computing your natal chart...</div>
+
+  <div id="results">
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" data-tab="data">Chart Data</button>
+        <button class="tab" data-tab="wheel">Zodiac Wheel</button>
+        <button class="tab" data-tab="wordcloud">Word Cloud</button>
+      </div>
+
+      <div id="tab-data" class="tab-content active">
+        <div id="chart-meta" class="meta-grid"></div>
+        <h3 style="color:#9999bb;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.75rem;">Planetary Positions</h3>
+        <div style="overflow-x:auto;">
+          <table id="bodies-table"><thead><tr></tr></thead><tbody></tbody></table>
+        </div>
+        <h3 style="color:#9999bb;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;margin:1.5rem 0 0.75rem;">Aspects</h3>
+        <div style="overflow-x:auto;">
+          <table id="aspects-table"><thead><tr></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+
+      <div id="tab-wheel" class="tab-content">
+        <div id="wheel-container"></div>
+      </div>
+
+      <div id="tab-wordcloud" class="tab-content">
+        <div id="wordcloud-container"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const form = document.getElementById('chart-form');
+  const spinner = document.getElementById('spinner');
+  const results = document.getElementById('results');
+  const errorBox = document.getElementById('error-box');
+  const submitBtn = document.getElementById('submit-btn');
+
+  function buildPayload() {
+    const date = document.getElementById('birth-date').value;
+    const time = document.getElementById('birth-time').value;
+    return {
+      birth_datetime: date + 'T' + time + ':00',
+      location: document.getElementById('location').value.trim(),
+      zodiac_system: document.getElementById('zodiac').value,
+    };
+  }
+
+  function showError(msg) {
+    errorBox.textContent = msg;
+    errorBox.style.display = 'block';
+  }
+
+  function hideError() { errorBox.style.display = 'none'; }
+
+  // Tabs
+  document.querySelectorAll('.tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function (c) { c.classList.remove('active'); });
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  function renderMeta(data) {
+    var meta = document.getElementById('chart-meta');
+    var items = [
+      { label: 'Location', value: data.location },
+      { label: 'Timezone', value: data.moment.timezone },
+      { label: 'Zodiac', value: data.zodiac_system },
+      { label: 'Coordinates', value: data.moment.latitude.toFixed(4) + ', ' + data.moment.longitude.toFixed(4) },
+    ];
+    meta.innerHTML = items.map(function (it) {
+      return '<div class="meta-item"><div class="meta-label">' + it.label + '</div><div class="meta-value">' + it.value + '</div></div>';
+    }).join('');
+  }
+
+  function renderTable(tableId, rows) {
+    var table = document.getElementById(tableId);
+    if (!rows || rows.length === 0) {
+      table.innerHTML = '<tbody><tr><td>No data available</td></tr></tbody>';
+      return;
+    }
+    var keys = Object.keys(rows[0]);
+    var thead = '<tr>' + keys.map(function (k) { return '<th>' + k + '</th>'; }).join('') + '</tr>';
+    var tbody = rows.map(function (row) {
+      return '<tr>' + keys.map(function (k) {
+        var v = row[k];
+        if (v === null || v === undefined) return '<td>-</td>';
+        if (typeof v === 'number') return '<td>' + (Number.isInteger(v) ? v : v.toFixed(4)) + '</td>';
+        return '<td>' + String(v) + '</td>';
+      }).join('') + '</tr>';
+    }).join('');
+    table.innerHTML = '<thead>' + thead + '</thead><tbody>' + tbody + '</tbody>';
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideError();
+    results.style.display = 'none';
+    spinner.style.display = 'block';
+    submitBtn.disabled = true;
+
+    var payload = buildPayload();
+    var headers = { 'Content-Type': 'application/json' };
+
+    // Fire all three requests in parallel
+    var chartReq = fetch('/chart', { method: 'POST', headers: headers, body: JSON.stringify(payload) });
+    var wheelReq = fetch('/chart/wheel', { method: 'POST', headers: headers, body: JSON.stringify(payload) });
+    var cloudReq = fetch('/chart/wordcloud', { method: 'POST', headers: headers, body: JSON.stringify(payload) });
+
+    Promise.allSettled([chartReq, wheelReq, cloudReq]).then(function (settled) {
+      spinner.style.display = 'none';
+      submitBtn.disabled = false;
+
+      var chartRes = settled[0];
+      var wheelRes = settled[1];
+      var cloudRes = settled[2];
+
+      // Chart data (required)
+      if (chartRes.status === 'rejected' || !chartRes.value.ok) {
+        var errP = chartRes.status === 'rejected'
+          ? Promise.resolve(chartRes.reason.message || 'Network error')
+          : chartRes.value.json().then(function (d) { return d.detail || 'Request failed'; });
+        errP.then(function (msg) { showError(msg); });
+        return;
+      }
+
+      chartRes.value.json().then(function (data) {
+        renderMeta(data);
+        renderTable('bodies-table', data.bodies);
+        renderTable('aspects-table', data.aspects);
+        results.style.display = 'block';
+
+        // Activate data tab
+        document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function (c) { c.classList.remove('active'); });
+        document.querySelector('[data-tab="data"]').classList.add('active');
+        document.getElementById('tab-data').classList.add('active');
+      });
+
+      // Zodiac wheel
+      var wc = document.getElementById('wheel-container');
+      if (wheelRes.status === 'fulfilled' && wheelRes.value.ok) {
+        wheelRes.value.text().then(function (html) {
+          wc.innerHTML = '';
+          var iframe = document.createElement('iframe');
+          iframe.setAttribute('sandbox', 'allow-scripts');
+          wc.appendChild(iframe);
+          iframe.contentDocument.open();
+          iframe.contentDocument.write(html);
+          iframe.contentDocument.close();
+        });
+      } else {
+        wc.innerHTML = '<p style="color:#ff8888;">Could not load zodiac wheel.</p>';
+      }
+
+      // Word cloud
+      var wcc = document.getElementById('wordcloud-container');
+      if (cloudRes.status === 'fulfilled' && cloudRes.value.ok) {
+        cloudRes.value.blob().then(function (blob) {
+          var url = URL.createObjectURL(blob);
+          wcc.innerHTML = '<img src="' + url + '" alt="Strengths and Stress Word Clouds">'
+            + '<p class="wordcloud-note">Strengths (left) and Stress (right) based on planetary placements</p>';
+        });
+      } else {
+        wcc.innerHTML = '<p class="wordcloud-note">Word cloud not available. Ensure ai_personalities.csv is configured.</p>';
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
