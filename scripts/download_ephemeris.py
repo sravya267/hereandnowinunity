@@ -26,9 +26,11 @@ FILES: list[str] = [
     "seas_18.se1",   # main asteroids 1800–2399
     "seasnam.txt",   # asteroid name index
     "sefstars.txt",  # fixed stars
-    "seleapsec.txt", # leap seconds
-    # Chiron lives in its own asteroid file
-    "ast0/se02060.se1",
+]
+
+OPTIONAL_FILES: list[str] = [
+    "seleapsec.txt",    # leap seconds (may not be in repo)
+    "ast0/se02060.se1", # Chiron asteroid file (may not be in repo)
 ]
 
 
@@ -67,13 +69,19 @@ def main() -> int:
         except Exception:  # noqa: BLE001
             failed.append(f)
 
+    for f in OPTIONAL_FILES:
+        try:
+            download(f, target)
+        except Exception:  # noqa: BLE001
+            print(f"  [warn] {f}: optional file not available, skipping")
+
     print()
     if failed:
-        print(f"Failed: {len(failed)} file(s)")
+        print(f"Failed: {len(failed)} required file(s)")
         for f in failed:
             print(f"  - {f}")
         return 1
-    print(f"Done. {len(FILES)} file(s) in {target}.")
+    print(f"Done. Required files downloaded to {target}.")
     return 0
 
 
