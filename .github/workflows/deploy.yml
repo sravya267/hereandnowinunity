@@ -21,12 +21,16 @@ jobs:
 
       - uses: google-github-actions/setup-gcloud@v2
 
-      - name: Deploy to Cloud Run
+      - name: Build with Cloud Build
         run: |
           gcloud builds submit \
-            --tag us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/astro-chart/app:${{ github.sha }} \
+            --config cloudbuild.yaml \
+            --substitutions=COMMIT_SHA=${{ github.sha }} \
             --project ${{ secrets.GCP_PROJECT_ID }} \
             --quiet
+
+      - name: Deploy to Cloud Run
+        run: |
           gcloud run deploy astro-chart \
             --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/astro-chart/app:${{ github.sha }} \
             --region us-central1 \
