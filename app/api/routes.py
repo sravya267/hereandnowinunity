@@ -23,9 +23,20 @@ def _df_to_records(df: pd.DataFrame) -> list[dict]:
 
 
 @router.get("/health")
-def health() -> dict[str, str]:
+def health() -> dict:
     """Liveness probe for Cloud Run."""
-    return {"status": "ok"}
+    from pathlib import Path
+
+    from app.config import settings
+
+    ephe = Path(settings.EPHE_PATH)
+    files = sorted(f.name for f in ephe.glob("*")) if ephe.is_dir() else []
+    return {
+        "status": "ok",
+        "ephe_path": settings.EPHE_PATH,
+        "ephe_exists": ephe.is_dir(),
+        "ephe_files": files,
+    }
 
 
 @router.post("/chart", response_model=ChartResponse)
