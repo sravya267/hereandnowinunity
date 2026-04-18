@@ -15,141 +15,127 @@
     line-height: 1.5;
   }
 
-  a { color: #8b7355; text-decoration: none; }
-  a:hover { text-decoration: underline; }
-
-  .header {
-    background: #fff;
-    border-bottom: 1px solid #e8e4df;
-    padding: 10px 24px;
+  .toolbar {
     display: flex;
     align-items: center;
-    gap: 12px;
-  }
-
-  .header h1 {
-    font-size: 18px;
-    font-weight: 400;
-    color: #5a4e3c;
-    letter-spacing: 0.02em;
-  }
-
-  .header h1 span { font-weight: 600; }
-
-  .header .sep { color: #d4cfc8; font-size: 18px; font-weight: 200; }
-
-  .header .nav {
-    font-size: 12px;
-    color: #9b9185;
-    letter-spacing: 0.02em;
-  }
-
-  .main {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-
-  .form-card {
+    gap: 0;
     background: #fff;
-    border: 1px solid #e8e4df;
-    border-radius: 6px;
-    padding: 20px 24px;
-    margin-bottom: 20px;
-  }
-
-  .form-card h2 {
-    font-size: 14px;
-    font-weight: 600;
-    color: #5a4e3c;
-    margin-bottom: 14px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #f0ece7;
-  }
-
-  .form-row {
-    display: flex;
-    gap: 16px;
-    align-items: flex-end;
+    border-bottom: 1px solid #e8e4df;
+    padding: 0 16px;
+    height: 44px;
     flex-wrap: wrap;
   }
 
-  .form-field { flex: 1; min-width: 150px; }
-
-  .form-field label {
-    display: block;
-    font-size: 11px;
-    font-weight: 500;
-    color: #8a8279;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .form-field input,
-  .form-field select {
-    width: 100%;
-    padding: 7px 10px;
-    border: 1px solid #ddd8d1;
-    border-radius: 4px;
-    background: #fcfbf9;
-    color: #3d3a36;
-    font-size: 13px;
-    font-family: inherit;
-    transition: border-color 0.15s;
-  }
-
-  .form-field input:focus,
-  .form-field select:focus {
-    outline: none;
-    border-color: #b09e82;
-    background: #fff;
-  }
-
-  .btn-submit {
-    padding: 7px 28px;
-    border: 1px solid #a08c6e;
-    border-radius: 4px;
-    background: linear-gradient(to bottom, #c4b49a, #b09e82);
-    color: #fff;
-    font-size: 13px;
-    font-weight: 500;
-    font-family: inherit;
-    cursor: pointer;
-    transition: opacity 0.15s;
+  .toolbar .brand {
+    font-size: 15px;
+    font-weight: 600;
+    color: #5a4e3c;
+    margin-right: 20px;
     white-space: nowrap;
   }
 
-  .btn-submit:hover { opacity: 0.9; }
-  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .toolbar .brand span { font-weight: 400; color: #a09788; }
 
-  .error-msg {
-    background: #fdf2f2;
-    border: 1px solid #e8c4c4;
-    color: #9b4d4d;
-    padding: 8px 12px;
-    border-radius: 4px;
+  .toolbar form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .toolbar .sep {
+    width: 1px;
+    height: 22px;
+    background: #e8e4df;
+    margin: 0 4px;
+    flex-shrink: 0;
+  }
+
+  .toolbar label {
+    font-size: 11px;
+    color: #9b9185;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .toolbar input,
+  .toolbar select {
+    padding: 4px 8px;
+    border: 1px solid #ddd8d1;
+    border-radius: 3px;
+    background: #fcfbf9;
+    color: #3d3a36;
     font-size: 12px;
-    margin-top: 12px;
+    font-family: inherit;
+    min-width: 0;
+  }
+
+  .toolbar input:focus,
+  .toolbar select:focus {
+    outline: none;
+    border-color: #b09e82;
+  }
+
+  .toolbar input[type="date"] { width: 130px; }
+  .toolbar input[type="time"] { width: 90px; }
+  .toolbar input[type="text"] { width: 160px; }
+  .toolbar select { width: 90px; }
+
+  .btn-calc {
+    padding: 5px 16px;
+    border: none;
+    border-radius: 3px;
+    background: #8b7355;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .btn-calc:hover { background: #7a644a; }
+  .btn-calc:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .error-bar {
+    background: #fdf2f2;
+    border-bottom: 1px solid #e8c4c4;
+    color: #9b4d4d;
+    padding: 6px 16px;
+    font-size: 12px;
     display: none;
   }
 
-  .results-card {
-    background: #fff;
-    border: 1px solid #e8e4df;
-    border-radius: 6px;
+  .meta-bar {
+    display: flex;
+    gap: 18px;
+    padding: 6px 16px;
+    background: #faf8f5;
+    border-bottom: 1px solid #e8e4df;
+  }
+
+  .meta-item { font-size: 11px; color: #9b9185; }
+  .meta-item b { color: #5a4e3c; font-weight: 500; }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 44px);
     overflow: hidden;
   }
 
-  .result-tabs {
+  .tabs-bar {
     display: flex;
-    background: #faf8f5;
+    background: #fff;
     border-bottom: 1px solid #e8e4df;
-    padding: 0;
+    padding: 0 16px;
+    flex-shrink: 0;
   }
 
-  .result-tab {
-    padding: 10px 20px;
+  .tab-btn {
+    padding: 9px 18px;
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
@@ -158,49 +144,48 @@
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
-    transition: color 0.15s;
   }
 
-  .result-tab:hover { color: #5a4e3c; }
+  .tab-btn:hover { color: #5a4e3c; }
+  .tab-btn.active { color: #5a4e3c; border-bottom-color: #8b7355; }
 
-  .result-tab.active {
-    color: #5a4e3c;
-    border-bottom-color: #b09e82;
-    background: #fff;
+  .panel { display: none; flex: 1; overflow: auto; }
+  .panel.active { display: block; }
+
+  .tbl-section {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #9b9185;
+    padding: 10px 16px 4px;
   }
 
-  .meta-bar {
-    display: flex;
-    gap: 20px;
-    padding: 10px 20px;
-    background: #faf8f5;
-    border-bottom: 1px solid #f0ece7;
-    flex-wrap: wrap;
+  .tbl-section .n {
+    background: #ece7df;
+    padding: 0 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    margin-left: 4px;
+    color: #8a8279;
   }
-
-  .meta-item { font-size: 12px; color: #8a8279; }
-  .meta-item b { color: #5a4e3c; font-weight: 500; }
-
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
-
-  .table-wrap { padding: 0; overflow-x: auto; }
 
   table {
     width: 100%;
     border-collapse: collapse;
     font-size: 12px;
     font-variant-numeric: tabular-nums;
+    background: #fff;
   }
 
   th {
     text-align: left;
-    padding: 8px 14px;
+    padding: 7px 14px;
     background: #faf8f5;
     border-bottom: 2px solid #e8e4df;
     color: #8a8279;
     font-weight: 600;
-    font-size: 11px;
+    font-size: 10.5px;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     white-space: nowrap;
@@ -216,7 +201,7 @@
   th.sorted-desc::after { content: ' \25BE'; }
 
   td {
-    padding: 7px 14px;
+    padding: 6px 14px;
     border-bottom: 1px solid #f0ece7;
     white-space: nowrap;
   }
@@ -226,160 +211,130 @@
 
   td.num {
     text-align: right;
-    font-family: 'Menlo', 'Consolas', 'SF Mono', monospace;
-    font-size: 11.5px;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 11px;
     color: #6b6358;
   }
 
-  .section-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #8a8279;
-    padding: 14px 14px 6px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .badge {
-    background: #ece7df;
-    padding: 1px 7px;
-    border-radius: 10px;
-    font-size: 10px;
-    font-weight: 500;
-    color: #8a8279;
-  }
-
-  .chart-panel { padding: 16px; }
+  .viz-panel { padding: 12px 16px; }
 
   #wheel-container iframe {
     width: 100%;
-    height: 560px;
+    height: calc(100vh - 140px);
     border: 1px solid #e8e4df;
     border-radius: 4px;
   }
 
-  #wordcloud-container { text-align: center; padding: 20px; }
+  #wordcloud-container { text-align: center; }
   #wordcloud-container img { max-width: 100%; border-radius: 4px; border: 1px solid #e8e4df; }
 
-  .wc-note { color: #9b9185; font-size: 11px; margin-top: 8px; }
+  .note { color: #9b9185; font-size: 11px; margin-top: 6px; }
 
-  .empty-state {
+  .empty {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 60px 20px;
+    height: 100%;
     color: #c4bdb4;
     font-size: 14px;
   }
 
-  .spinner {
+  .loading {
     display: none;
     text-align: center;
-    padding: 50px;
+    padding: 40px;
     color: #9b9185;
-    font-size: 13px;
   }
 
-  .spinner::before {
+  .loading::before {
     content: '';
     display: inline-block;
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     border: 2px solid #e8e4df;
-    border-top-color: #b09e82;
+    border-top-color: #8b7355;
     border-radius: 50%;
-    animation: spin 0.7s linear infinite;
+    animation: sp 0.6s linear infinite;
     vertical-align: middle;
     margin-right: 8px;
   }
 
-  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes sp { to { transform: rotate(360deg); } }
 
-  @media (max-width: 640px) {
-    .form-row { flex-direction: column; gap: 10px; }
-    .form-field { min-width: 100%; }
-    .main { padding: 12px; }
-    .meta-bar { gap: 10px; }
+  @media (max-width: 768px) {
+    .toolbar { height: auto; padding: 8px 12px; flex-wrap: wrap; gap: 6px; }
+    .toolbar form { flex-wrap: wrap; }
+    .toolbar .sep { display: none; }
+    .toolbar input[type="date"],
+    .toolbar input[type="time"],
+    .toolbar input[type="text"],
+    .toolbar select { width: 100%; }
+    .content { height: auto; min-height: calc(100vh - 80px); }
   }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1><span>Astro</span> Chart</h1>
-  <span class="sep">|</span>
-  <span class="nav">Free Natal Chart Calculator</span>
+<div class="toolbar">
+  <div class="brand">Astro<span>Chart</span></div>
+  <form id="chart-form">
+    <label>Date</label>
+    <input type="date" id="birth-date" required>
+    <div class="sep"></div>
+    <label>Time</label>
+    <input type="time" id="birth-time" step="60" required>
+    <div class="sep"></div>
+    <label>Place</label>
+    <input type="text" id="location" placeholder="City, Country" required>
+    <div class="sep"></div>
+    <label>System</label>
+    <select id="zodiac">
+      <option value="Tropical">Tropical</option>
+      <option value="Sidereal">Sidereal</option>
+    </select>
+    <button type="submit" class="btn-calc" id="submit-btn">Calculate</button>
+  </form>
 </div>
 
-<div class="main">
-  <div class="form-card">
-    <h2>Birth Data</h2>
-    <form id="chart-form">
-      <div class="form-row">
-        <div class="form-field">
-          <label for="birth-date">Date of Birth</label>
-          <input type="date" id="birth-date" required>
-        </div>
-        <div class="form-field">
-          <label for="birth-time">Time of Birth</label>
-          <input type="time" id="birth-time" step="60" required>
-        </div>
-        <div class="form-field">
-          <label for="location">Place of Birth</label>
-          <input type="text" id="location" placeholder="e.g. New Delhi, India" required>
-        </div>
-        <div class="form-field" style="max-width:160px;">
-          <label for="zodiac">System</label>
-          <select id="zodiac">
-            <option value="Tropical">Tropical</option>
-            <option value="Sidereal">Sidereal</option>
-          </select>
-        </div>
-        <button type="submit" class="btn-submit" id="submit-btn">Calculate</button>
-      </div>
-      <div id="error-box" class="error-msg"></div>
-    </form>
-  </div>
+<div id="error-bar" class="error-bar"></div>
 
-  <div class="spinner" id="spinner">Calculating chart...</div>
+<div class="content">
+  <div class="loading" id="spinner">Calculating chart...</div>
 
-  <div id="empty-state" class="empty-state" style="display:none;"></div>
+  <div id="empty-state" class="empty">Enter birth details above to generate your natal chart</div>
 
   <div id="results" style="display:none;">
-    <div class="results-card">
-      <div id="meta-bar" class="meta-bar"></div>
+    <div id="meta-bar" class="meta-bar"></div>
 
-      <div class="result-tabs">
-        <button class="result-tab active" data-tab="positions">Planets</button>
-        <button class="result-tab" data-tab="aspects">Aspects</button>
-        <button class="result-tab" data-tab="wheel">Chart Wheel</button>
-        <button class="result-tab" data-tab="wordcloud">Traits</button>
-      </div>
+    <div class="tabs-bar">
+      <button class="tab-btn active" data-t="planets">Planets</button>
+      <button class="tab-btn" data-t="houses">Houses</button>
+      <button class="tab-btn" data-t="aspects">Aspects</button>
+      <button class="tab-btn" data-t="wheel">Chart Wheel</button>
+      <button class="tab-btn" data-t="traits">Traits</button>
+    </div>
 
-      <div id="tab-positions" class="tab-panel active">
-        <div class="section-label">Planetary Positions <span class="badge" id="body-count"></span></div>
-        <div class="table-wrap">
-          <table id="bodies-table"><thead><tr></tr></thead><tbody></tbody></table>
-        </div>
-      </div>
+    <div id="p-planets" class="panel active">
+      <div class="tbl-section">Planetary Positions<span class="n" id="planet-n"></span></div>
+      <table id="planet-tbl"><thead><tr></tr></thead><tbody></tbody></table>
+    </div>
 
-      <div id="tab-aspects" class="tab-panel">
-        <div class="section-label">Aspects <span class="badge" id="aspect-count"></span></div>
-        <div class="table-wrap">
-          <table id="aspects-table"><thead><tr></tr></thead><tbody></tbody></table>
-        </div>
-      </div>
+    <div id="p-houses" class="panel">
+      <div class="tbl-section">House Cusps &amp; Angles<span class="n" id="house-n"></span></div>
+      <table id="house-tbl"><thead><tr></tr></thead><tbody></tbody></table>
+    </div>
 
-      <div id="tab-wheel" class="tab-panel chart-panel">
-        <div id="wheel-container"></div>
-      </div>
+    <div id="p-aspects" class="panel">
+      <div class="tbl-section">Aspects<span class="n" id="aspect-n"></span></div>
+      <table id="aspect-tbl"><thead><tr></tr></thead><tbody></tbody></table>
+    </div>
 
-      <div id="tab-wordcloud" class="tab-panel chart-panel">
-        <div id="wordcloud-container"></div>
-      </div>
+    <div id="p-wheel" class="panel viz-panel">
+      <div id="wheel-container"></div>
+    </div>
+
+    <div id="p-traits" class="panel viz-panel">
+      <div id="wordcloud-container"></div>
     </div>
   </div>
 </div>
@@ -389,9 +344,9 @@
   var form = document.getElementById('chart-form');
   var spinner = document.getElementById('spinner');
   var results = document.getElementById('results');
-  var emptyState = document.getElementById('empty-state');
-  var errorBox = document.getElementById('error-box');
-  var submitBtn = document.getElementById('submit-btn');
+  var empty = document.getElementById('empty-state');
+  var errBar = document.getElementById('error-bar');
+  var btn = document.getElementById('submit-btn');
 
   function payload() {
     return {
@@ -401,92 +356,91 @@
     };
   }
 
-  function showErr(m) { errorBox.textContent = m; errorBox.style.display = 'block'; }
-  function hideErr() { errorBox.style.display = 'none'; }
+  function err(m) { errBar.textContent = m; errBar.style.display = 'block'; }
+  function clr() { errBar.style.display = 'none'; }
 
-  document.querySelectorAll('.result-tab').forEach(function (t) {
+  document.querySelectorAll('.tab-btn').forEach(function (t) {
     t.addEventListener('click', function () {
-      document.querySelectorAll('.result-tab').forEach(function (x) { x.classList.remove('active'); });
-      document.querySelectorAll('.tab-panel').forEach(function (x) { x.classList.remove('active'); });
+      document.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.remove('active'); });
+      document.querySelectorAll('.panel').forEach(function (x) { x.classList.remove('active'); });
       t.classList.add('active');
-      document.getElementById('tab-' + t.dataset.tab).classList.add('active');
+      document.getElementById('p-' + t.dataset.t).classList.add('active');
     });
   });
 
-  function renderMeta(d) {
+  function meta(d) {
     document.getElementById('meta-bar').innerHTML = [
-      ['Location', d.location],
-      ['Timezone', d.moment.timezone],
+      ['Location', d.location], ['Timezone', d.moment.timezone],
       ['System', d.zodiac_system],
       ['Coordinates', d.moment.latitude.toFixed(4) + ', ' + d.moment.longitude.toFixed(4)],
     ].map(function (x) { return '<div class="meta-item">' + x[0] + ': <b>' + x[1] + '</b></div>'; }).join('');
   }
 
-  var sorts = {};
+  var ss = {};
 
-  function renderTable(id, rows, cid) {
+  function tbl(id, rows, cid) {
     var t = document.getElementById(id);
     if (cid) document.getElementById(cid).textContent = rows ? rows.length : 0;
-    if (!rows || !rows.length) { t.innerHTML = '<tbody><tr><td style="color:#c4bdb4;padding:20px">No data available</td></tr></tbody>'; return; }
+    if (!rows || !rows.length) { t.innerHTML = '<tbody><tr><td style="color:#c4bdb4;padding:16px">No data</td></tr></tbody>'; return; }
     var k = Object.keys(rows[0]);
-    t.innerHTML = '<thead><tr>' + k.map(function (c) { return '<th data-col="' + c + '">' + c + '</th>'; }).join('') + '</tr></thead><tbody>' +
+    t.innerHTML = '<thead><tr>' + k.map(function (c) { return '<th data-c="' + c + '">' + c + '</th>'; }).join('') + '</tr></thead><tbody>' +
       rows.map(function (r) {
         return '<tr>' + k.map(function (c) {
           var v = r[c];
-          if (v == null) return '<td class="num">—</td>';
+          if (v == null) return '<td class="num">\u2014</td>';
           if (typeof v === 'number') return '<td class="num">' + (Number.isInteger(v) ? v : v.toFixed(4)) + '</td>';
           return '<td>' + v + '</td>';
         }).join('') + '</tr>';
       }).join('') + '</tbody>';
-
-    t.querySelectorAll('th').forEach(function (th) {
-      th.addEventListener('click', function () {
-        var c = th.dataset.col, key = id + c;
-        var dir = sorts[key] === 'asc' ? 'desc' : 'asc';
-        sorts[key] = dir;
+    t.querySelectorAll('th').forEach(function (h) {
+      h.addEventListener('click', function () {
+        var c = h.dataset.c, ky = id + c;
+        var d = ss[ky] === 'asc' ? 'desc' : 'asc'; ss[ky] = d;
         var s = rows.slice().sort(function (a, b) {
           var x = a[c], y = b[c];
           if (x == null) return 1; if (y == null) return -1;
-          if (typeof x === 'number') return dir === 'asc' ? x - y : y - x;
-          return dir === 'asc' ? String(x).localeCompare(String(y)) : String(y).localeCompare(String(x));
+          if (typeof x === 'number') return d === 'asc' ? x - y : y - x;
+          return d === 'asc' ? String(x).localeCompare(String(y)) : String(y).localeCompare(String(x));
         });
-        renderTable(id, s, cid);
-        var h = t.querySelector('th[data-col="' + c + '"]');
-        if (h) h.classList.add(dir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+        tbl(id, s, cid);
+        var nh = t.querySelector('th[data-c="' + c + '"]');
+        if (nh) nh.classList.add(d === 'asc' ? 'sorted-asc' : 'sorted-desc');
       });
     });
   }
 
   form.addEventListener('submit', function (e) {
-    e.preventDefault(); hideErr();
-    results.style.display = 'none'; emptyState.style.display = 'none';
-    spinner.style.display = 'block'; submitBtn.disabled = true;
+    e.preventDefault(); clr();
+    results.style.display = 'none'; empty.style.display = 'none';
+    spinner.style.display = 'block'; btn.disabled = true;
 
-    var p = payload(), h = { 'Content-Type': 'application/json' };
-    var body = JSON.stringify(p);
+    var p = payload(), h = { 'Content-Type': 'application/json' }, b = JSON.stringify(p);
 
     Promise.allSettled([
-      fetch('/chart', { method: 'POST', headers: h, body: body }),
-      fetch('/chart/wheel', { method: 'POST', headers: h, body: body }),
-      fetch('/chart/wordcloud', { method: 'POST', headers: h, body: body }),
+      fetch('/chart', { method: 'POST', headers: h, body: b }),
+      fetch('/chart/wheel', { method: 'POST', headers: h, body: b }),
+      fetch('/chart/wordcloud', { method: 'POST', headers: h, body: b }),
     ]).then(function (r) {
-      spinner.style.display = 'none'; submitBtn.disabled = false;
+      spinner.style.display = 'none'; btn.disabled = false;
 
       if (r[0].status === 'rejected' || !r[0].value.ok) {
         (r[0].status === 'rejected' ? Promise.resolve('Network error') : r[0].value.json().then(function (d) { return d.detail || 'Failed'; }))
-          .then(function (m) { showErr(m); });
+          .then(function (m) { err(m); empty.style.display = 'flex'; });
         return;
       }
 
       r[0].value.json().then(function (d) {
-        renderMeta(d);
-        renderTable('bodies-table', d.bodies, 'body-count');
-        renderTable('aspects-table', d.aspects, 'aspect-count');
+        meta(d);
+        var planets = d.bodies.filter(function (x) { return x.Body && x.Body.indexOf('House') === -1 && x.Body !== 'Asc' && x.Body !== 'MC' && x.Body !== 'Desc' && x.Body !== 'IC'; });
+        var houses = d.bodies.filter(function (x) { return x.Body && (x.Body.indexOf('House') !== -1 || x.Body === 'Asc' || x.Body === 'MC' || x.Body === 'Desc' || x.Body === 'IC'); });
+        tbl('planet-tbl', planets, 'planet-n');
+        tbl('house-tbl', houses, 'house-n');
+        tbl('aspect-tbl', d.aspects, 'aspect-n');
         results.style.display = '';
-        document.querySelectorAll('.result-tab').forEach(function (x) { x.classList.remove('active'); });
-        document.querySelectorAll('.tab-panel').forEach(function (x) { x.classList.remove('active'); });
-        document.querySelector('[data-tab="positions"]').classList.add('active');
-        document.getElementById('tab-positions').classList.add('active');
+        document.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.remove('active'); });
+        document.querySelectorAll('.panel').forEach(function (x) { x.classList.remove('active'); });
+        document.querySelector('[data-t="planets"]').classList.add('active');
+        document.getElementById('p-planets').classList.add('active');
       });
 
       var wc = document.getElementById('wheel-container');
@@ -498,14 +452,14 @@
           wc.appendChild(f);
           f.contentDocument.open(); f.contentDocument.write(html); f.contentDocument.close();
         });
-      } else { wc.innerHTML = '<div class="empty-state">Chart wheel unavailable</div>'; }
+      } else { wc.innerHTML = '<div class="empty">Chart wheel unavailable</div>'; }
 
       var cc = document.getElementById('wordcloud-container');
       if (r[2].status === 'fulfilled' && r[2].value.ok) {
-        r[2].value.blob().then(function (b) {
-          cc.innerHTML = '<img src="' + URL.createObjectURL(b) + '" alt="Traits"><p class="wc-note">Strengths and stress indicators based on planetary placements</p>';
+        r[2].value.blob().then(function (bl) {
+          cc.innerHTML = '<img src="' + URL.createObjectURL(bl) + '" alt="Traits"><p class="note">Strengths and stress indicators based on planetary placements</p>';
         });
-      } else { cc.innerHTML = '<div class="empty-state">Trait analysis unavailable</div>'; }
+      } else { cc.innerHTML = '<div class="empty">Trait analysis unavailable</div>'; }
     });
   });
 })();
