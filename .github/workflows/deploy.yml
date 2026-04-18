@@ -31,10 +31,6 @@ jobs:
 
       - name: Deploy to Cloud Run
         run: |
-          gcloud builds submit \
-            --tag us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/astro-chart/app:${{ github.sha }} \
-            --project ${{ secrets.GCP_PROJECT_ID }} \
-            --quiet
           gcloud run deploy astro-chart \
             --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/astro-chart/app:${{ github.sha }} \
             --region us-central1 \
