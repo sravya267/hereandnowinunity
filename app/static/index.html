@@ -3,354 +3,382 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Astro Chart</title>
+<title>Astro Chart - Natal Chart Calculator</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-    background: #0a0a1a;
-    color: #b8bfcf;
-    font-size: 12px;
-    line-height: 1.4;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: #f5f3f0;
+    color: #3d3a36;
+    font-size: 13px;
+    line-height: 1.5;
   }
 
-  .topbar {
+  a { color: #8b7355; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .header {
+    background: #fff;
+    border-bottom: 1px solid #e8e4df;
+    padding: 10px 24px;
     display: flex;
     align-items: center;
-    padding: 8px 20px;
-    background: linear-gradient(90deg, #0d0d24 0%, #1a1035 50%, #0d0d24 100%);
-    border-bottom: 1px solid #2a1f4e;
+    gap: 12px;
   }
 
-  .topbar h1 {
+  .header h1 {
+    font-size: 18px;
+    font-weight: 400;
+    color: #5a4e3c;
+    letter-spacing: 0.02em;
+  }
+
+  .header h1 span { font-weight: 600; }
+
+  .header .sep { color: #d4cfc8; font-size: 18px; font-weight: 200; }
+
+  .header .nav {
+    font-size: 12px;
+    color: #9b9185;
+    letter-spacing: 0.02em;
+  }
+
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .form-card {
+    background: #fff;
+    border: 1px solid #e8e4df;
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+
+  .form-card h2 {
     font-size: 14px;
     font-weight: 600;
-    color: #d4b8ff;
-    letter-spacing: 0.05em;
+    color: #5a4e3c;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0ece7;
   }
 
-  .topbar .subtitle { color: #6b5f8a; font-size: 11px; margin-left: 8px; }
-
-  .dashboard {
-    display: grid;
-    grid-template-columns: 250px 1fr;
-    height: calc(100vh - 37px);
+  .form-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    flex-wrap: wrap;
   }
 
-  .filters {
-    background: linear-gradient(180deg, #100e24 0%, #0c0b1e 100%);
-    border-right: 1px solid #1e1845;
-    padding: 16px;
-    overflow-y: auto;
-  }
+  .form-field { flex: 1; min-width: 150px; }
 
-  .filter-title {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #7b6ba0;
-    margin-bottom: 12px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #1e1845;
-  }
-
-  .filter-group { margin-bottom: 14px; }
-
-  .filter-group label {
+  .form-field label {
     display: block;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #8878a9;
+    font-size: 11px;
+    font-weight: 500;
+    color: #8a8279;
     margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
-  .filter-group input,
-  .filter-group select {
+  .form-field input,
+  .form-field select {
     width: 100%;
-    padding: 6px 8px;
-    border: 1px solid #2a1f4e;
+    padding: 7px 10px;
+    border: 1px solid #ddd8d1;
     border-radius: 4px;
-    background: #08071a;
-    color: #d4d0e8;
-    font-size: 12px;
+    background: #fcfbf9;
+    color: #3d3a36;
+    font-size: 13px;
     font-family: inherit;
+    transition: border-color 0.15s;
   }
 
-  .filter-group input:focus,
-  .filter-group select:focus {
+  .form-field input:focus,
+  .form-field select:focus {
     outline: none;
-    border-color: #7c5cbf;
-    box-shadow: 0 0 0 2px rgba(124,92,191,0.2);
+    border-color: #b09e82;
+    background: #fff;
   }
 
-  .btn-generate {
-    width: 100%;
-    padding: 8px;
-    border: none;
+  .btn-submit {
+    padding: 7px 28px;
+    border: 1px solid #a08c6e;
     border-radius: 4px;
-    background: linear-gradient(135deg, #6b3fa0, #9b59b6);
+    background: linear-gradient(to bottom, #c4b49a, #b09e82);
     color: #fff;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
     cursor: pointer;
-    margin-top: 4px;
     transition: opacity 0.15s;
+    white-space: nowrap;
   }
 
-  .btn-generate:hover { opacity: 0.9; }
-  .btn-generate:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-submit:hover { opacity: 0.9; }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .error-msg {
-    background: #1f0a1a;
-    border: 1px solid #6b2050;
-    color: #e86090;
-    padding: 6px 8px;
+    background: #fdf2f2;
+    border: 1px solid #e8c4c4;
+    color: #9b4d4d;
+    padding: 8px 12px;
     border-radius: 4px;
-    font-size: 11px;
-    margin-top: 8px;
+    font-size: 12px;
+    margin-top: 12px;
     display: none;
   }
 
-  .status-bar {
-    padding: 6px 16px;
-    background: linear-gradient(90deg, #100e24 0%, #14102a 100%);
-    border-bottom: 1px solid #1e1845;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-shrink: 0;
-  }
-
-  .status-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    color: #6b5f8a;
-  }
-
-  .status-item .val { color: #c4b5e0; font-weight: 500; }
-
-  .content {
-    display: flex;
-    flex-direction: column;
+  .results-card {
+    background: #fff;
+    border: 1px solid #e8e4df;
+    border-radius: 6px;
     overflow: hidden;
   }
 
-  .view-tabs {
+  .result-tabs {
     display: flex;
-    gap: 0;
-    padding: 0 16px;
-    background: #100e24;
-    border-bottom: 1px solid #1e1845;
-    flex-shrink: 0;
+    background: #faf8f5;
+    border-bottom: 1px solid #e8e4df;
+    padding: 0;
   }
 
-  .view-tab {
-    padding: 8px 14px;
+  .result-tab {
+    padding: 10px 20px;
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
-    color: #6b5f8a;
-    font-size: 11px;
+    color: #9b9185;
+    font-size: 12px;
     font-weight: 500;
+    font-family: inherit;
     cursor: pointer;
     transition: color 0.15s;
   }
 
-  .view-tab:hover { color: #c4b5e0; }
-  .view-tab.active { color: #d4b8ff; border-bottom-color: #9b59b6; }
+  .result-tab:hover { color: #5a4e3c; }
 
-  .view-panel { display: none; overflow: auto; padding: 16px; flex: 1; }
-  .view-panel.active { display: block; }
+  .result-tab.active {
+    color: #5a4e3c;
+    border-bottom-color: #b09e82;
+    background: #fff;
+  }
 
-  .section-header {
-    font-size: 10px;
-    font-weight: 700;
+  .meta-bar {
+    display: flex;
+    gap: 20px;
+    padding: 10px 20px;
+    background: #faf8f5;
+    border-bottom: 1px solid #f0ece7;
+    flex-wrap: wrap;
+  }
+
+  .meta-item { font-size: 12px; color: #8a8279; }
+  .meta-item b { color: #5a4e3c; font-weight: 500; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .table-wrap { padding: 0; overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  th {
+    text-align: left;
+    padding: 8px 14px;
+    background: #faf8f5;
+    border-bottom: 2px solid #e8e4df;
+    color: #8a8279;
+    font-weight: 600;
+    font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #7b6ba0;
-    margin-bottom: 8px;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  th:hover { color: #5a4e3c; }
+  th.sorted-asc::after { content: ' \25B4'; }
+  th.sorted-desc::after { content: ' \25BE'; }
+
+  td {
+    padding: 7px 14px;
+    border-bottom: 1px solid #f0ece7;
+    white-space: nowrap;
+  }
+
+  tr:nth-child(even) td { background: #fdfcfa; }
+  tr:hover td { background: #f5f0ea; }
+
+  td.num {
+    text-align: right;
+    font-family: 'Menlo', 'Consolas', 'SF Mono', monospace;
+    font-size: 11.5px;
+    color: #6b6358;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #8a8279;
+    padding: 14px 14px 6px;
     display: flex;
     align-items: center;
     gap: 6px;
   }
 
-  .section-header .count {
-    background: #1e1845;
-    padding: 1px 6px;
+  .badge {
+    background: #ece7df;
+    padding: 1px 7px;
     border-radius: 10px;
     font-size: 10px;
-    color: #8878a9;
+    font-weight: 500;
+    color: #8a8279;
   }
 
-  table {
+  .chart-panel { padding: 16px; }
+
+  #wheel-container iframe {
     width: 100%;
-    border-collapse: collapse;
-    font-size: 11px;
-    font-variant-numeric: tabular-nums;
+    height: 560px;
+    border: 1px solid #e8e4df;
+    border-radius: 4px;
   }
 
-  thead { position: sticky; top: 0; z-index: 1; }
+  #wordcloud-container { text-align: center; padding: 20px; }
+  #wordcloud-container img { max-width: 100%; border-radius: 4px; border: 1px solid #e8e4df; }
 
-  th {
-    text-align: left;
-    padding: 6px 10px;
-    background: #100e24;
-    border-bottom: 1px solid #1e1845;
-    color: #7b6ba0;
-    font-weight: 600;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-    cursor: pointer;
-    user-select: none;
-  }
-
-  th:hover { color: #d4b8ff; }
-  th.sorted-asc::after { content: ' \25B2'; font-size: 8px; }
-  th.sorted-desc::after { content: ' \25BC'; font-size: 8px; }
-
-  td {
-    padding: 5px 10px;
-    border-bottom: 1px solid #12102a;
-    white-space: nowrap;
-  }
-
-  tr:hover td { background: rgba(155,89,182,0.06); }
-
-  td.num { text-align: right; font-family: 'SF Mono', 'Consolas', monospace; font-size: 11px; color: #a08ec8; }
+  .wc-note { color: #9b9185; font-size: 11px; margin-top: 8px; }
 
   .empty-state {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100%;
-    color: #3d3560;
-    font-size: 13px;
+    padding: 60px 20px;
+    color: #c4bdb4;
+    font-size: 14px;
   }
-
-  #wheel-container { height: 100%; }
-  #wheel-container iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    border-radius: 4px;
-  }
-
-  #wordcloud-container { text-align: center; }
-  #wordcloud-container img { max-width: 100%; border-radius: 4px; }
-
-  .wc-note { color: #6b5f8a; font-size: 11px; margin-top: 6px; }
 
   .spinner {
     display: none;
     text-align: center;
-    padding: 40px;
-    color: #6b5f8a;
-    font-size: 12px;
+    padding: 50px;
+    color: #9b9185;
+    font-size: 13px;
   }
 
   .spinner::before {
     content: '';
     display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid #1e1845;
-    border-top-color: #9b59b6;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #e8e4df;
+    border-top-color: #b09e82;
     border-radius: 50%;
-    animation: spin 0.6s linear infinite;
+    animation: spin 0.7s linear infinite;
     vertical-align: middle;
     margin-right: 8px;
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  @media (max-width: 768px) {
-    .dashboard { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-    .filters { border-right: none; border-bottom: 1px solid #1e1845; padding: 12px; }
-    .filter-title { display: none; }
-    .filters form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .btn-generate { grid-column: 1 / -1; }
-    .error-msg { grid-column: 1 / -1; }
+  @media (max-width: 640px) {
+    .form-row { flex-direction: column; gap: 10px; }
+    .form-field { min-width: 100%; }
+    .main { padding: 12px; }
+    .meta-bar { gap: 10px; }
   }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div style="display:flex;align-items:baseline;">
-    <h1>Astro Chart</h1>
-    <span class="subtitle">Natal chart calculation</span>
-  </div>
+<div class="header">
+  <h1><span>Astro</span> Chart</h1>
+  <span class="sep">|</span>
+  <span class="nav">Free Natal Chart Calculator</span>
 </div>
 
-<div class="dashboard">
-  <div class="filters">
-    <div class="filter-title">Filters</div>
+<div class="main">
+  <div class="form-card">
+    <h2>Birth Data</h2>
     <form id="chart-form">
-      <div class="filter-group">
-        <label for="birth-date">Birth Date</label>
-        <input type="date" id="birth-date" required>
+      <div class="form-row">
+        <div class="form-field">
+          <label for="birth-date">Date of Birth</label>
+          <input type="date" id="birth-date" required>
+        </div>
+        <div class="form-field">
+          <label for="birth-time">Time of Birth</label>
+          <input type="time" id="birth-time" step="60" required>
+        </div>
+        <div class="form-field">
+          <label for="location">Place of Birth</label>
+          <input type="text" id="location" placeholder="e.g. New Delhi, India" required>
+        </div>
+        <div class="form-field" style="max-width:160px;">
+          <label for="zodiac">System</label>
+          <select id="zodiac">
+            <option value="Tropical">Tropical</option>
+            <option value="Sidereal">Sidereal</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-submit" id="submit-btn">Calculate</button>
       </div>
-      <div class="filter-group">
-        <label for="birth-time">Birth Time</label>
-        <input type="time" id="birth-time" step="60" required>
-      </div>
-      <div class="filter-group">
-        <label for="location">Location</label>
-        <input type="text" id="location" placeholder="City, Country" required>
-      </div>
-      <div class="filter-group">
-        <label for="zodiac">Zodiac System</label>
-        <select id="zodiac">
-          <option value="Tropical">Tropical</option>
-          <option value="Sidereal">Sidereal</option>
-        </select>
-      </div>
-      <button type="submit" class="btn-generate" id="submit-btn">Generate</button>
       <div id="error-box" class="error-msg"></div>
     </form>
   </div>
 
-  <div class="content">
-    <div class="spinner" id="spinner">Loading chart data...</div>
+  <div class="spinner" id="spinner">Calculating chart...</div>
 
-    <div id="empty-state" class="empty-state">Enter birth details and click Generate</div>
+  <div id="empty-state" class="empty-state" style="display:none;"></div>
 
-    <div id="results" style="display:none;">
-      <div id="status-bar" class="status-bar"></div>
+  <div id="results" style="display:none;">
+    <div class="results-card">
+      <div id="meta-bar" class="meta-bar"></div>
 
-      <div style="display:flex;flex-direction:column;overflow:hidden;flex:1;">
-        <div class="view-tabs">
-          <button class="view-tab active" data-tab="data">Positions</button>
-          <button class="view-tab" data-tab="aspects">Aspects</button>
-          <button class="view-tab" data-tab="wheel">Wheel</button>
-          <button class="view-tab" data-tab="wordcloud">Word Cloud</button>
-        </div>
+      <div class="result-tabs">
+        <button class="result-tab active" data-tab="positions">Planets</button>
+        <button class="result-tab" data-tab="aspects">Aspects</button>
+        <button class="result-tab" data-tab="wheel">Chart Wheel</button>
+        <button class="result-tab" data-tab="wordcloud">Traits</button>
+      </div>
 
-        <div id="tab-data" class="view-panel active">
-          <div class="section-header">Planetary Positions <span class="count" id="body-count"></span></div>
+      <div id="tab-positions" class="tab-panel active">
+        <div class="section-label">Planetary Positions <span class="badge" id="body-count"></span></div>
+        <div class="table-wrap">
           <table id="bodies-table"><thead><tr></tr></thead><tbody></tbody></table>
         </div>
+      </div>
 
-        <div id="tab-aspects" class="view-panel">
-          <div class="section-header">Aspects <span class="count" id="aspect-count"></span></div>
+      <div id="tab-aspects" class="tab-panel">
+        <div class="section-label">Aspects <span class="badge" id="aspect-count"></span></div>
+        <div class="table-wrap">
           <table id="aspects-table"><thead><tr></tr></thead><tbody></tbody></table>
         </div>
+      </div>
 
-        <div id="tab-wheel" class="view-panel">
-          <div id="wheel-container"></div>
-        </div>
+      <div id="tab-wheel" class="tab-panel chart-panel">
+        <div id="wheel-container"></div>
+      </div>
 
-        <div id="tab-wordcloud" class="view-panel">
-          <div id="wordcloud-container"></div>
-        </div>
+      <div id="tab-wordcloud" class="tab-panel chart-panel">
+        <div id="wordcloud-container"></div>
       </div>
     </div>
   </div>
@@ -365,7 +393,7 @@
   var errorBox = document.getElementById('error-box');
   var submitBtn = document.getElementById('submit-btn');
 
-  function buildPayload() {
+  function payload() {
     return {
       birth_datetime: document.getElementById('birth-date').value + 'T' + document.getElementById('birth-time').value + ':00',
       location: document.getElementById('location').value.trim(),
@@ -373,140 +401,111 @@
     };
   }
 
-  function showError(msg) { errorBox.textContent = msg; errorBox.style.display = 'block'; }
-  function hideError() { errorBox.style.display = 'none'; }
+  function showErr(m) { errorBox.textContent = m; errorBox.style.display = 'block'; }
+  function hideErr() { errorBox.style.display = 'none'; }
 
-  document.querySelectorAll('.view-tab').forEach(function (tab) {
-    tab.addEventListener('click', function () {
-      document.querySelectorAll('.view-tab').forEach(function (t) { t.classList.remove('active'); });
-      document.querySelectorAll('.view-panel').forEach(function (c) { c.classList.remove('active'); });
-      tab.classList.add('active');
-      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  document.querySelectorAll('.result-tab').forEach(function (t) {
+    t.addEventListener('click', function () {
+      document.querySelectorAll('.result-tab').forEach(function (x) { x.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function (x) { x.classList.remove('active'); });
+      t.classList.add('active');
+      document.getElementById('tab-' + t.dataset.tab).classList.add('active');
     });
   });
 
-  function renderStatus(data) {
-    var bar = document.getElementById('status-bar');
-    var items = [
-      ['Location', data.location],
-      ['Timezone', data.moment.timezone],
-      ['System', data.zodiac_system],
-      ['Lat', data.moment.latitude.toFixed(4)],
-      ['Lon', data.moment.longitude.toFixed(4)],
-    ];
-    bar.innerHTML = items.map(function (it) {
-      return '<div class="status-item"><span>' + it[0] + ':</span><span class="val">' + it[1] + '</span></div>';
-    }).join('');
+  function renderMeta(d) {
+    document.getElementById('meta-bar').innerHTML = [
+      ['Location', d.location],
+      ['Timezone', d.moment.timezone],
+      ['System', d.zodiac_system],
+      ['Coordinates', d.moment.latitude.toFixed(4) + ', ' + d.moment.longitude.toFixed(4)],
+    ].map(function (x) { return '<div class="meta-item">' + x[0] + ': <b>' + x[1] + '</b></div>'; }).join('');
   }
 
-  var sortState = {};
+  var sorts = {};
 
-  function renderTable(tableId, rows, countId) {
-    var table = document.getElementById(tableId);
-    if (countId) document.getElementById(countId).textContent = rows ? rows.length : 0;
-    if (!rows || rows.length === 0) {
-      table.innerHTML = '<tbody><tr><td style="color:#3d3560">No data</td></tr></tbody>';
-      return;
-    }
-    var keys = Object.keys(rows[0]);
-    var thead = '<tr>' + keys.map(function (k) { return '<th data-col="' + k + '">' + k + '</th>'; }).join('') + '</tr>';
-    var tbody = rows.map(function (row) {
-      return '<tr>' + keys.map(function (k) {
-        var v = row[k];
-        if (v === null || v === undefined) return '<td class="num">-</td>';
-        if (typeof v === 'number') return '<td class="num">' + (Number.isInteger(v) ? v : v.toFixed(4)) + '</td>';
-        return '<td>' + String(v) + '</td>';
-      }).join('') + '</tr>';
-    }).join('');
-    table.innerHTML = '<thead>' + thead + '</thead><tbody>' + tbody + '</tbody>';
+  function renderTable(id, rows, cid) {
+    var t = document.getElementById(id);
+    if (cid) document.getElementById(cid).textContent = rows ? rows.length : 0;
+    if (!rows || !rows.length) { t.innerHTML = '<tbody><tr><td style="color:#c4bdb4;padding:20px">No data available</td></tr></tbody>'; return; }
+    var k = Object.keys(rows[0]);
+    t.innerHTML = '<thead><tr>' + k.map(function (c) { return '<th data-col="' + c + '">' + c + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      rows.map(function (r) {
+        return '<tr>' + k.map(function (c) {
+          var v = r[c];
+          if (v == null) return '<td class="num">—</td>';
+          if (typeof v === 'number') return '<td class="num">' + (Number.isInteger(v) ? v : v.toFixed(4)) + '</td>';
+          return '<td>' + v + '</td>';
+        }).join('') + '</tr>';
+      }).join('') + '</tbody>';
 
-    table.querySelectorAll('th').forEach(function (th) {
+    t.querySelectorAll('th').forEach(function (th) {
       th.addEventListener('click', function () {
-        var col = th.dataset.col;
-        var key = tableId + ':' + col;
-        var dir = sortState[key] === 'asc' ? 'desc' : 'asc';
-        sortState[key] = dir;
-        var sorted = rows.slice().sort(function (a, b) {
-          var va = a[col], vb = b[col];
-          if (va == null) return 1;
-          if (vb == null) return -1;
-          if (typeof va === 'number') return dir === 'asc' ? va - vb : vb - va;
-          return dir === 'asc' ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+        var c = th.dataset.col, key = id + c;
+        var dir = sorts[key] === 'asc' ? 'desc' : 'asc';
+        sorts[key] = dir;
+        var s = rows.slice().sort(function (a, b) {
+          var x = a[c], y = b[c];
+          if (x == null) return 1; if (y == null) return -1;
+          if (typeof x === 'number') return dir === 'asc' ? x - y : y - x;
+          return dir === 'asc' ? String(x).localeCompare(String(y)) : String(y).localeCompare(String(x));
         });
-        renderTable(tableId, sorted, countId);
-        var newTh = table.querySelector('th[data-col="' + col + '"]');
-        if (newTh) newTh.classList.add(dir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+        renderTable(id, s, cid);
+        var h = t.querySelector('th[data-col="' + c + '"]');
+        if (h) h.classList.add(dir === 'asc' ? 'sorted-asc' : 'sorted-desc');
       });
     });
   }
 
   form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    hideError();
-    results.style.display = 'none';
-    emptyState.style.display = 'none';
-    spinner.style.display = 'block';
-    submitBtn.disabled = true;
+    e.preventDefault(); hideErr();
+    results.style.display = 'none'; emptyState.style.display = 'none';
+    spinner.style.display = 'block'; submitBtn.disabled = true;
 
-    var payload = buildPayload();
-    var headers = { 'Content-Type': 'application/json' };
+    var p = payload(), h = { 'Content-Type': 'application/json' };
+    var body = JSON.stringify(p);
 
-    var chartReq = fetch('/chart', { method: 'POST', headers: headers, body: JSON.stringify(payload) });
-    var wheelReq = fetch('/chart/wheel', { method: 'POST', headers: headers, body: JSON.stringify(payload) });
-    var cloudReq = fetch('/chart/wordcloud', { method: 'POST', headers: headers, body: JSON.stringify(payload) });
+    Promise.allSettled([
+      fetch('/chart', { method: 'POST', headers: h, body: body }),
+      fetch('/chart/wheel', { method: 'POST', headers: h, body: body }),
+      fetch('/chart/wordcloud', { method: 'POST', headers: h, body: body }),
+    ]).then(function (r) {
+      spinner.style.display = 'none'; submitBtn.disabled = false;
 
-    Promise.allSettled([chartReq, wheelReq, cloudReq]).then(function (settled) {
-      spinner.style.display = 'none';
-      submitBtn.disabled = false;
-
-      var chartRes = settled[0];
-      var wheelRes = settled[1];
-      var cloudRes = settled[2];
-
-      if (chartRes.status === 'rejected' || !chartRes.value.ok) {
-        var errP = chartRes.status === 'rejected'
-          ? Promise.resolve(chartRes.reason.message || 'Network error')
-          : chartRes.value.json().then(function (d) { return d.detail || 'Request failed'; });
-        errP.then(function (msg) { showError(msg); emptyState.style.display = 'flex'; });
+      if (r[0].status === 'rejected' || !r[0].value.ok) {
+        (r[0].status === 'rejected' ? Promise.resolve('Network error') : r[0].value.json().then(function (d) { return d.detail || 'Failed'; }))
+          .then(function (m) { showErr(m); });
         return;
       }
 
-      chartRes.value.json().then(function (data) {
-        renderStatus(data);
-        renderTable('bodies-table', data.bodies, 'body-count');
-        renderTable('aspects-table', data.aspects, 'aspect-count');
+      r[0].value.json().then(function (d) {
+        renderMeta(d);
+        renderTable('bodies-table', d.bodies, 'body-count');
+        renderTable('aspects-table', d.aspects, 'aspect-count');
         results.style.display = '';
-
-        document.querySelectorAll('.view-tab').forEach(function (t) { t.classList.remove('active'); });
-        document.querySelectorAll('.view-panel').forEach(function (c) { c.classList.remove('active'); });
-        document.querySelector('[data-tab="data"]').classList.add('active');
-        document.getElementById('tab-data').classList.add('active');
+        document.querySelectorAll('.result-tab').forEach(function (x) { x.classList.remove('active'); });
+        document.querySelectorAll('.tab-panel').forEach(function (x) { x.classList.remove('active'); });
+        document.querySelector('[data-tab="positions"]').classList.add('active');
+        document.getElementById('tab-positions').classList.add('active');
       });
 
       var wc = document.getElementById('wheel-container');
-      if (wheelRes.status === 'fulfilled' && wheelRes.value.ok) {
-        wheelRes.value.text().then(function (html) {
+      if (r[1].status === 'fulfilled' && r[1].value.ok) {
+        r[1].value.text().then(function (html) {
           wc.innerHTML = '';
-          var iframe = document.createElement('iframe');
-          iframe.setAttribute('sandbox', 'allow-scripts');
-          wc.appendChild(iframe);
-          iframe.contentDocument.open();
-          iframe.contentDocument.write(html);
-          iframe.contentDocument.close();
+          var f = document.createElement('iframe');
+          f.setAttribute('sandbox', 'allow-scripts');
+          wc.appendChild(f);
+          f.contentDocument.open(); f.contentDocument.write(html); f.contentDocument.close();
         });
-      } else {
-        wc.innerHTML = '<div class="empty-state">Wheel unavailable</div>';
-      }
+      } else { wc.innerHTML = '<div class="empty-state">Chart wheel unavailable</div>'; }
 
-      var wcc = document.getElementById('wordcloud-container');
-      if (cloudRes.status === 'fulfilled' && cloudRes.value.ok) {
-        cloudRes.value.blob().then(function (blob) {
-          var url = URL.createObjectURL(blob);
-          wcc.innerHTML = '<img src="' + url + '" alt="Word Clouds"><p class="wc-note">Strengths (left) and Stress (right)</p>';
+      var cc = document.getElementById('wordcloud-container');
+      if (r[2].status === 'fulfilled' && r[2].value.ok) {
+        r[2].value.blob().then(function (b) {
+          cc.innerHTML = '<img src="' + URL.createObjectURL(b) + '" alt="Traits"><p class="wc-note">Strengths and stress indicators based on planetary placements</p>';
         });
-      } else {
-        wcc.innerHTML = '<div class="empty-state">Word cloud unavailable</div>';
-      }
+      } else { cc.innerHTML = '<div class="empty-state">Trait analysis unavailable</div>'; }
     });
   });
 })();
