@@ -21,6 +21,14 @@ jobs:
 
       - uses: google-github-actions/setup-gcloud@v2
 
+      - name: Build with Cloud Build
+        run: |
+          gcloud builds submit \
+            --config cloudbuild.yaml \
+            --substitutions=COMMIT_SHA=${{ github.sha }} \
+            --project ${{ secrets.GCP_PROJECT_ID }} \
+            --quiet
+
       - name: Deploy to Cloud Run
         run: |
           gcloud builds submit \
