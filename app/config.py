@@ -14,11 +14,22 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent
 
 
+def _find_ephe_path() -> str:
+    candidates = [
+        os.getenv("EPHE_PATH"),
+        "/app/ephe",
+        str(ROOT_DIR / "ephe"),
+    ]
+    for p in candidates:
+        if p and Path(p).is_dir() and any(Path(p).glob("*.se1")):
+            return p
+    return os.getenv("EPHE_PATH", str(ROOT_DIR / "ephe"))
+
+
 class Settings:
     """Application settings loaded from environment variables."""
 
-    # Paths
-    EPHE_PATH: str = os.getenv("EPHE_PATH", str(ROOT_DIR / "ephe"))
+    EPHE_PATH: str = _find_ephe_path()
     PERSONALITIES_CSV: str = os.getenv(
         "PERSONALITIES_CSV",
         str(ROOT_DIR / "app" / "data" / "ai_personalities.csv"),
