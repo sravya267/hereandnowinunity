@@ -3,11 +3,11 @@ steps:
     args:
       - 'build'
       - '-t'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/astro-chart/app:$COMMIT_SHA'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/astro-chart/app:$_TAG'
       - '.'
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/astro-chart/app:$COMMIT_SHA'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/astro-chart/app:$_TAG'
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/astro-chart/app:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/astro-chart/app:$_TAG'
