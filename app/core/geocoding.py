@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from functools import lru_cache
 
 import pytz
 import swisseph as swe
@@ -16,8 +17,6 @@ from timezonefinder import TimezoneFinder
 from app.config import settings
 
 
-# Module-level singletons. Nominatim and TimezoneFinder are expensive to
-# build and safe to reuse across requests.
 _geolocator = Nominatim(user_agent=settings.GEOCODER_USER_AGENT)
 _tz_finder = TimezoneFinder()
 
@@ -36,33 +35,27 @@ class LocationNotFound(ValueError):
     """Raised when the geocoder cannot resolve a location name."""
 
 
-def resolve(birth_datetime: datetime, location_name: str) -> BirthMoment:
-    """Resolve a naive local birth datetime + place into a ``BirthMoment``.
-
-    Parameters
-    ----------
-    birth_datetime
-        Naive ``datetime`` representing local wall-clock time at the place
-        of birth.
-    location_name
-        Any string Nominatim can geocode, e.g. ``"Mannheim"`` or
-        ``"Bhadrachalam, India"``.
-
-    Raises
-    ------
-    LocationNotFound
-        If the geocoder returns no match.
-    """
+@lru_cache(maxsize=512)
+def _geocode(location_name: str) -> tuple[float, float]:
     location = _geolocator.geocode(location_name)
     if location is None:
         raise LocationNotFound(f"Could not geocode location: {location_name!r}")
+    return location.latitude, location.longitude
 
-    lat, lon = location.latitude, location.longitude
+
+@lru_cache(maxsize=512)
+def _find_tz(lat: float, lon: float) -> str:
     tz_name = _tz_finder.timezone_at(lat=lat, lng=lon)
     if tz_name is None:
         raise LocationNotFound(
             f"Could not determine time zone for ({lat}, {lon})"
         )
+    return tz_name
+
+
+def resolve(birth_datetime: datetime, location_name: str) -> BirthMoment:
+    lat, lon = _geocode(location_name)
+    tz_name = _find_tz(lat, lon)
 
     local_dt = pytz.timezone(tz_name).localize(birth_datetime)
     utc_dt = local_dt.astimezone(pytz.utc)
