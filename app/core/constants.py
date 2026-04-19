@@ -107,6 +107,30 @@ ASPECTS: pd.DataFrame = pd.DataFrame({
 })
 
 
+NAKSHATRA_NAMES: list[str] = [
+    "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra",
+    "Punarvasu", "Pushya", "Ashlesha", "Magha", "Purva Phalguni",
+    "Uttara Phalguni", "Hasta", "Chitra", "Swati", "Vishakha", "Anuradha",
+    "Jyeshtha", "Moola", "Purva Ashadha", "Uttara Ashadha", "Shravana",
+    "Dhanishta", "Shatabhisha", "Purva Bhadrapada", "Uttara Bhadrapada", "Revati",
+]
+
+NAKSHATRA_LORDS: list[str] = [
+    "Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu",
+    "Jupiter", "Saturn", "Mercury", "Ketu", "Venus",
+    "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn",
+    "Mercury", "Ketu", "Venus", "Sun", "Moon",
+    "Mars", "Rahu", "Jupiter", "Saturn", "Mercury",
+]
+
+
 def degree_to_sign(degree: float) -> str:
     """Map an ecliptic longitude (0–360°) to its zodiac sign name."""
     return SIGN_NAMES[int(degree // 30) % 12]
+
+
+def degree_to_nakshatra(degree: float) -> dict:
+    """Map a sidereal longitude to its nakshatra, pada, and lord."""
+    idx = int(degree / (360 / 27)) % 27
+    pada = int((degree % (360 / 27)) / (360 / 108)) + 1
+    return {"Nakshatra": NAKSHATRA_NAMES[idx], "Pada": pada, "Lord": NAKSHATRA_LORDS[idx]}

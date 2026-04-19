@@ -18,39 +18,29 @@
   .toolbar {
     display: flex;
     align-items: center;
-    gap: 0;
     background: #fff;
     border-bottom: 1px solid #e8e4df;
     padding: 0 16px;
     height: 44px;
-    flex-wrap: wrap;
   }
 
-  .toolbar .brand {
+  .brand {
     font-size: 15px;
     font-weight: 600;
     color: #5a4e3c;
     margin-right: 20px;
     white-space: nowrap;
   }
-
-  .toolbar .brand span { font-weight: 400; color: #a09788; }
+  .brand span { font-weight: 400; color: #a09788; }
 
   .toolbar form {
     display: flex;
     align-items: center;
     gap: 8px;
     flex: 1;
-    min-width: 0;
   }
 
-  .toolbar .sep {
-    width: 1px;
-    height: 22px;
-    background: #e8e4df;
-    margin: 0 4px;
-    flex-shrink: 0;
-  }
+  .sep { width: 1px; height: 22px; background: #e8e4df; flex-shrink: 0; }
 
   .toolbar label {
     font-size: 11px;
@@ -68,17 +58,13 @@
     color: #3d3a36;
     font-size: 12px;
     font-family: inherit;
-    min-width: 0;
   }
 
   .toolbar input:focus,
-  .toolbar select:focus {
-    outline: none;
-    border-color: #b09e82;
-  }
+  .toolbar select:focus { outline: none; border-color: #b09e82; }
 
-  .toolbar input[type="date"] { width: 130px; }
-  .toolbar input[type="time"] { width: 90px; }
+  .toolbar input[type="date"] { width: 140px; }
+  .toolbar input[type="time"] { width: 110px; }
   .toolbar input[type="text"] { width: 160px; }
   .toolbar select { width: 90px; }
 
@@ -93,9 +79,7 @@
     font-family: inherit;
     cursor: pointer;
     white-space: nowrap;
-    flex-shrink: 0;
   }
-
   .btn-calc:hover { background: #7a644a; }
   .btn-calc:disabled { opacity: 0.4; cursor: not-allowed; }
 
@@ -114,54 +98,39 @@
     padding: 6px 16px;
     background: #faf8f5;
     border-bottom: 1px solid #e8e4df;
+    flex-wrap: wrap;
   }
-
   .meta-item { font-size: 11px; color: #9b9185; }
   .meta-item b { color: #5a4e3c; font-weight: 500; }
 
-  .content {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 44px);
+  .page { padding: 12px 16px; display: none; }
+  .page.active { display: block; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid #e8e4df;
+    border-radius: 5px;
     overflow: hidden;
   }
 
-  .tabs-bar {
-    display: flex;
-    background: #fff;
-    border-bottom: 1px solid #e8e4df;
-    padding: 0 16px;
-    flex-shrink: 0;
-  }
-
-  .tab-btn {
-    padding: 9px 18px;
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    color: #9b9185;
-    font-size: 12px;
-    font-weight: 500;
-    font-family: inherit;
-    cursor: pointer;
-  }
-
-  .tab-btn:hover { color: #5a4e3c; }
-  .tab-btn.active { color: #5a4e3c; border-bottom-color: #8b7355; }
-
-  .panel { display: none; flex: 1; overflow: auto; }
-  .panel.active { display: block; }
-
-  .tbl-section {
+  .card-title {
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: #9b9185;
-    padding: 10px 16px 4px;
+    padding: 8px 12px 4px;
+    background: #faf8f5;
+    border-bottom: 1px solid #e8e4df;
   }
-
-  .tbl-section .n {
+  .card-title .n {
     background: #ece7df;
     padding: 0 6px;
     border-radius: 8px;
@@ -170,22 +139,26 @@
     color: #8a8279;
   }
 
+  .tbl-wrap {
+    max-height: 280px;
+    overflow-y: auto;
+  }
+
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 12px;
+    font-size: 11.5px;
     font-variant-numeric: tabular-nums;
-    background: #fff;
   }
 
   th {
     text-align: left;
-    padding: 7px 14px;
+    padding: 5px 10px;
     background: #faf8f5;
-    border-bottom: 2px solid #e8e4df;
+    border-bottom: 1px solid #e8e4df;
     color: #8a8279;
     font-weight: 600;
-    font-size: 10.5px;
+    font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     white-space: nowrap;
@@ -195,46 +168,39 @@
     top: 0;
     z-index: 1;
   }
-
   th:hover { color: #5a4e3c; }
   th.sorted-asc::after { content: ' \25B4'; }
   th.sorted-desc::after { content: ' \25BE'; }
 
   td {
-    padding: 6px 14px;
+    padding: 4px 10px;
     border-bottom: 1px solid #f0ece7;
     white-space: nowrap;
   }
-
   tr:nth-child(even) td { background: #fdfcfa; }
   tr:hover td { background: #f5f0ea; }
-
   td.num {
     text-align: right;
     font-family: 'Menlo', 'Consolas', monospace;
-    font-size: 11px;
+    font-size: 10.5px;
     color: #6b6358;
   }
 
-  .viz-panel { padding: 12px 16px; }
+  .full-width { grid-column: 1 / -1; }
 
-  #wheel-container iframe {
+  .wheel-frame {
     width: 100%;
-    height: calc(100vh - 140px);
-    border: 1px solid #e8e4df;
-    border-radius: 4px;
+    height: 520px;
+    border: none;
   }
 
-  #wordcloud-container { text-align: center; }
-  #wordcloud-container img { max-width: 100%; border-radius: 4px; border: 1px solid #e8e4df; }
+  .wc-img { max-width: 100%; border-radius: 4px; }
 
-  .note { color: #9b9185; font-size: 11px; margin-top: 6px; }
-
-  .empty {
+  .empty-page {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100%;
+    height: calc(100vh - 60px);
     color: #c4bdb4;
     font-size: 14px;
   }
@@ -245,12 +211,10 @@
     padding: 40px;
     color: #9b9185;
   }
-
   .loading::before {
     content: '';
     display: inline-block;
-    width: 16px;
-    height: 16px;
+    width: 16px; height: 16px;
     border: 2px solid #e8e4df;
     border-top-color: #8b7355;
     border-radius: 50%;
@@ -258,18 +222,19 @@
     vertical-align: middle;
     margin-right: 8px;
   }
-
   @keyframes sp { to { transform: rotate(360deg); } }
 
-  @media (max-width: 768px) {
+  .note { color: #9b9185; font-size: 11px; margin-top: 6px; text-align: center; }
+
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr; }
     .toolbar { height: auto; padding: 8px 12px; flex-wrap: wrap; gap: 6px; }
     .toolbar form { flex-wrap: wrap; }
-    .toolbar .sep { display: none; }
+    .sep { display: none; }
     .toolbar input[type="date"],
     .toolbar input[type="time"],
     .toolbar input[type="text"],
     .toolbar select { width: 100%; }
-    .content { height: auto; min-height: calc(100vh - 80px); }
   }
 </style>
 </head>
@@ -297,44 +262,49 @@
 </div>
 
 <div id="error-bar" class="error-bar"></div>
+<div class="loading" id="spinner">Calculating chart...</div>
+<div id="empty-state" class="empty-page">Enter birth details above to generate your natal chart</div>
 
-<div class="content">
-  <div class="loading" id="spinner">Calculating chart...</div>
+<div id="results" class="page">
+  <div id="meta-bar" class="meta-bar"></div>
 
-  <div id="empty-state" class="empty">Enter birth details above to generate your natal chart</div>
+  <div style="padding:12px 16px;">
+    <div class="grid">
+      <!-- Planets -->
+      <div class="card">
+        <div class="card-title">Planetary Positions <span class="n" id="planet-n"></span></div>
+        <div class="tbl-wrap"><table id="planet-tbl"></table></div>
+      </div>
 
-  <div id="results" style="display:none;">
-    <div id="meta-bar" class="meta-bar"></div>
+      <!-- Houses -->
+      <div class="card">
+        <div class="card-title">Houses &amp; Angles <span class="n" id="house-n"></span></div>
+        <div class="tbl-wrap"><table id="house-tbl"></table></div>
+      </div>
 
-    <div class="tabs-bar">
-      <button class="tab-btn active" data-t="planets">Planets</button>
-      <button class="tab-btn" data-t="houses">Houses</button>
-      <button class="tab-btn" data-t="aspects">Aspects</button>
-      <button class="tab-btn" data-t="wheel">Chart Wheel</button>
-      <button class="tab-btn" data-t="traits">Traits</button>
-    </div>
+      <!-- Aspects -->
+      <div class="card full-width">
+        <div class="card-title">Aspects <span class="n" id="aspect-n"></span></div>
+        <div class="tbl-wrap"><table id="aspect-tbl"></table></div>
+      </div>
 
-    <div id="p-planets" class="panel active">
-      <div class="tbl-section">Planetary Positions<span class="n" id="planet-n"></span></div>
-      <table id="planet-tbl"><thead><tr></tr></thead><tbody></tbody></table>
-    </div>
+      <!-- Nakshatra (sidereal only) -->
+      <div class="card full-width" id="nak-card" style="display:none;">
+        <div class="card-title">Nakshatras <span class="n" id="nak-n"></span></div>
+        <div class="tbl-wrap"><table id="nak-tbl"></table></div>
+      </div>
 
-    <div id="p-houses" class="panel">
-      <div class="tbl-section">House Cusps &amp; Angles<span class="n" id="house-n"></span></div>
-      <table id="house-tbl"><thead><tr></tr></thead><tbody></tbody></table>
-    </div>
+      <!-- Chart Wheel -->
+      <div class="card full-width">
+        <div class="card-title">Chart Wheel</div>
+        <div id="wheel-container" style="padding:4px;"></div>
+      </div>
 
-    <div id="p-aspects" class="panel">
-      <div class="tbl-section">Aspects<span class="n" id="aspect-n"></span></div>
-      <table id="aspect-tbl"><thead><tr></tr></thead><tbody></tbody></table>
-    </div>
-
-    <div id="p-wheel" class="panel viz-panel">
-      <div id="wheel-container"></div>
-    </div>
-
-    <div id="p-traits" class="panel viz-panel">
-      <div id="wordcloud-container"></div>
+      <!-- Traits -->
+      <div class="card full-width">
+        <div class="card-title">Personality Traits</div>
+        <div id="wordcloud-container" style="padding:8px; text-align:center;"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -359,39 +329,50 @@
   function err(m) { errBar.textContent = m; errBar.style.display = 'block'; }
   function clr() { errBar.style.display = 'none'; }
 
-  document.querySelectorAll('.tab-btn').forEach(function (t) {
-    t.addEventListener('click', function () {
-      document.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.remove('active'); });
-      document.querySelectorAll('.panel').forEach(function (x) { x.classList.remove('active'); });
-      t.classList.add('active');
-      document.getElementById('p-' + t.dataset.t).classList.add('active');
-    });
-  });
+  function fmtDeg(d) {
+    if (d == null) return '\u2014';
+    var deg = Math.floor(d);
+    var min = Math.floor((d - deg) * 60);
+    return deg + '\u00b0' + (min < 10 ? '0' : '') + min + "'";
+  }
 
   function meta(d) {
-    document.getElementById('meta-bar').innerHTML = [
-      ['Location', d.location], ['Timezone', d.moment.timezone],
+    var items = [
+      ['Location', d.location],
+      ['Timezone', d.moment.timezone],
       ['System', d.zodiac_system],
-      ['Coordinates', d.moment.latitude.toFixed(4) + ', ' + d.moment.longitude.toFixed(4)],
-    ].map(function (x) { return '<div class="meta-item">' + x[0] + ': <b>' + x[1] + '</b></div>'; }).join('');
+      ['Coords', d.moment.latitude.toFixed(4) + ', ' + d.moment.longitude.toFixed(4)],
+    ];
+    if (d.ayanamsa != null) {
+      items.push(['Ayanamsa (Lahiri)', fmtDeg(d.ayanamsa)]);
+    }
+    document.getElementById('meta-bar').innerHTML = items.map(function (x) {
+      return '<div class="meta-item">' + x[0] + ': <b>' + x[1] + '</b></div>';
+    }).join('');
   }
 
   var ss = {};
 
-  function tbl(id, rows, cid) {
+  function buildTable(id, cols, rows, cid) {
     var t = document.getElementById(id);
     if (cid) document.getElementById(cid).textContent = rows ? rows.length : 0;
-    if (!rows || !rows.length) { t.innerHTML = '<tbody><tr><td style="color:#c4bdb4;padding:16px">No data</td></tr></tbody>'; return; }
-    var k = Object.keys(rows[0]);
-    t.innerHTML = '<thead><tr>' + k.map(function (c) { return '<th data-c="' + c + '">' + c + '</th>'; }).join('') + '</tr></thead><tbody>' +
+    if (!rows || !rows.length) {
+      t.innerHTML = '<tbody><tr><td style="color:#c4bdb4;padding:12px">No data</td></tr></tbody>';
+      return;
+    }
+    t.innerHTML = '<thead><tr>' + cols.map(function (c) {
+      return '<th data-c="' + c.key + '">' + (c.label || c.key) + '</th>';
+    }).join('') + '</tr></thead><tbody>' +
       rows.map(function (r) {
-        return '<tr>' + k.map(function (c) {
-          var v = r[c];
+        return '<tr>' + cols.map(function (c) {
+          var v = r[c.key];
           if (v == null) return '<td class="num">\u2014</td>';
-          if (typeof v === 'number') return '<td class="num">' + (Number.isInteger(v) ? v : v.toFixed(4)) + '</td>';
+          if (c.fmt === 'deg') return '<td class="num">' + fmtDeg(v) + '</td>';
+          if (typeof v === 'number') return '<td class="num">' + (Number.isInteger(v) ? v : v.toFixed(2)) + '</td>';
           return '<td>' + v + '</td>';
         }).join('') + '</tr>';
       }).join('') + '</tbody>';
+
     t.querySelectorAll('th').forEach(function (h) {
       h.addEventListener('click', function () {
         var c = h.dataset.c, ky = id + c;
@@ -402,7 +383,7 @@
           if (typeof x === 'number') return d === 'asc' ? x - y : y - x;
           return d === 'asc' ? String(x).localeCompare(String(y)) : String(y).localeCompare(String(x));
         });
-        tbl(id, s, cid);
+        buildTable(id, cols, s, cid);
         var nh = t.querySelector('th[data-c="' + c + '"]');
         if (nh) nh.classList.add(d === 'asc' ? 'sorted-asc' : 'sorted-desc');
       });
@@ -411,56 +392,117 @@
 
   form.addEventListener('submit', function (e) {
     e.preventDefault(); clr();
-    results.style.display = 'none'; empty.style.display = 'none';
+    results.classList.remove('active'); empty.style.display = 'none';
     spinner.style.display = 'block'; btn.disabled = true;
 
     var p = payload(), h = { 'Content-Type': 'application/json' }, b = JSON.stringify(p);
 
-    Promise.allSettled([
-      fetch('/chart', { method: 'POST', headers: h, body: b }),
-      fetch('/chart/wheel', { method: 'POST', headers: h, body: b }),
-      fetch('/chart/wordcloud', { method: 'POST', headers: h, body: b }),
-    ]).then(function (r) {
-      spinner.style.display = 'none'; btn.disabled = false;
-
-      if (r[0].status === 'rejected' || !r[0].value.ok) {
-        (r[0].status === 'rejected' ? Promise.resolve('Network error') : r[0].value.json().then(function (d) { return d.detail || 'Failed'; }))
-          .then(function (m) { err(m); empty.style.display = 'flex'; });
-        return;
-      }
-
-      r[0].value.json().then(function (d) {
+    fetch('/chart', { method: 'POST', headers: h, body: b })
+      .then(function (r) {
+        if (!r.ok) return r.json().then(function (d) { throw new Error(d.detail || 'Failed'); });
+        return r.json();
+      })
+      .then(function (d) {
+        spinner.style.display = 'none'; btn.disabled = false;
         meta(d);
-        var planets = d.bodies.filter(function (x) { return x.Body && x.Body.indexOf('House') === -1 && x.Body !== 'Asc' && x.Body !== 'MC' && x.Body !== 'Desc' && x.Body !== 'IC'; });
-        var houses = d.bodies.filter(function (x) { return x.Body && (x.Body.indexOf('House') !== -1 || x.Body === 'Asc' || x.Body === 'MC' || x.Body === 'Desc' || x.Body === 'IC'); });
-        tbl('planet-tbl', planets, 'planet-n');
-        tbl('house-tbl', houses, 'house-n');
-        tbl('aspect-tbl', d.aspects, 'aspect-n');
-        results.style.display = '';
-        document.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.remove('active'); });
-        document.querySelectorAll('.panel').forEach(function (x) { x.classList.remove('active'); });
-        document.querySelector('[data-t="planets"]').classList.add('active');
-        document.getElementById('p-planets').classList.add('active');
+
+        var isSidereal = d.zodiac_system === 'Sidereal';
+        var planets = d.bodies.filter(function (x) {
+          return x.Body && x.Body.indexOf('House') === -1 &&
+            x.Body !== 'Asc' && x.Body !== 'MC' && x.Body !== 'Desc' && x.Body !== 'IC';
+        });
+        var houses = d.bodies.filter(function (x) {
+          return x.Body && (x.Body.indexOf('House') !== -1 ||
+            x.Body === 'Asc' || x.Body === 'MC' || x.Body === 'Desc' || x.Body === 'IC');
+        });
+
+        var planetCols = [
+          { key: 'Symbol', label: '' },
+          { key: 'Body', label: 'Planet' },
+          { key: 'Sign', label: 'Sign' },
+          { key: 'Longitude (\u00b0)', label: 'Degree', fmt: 'deg' },
+          { key: 'House', label: 'House' },
+          { key: 'Motion', label: 'R/D' },
+        ];
+
+        var houseCols = [
+          { key: 'Body', label: 'House' },
+          { key: 'Sign', label: 'Sign' },
+          { key: 'Longitude (\u00b0)', label: 'Degree', fmt: 'deg' },
+        ];
+
+        var aspectCols = [
+          { key: 'Body A', label: 'Planet 1' },
+          { key: 'aspect_symbol', label: '' },
+          { key: 'Aspect', label: 'Aspect' },
+          { key: 'Body B', label: 'Planet 2' },
+          { key: 'Orb (°)', label: 'Orb', fmt: 'deg' },
+        ];
+
+        buildTable('planet-tbl', planetCols, planets, 'planet-n');
+        buildTable('house-tbl', houseCols, houses, 'house-n');
+        buildTable('aspect-tbl', aspectCols, d.aspects, 'aspect-n');
+
+        var nakCard = document.getElementById('nak-card');
+        if (isSidereal) {
+          nakCard.style.display = '';
+          var nakCols = [
+            { key: 'Symbol', label: '' },
+            { key: 'Body', label: 'Planet' },
+            { key: 'Sign', label: 'Sign' },
+            { key: 'Nakshatra', label: 'Nakshatra' },
+            { key: 'Pada', label: 'Pada' },
+            { key: 'Nak Lord', label: 'Lord' },
+          ];
+          buildTable('nak-tbl', nakCols, planets.filter(function (x) { return x.Nakshatra; }), 'nak-n');
+        } else {
+          nakCard.style.display = 'none';
+        }
+
+        results.classList.add('active');
+
+        // Load wheel and wordcloud in background (non-blocking)
+        fetch('/chart/wheel', { method: 'POST', headers: h, body: b })
+          .then(function (r) { return r.ok ? r.text() : null; })
+          .then(function (html) {
+            var wc = document.getElementById('wheel-container');
+            if (html) {
+              var f = document.createElement('iframe');
+              f.className = 'wheel-frame';
+              f.setAttribute('sandbox', 'allow-scripts');
+              wc.innerHTML = '';
+              wc.appendChild(f);
+              f.contentDocument.open();
+              f.contentDocument.write(html);
+              f.contentDocument.close();
+            } else {
+              wc.innerHTML = '<p class="note">Chart wheel unavailable</p>';
+            }
+          })
+          .catch(function () {
+            document.getElementById('wheel-container').innerHTML = '<p class="note">Chart wheel unavailable</p>';
+          });
+
+        fetch('/chart/wordcloud', { method: 'POST', headers: h, body: b })
+          .then(function (r) { return r.ok ? r.blob() : null; })
+          .then(function (bl) {
+            var cc = document.getElementById('wordcloud-container');
+            if (bl) {
+              cc.innerHTML = '<img class="wc-img" src="' + URL.createObjectURL(bl) + '" alt="Traits">' +
+                '<p class="note">Strengths and stress indicators based on planetary placements</p>';
+            } else {
+              cc.innerHTML = '<p class="note">Trait analysis unavailable</p>';
+            }
+          })
+          .catch(function () {
+            document.getElementById('wordcloud-container').innerHTML = '<p class="note">Trait analysis unavailable</p>';
+          });
+      })
+      .catch(function (ex) {
+        spinner.style.display = 'none'; btn.disabled = false;
+        err(ex.message || 'Network error');
+        empty.style.display = 'flex';
       });
-
-      var wc = document.getElementById('wheel-container');
-      if (r[1].status === 'fulfilled' && r[1].value.ok) {
-        r[1].value.text().then(function (html) {
-          wc.innerHTML = '';
-          var f = document.createElement('iframe');
-          f.setAttribute('sandbox', 'allow-scripts');
-          wc.appendChild(f);
-          f.contentDocument.open(); f.contentDocument.write(html); f.contentDocument.close();
-        });
-      } else { wc.innerHTML = '<div class="empty">Chart wheel unavailable</div>'; }
-
-      var cc = document.getElementById('wordcloud-container');
-      if (r[2].status === 'fulfilled' && r[2].value.ok) {
-        r[2].value.blob().then(function (bl) {
-          cc.innerHTML = '<img src="' + URL.createObjectURL(bl) + '" alt="Traits"><p class="note">Strengths and stress indicators based on planetary placements</p>';
-        });
-      } else { cc.innerHTML = '<div class="empty">Trait analysis unavailable</div>'; }
-    });
   });
 })();
 </script>
