@@ -12,8 +12,11 @@ from app.core.constants import PLANET_IDS, degree_to_sign
 ZodiacSystem = Literal["Tropical", "Sidereal"]
 
 
-# Initialize ephemeris path once at import time
-swe.set_ephe_path(settings.EPHE_PATH)
+def _ensure_ephe() -> None:
+    swe.set_ephe_path(settings.EPHE_PATH)
+
+
+_ensure_ephe()
 
 
 def calculate_planetary_positions(julian_day: float, flags: int) -> list[dict]:
@@ -22,6 +25,7 @@ def calculate_planetary_positions(julian_day: float, flags: int) -> list[dict]:
     Each entry contains longitude, latitude, right ascension, declination,
     daily speed, and zodiac sign.
     """
+    _ensure_ephe()
     positions: list[dict] = []
 
     for name, body_id in PLANET_IDS.items():
@@ -64,6 +68,7 @@ def calculate_house_cusps(
     Tropical charts use the Koch house system. Sidereal charts use Whole
     Sign houses with the Lahiri Ayanamsa.
     """
+    _ensure_ephe()
     if system == "Tropical":
         house_positions, ascmc = swe.houses(julian_day, latitude, longitude, b"K")
     else:
