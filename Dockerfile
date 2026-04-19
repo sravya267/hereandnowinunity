@@ -1,24 +1,14 @@
-# syntax=docker/dockerfile:1.6
+# Two-stage build for Cloud Run.
+#   - stage 1 (builder): installs Python deps into a virtualenv
+#   - stage 2 (runtime): slim final image, copies venv + ephe + app code
 #
-# Multi-stage build for Cloud Run.
-#   - stage 1 (ephe):    downloads Swiss Ephemeris data files
-#   - stage 2 (builder): installs Python deps into a virtualenv
-#   - stage 3 (runtime): slim final image, copies venv + ephe + app code
+# Ephemeris files must be pre-downloaded into ./ephe/ before building.
+# The GitHub Actions workflow handles this automatically.
 #
 # Running locally:
+#   python scripts/download_ephemeris.py
 #   docker build -t astro-chart .
 #   docker run -p 8080:8080 astro-chart
-
-# ---------------------------------------------------------------------------
-FROM python:3.11-slim AS ephe
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        ca-certificates curl \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /build
-COPY scripts/download_ephemeris.py scripts/download_ephemeris.py
-RUN python scripts/download_ephemeris.py
 
 # ---------------------------------------------------------------------------
 FROM python:3.11-slim AS builder
@@ -38,7 +28,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # ---------------------------------------------------------------------------
 FROM python:3.11-slim AS runtime
 
-# System libs needed by matplotlib/wordcloud at runtime (not build tools)
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libglib2.0-0 libxext6 libsm6 libxrender1 \
     && rm -rf /var/lib/apt/lists/* \
@@ -51,13 +40,12 @@ ENV PATH="/opt/venv/bin:$PATH" \
     EPHE_PATH=/app/ephe
 
 COPY --from=builder /opt/venv /opt/venv
-COPY --from=ephe /build/ephe /app/ephe
+COPY ephe/ /app/ephe/
 COPY app/ /app/app/
 
 RUN chown -R appuser:appuser /app
 USER appuser
 
-# Cloud Run sets PORT; default 8080 for local runs
 ENV PORT=8080
 EXPOSE 8080
 
