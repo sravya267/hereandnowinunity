@@ -27,15 +27,27 @@ def health() -> dict:
     """Liveness probe for Cloud Run."""
     from pathlib import Path
 
+    import swisseph as swe
+
     from app.config import settings
 
+    swe.set_ephe_path(settings.EPHE_PATH)
     ephe = Path(settings.EPHE_PATH)
     files = sorted(f.name for f in ephe.glob("*")) if ephe.is_dir() else []
+    try:
+        pos, _ = swe.calc_ut(2451545.0, swe.SUN, 0)
+        calc_ok = True
+        calc_err = None
+    except Exception as exc:
+        calc_ok = False
+        calc_err = str(exc)
     return {
         "status": "ok",
         "ephe_path": settings.EPHE_PATH,
         "ephe_exists": ephe.is_dir(),
         "ephe_files": files,
+        "swe_calc_test": calc_ok,
+        "swe_calc_error": calc_err,
     }
 
 
