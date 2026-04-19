@@ -51,6 +51,7 @@ jobs:
             --region ${{ env.REGION }} \
             --port 8080 \
             --memory 1Gi \
+            --min-instances 1 \
             --allow-unauthenticated \
             --project ${{ secrets.GCP_PROJECT_ID }} \
             --quiet

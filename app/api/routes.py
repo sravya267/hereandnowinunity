@@ -78,6 +78,7 @@ def create_chart(req: ChartRequest) -> ChartResponse:
         ),
         bodies=_df_to_records(chart.bodies),
         aspects=_df_to_records(chart.aspects),
+        ayanamsa=chart.ayanamsa,
     )
 
 

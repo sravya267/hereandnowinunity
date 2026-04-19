@@ -44,3 +44,4 @@ class ChartResponse(BaseModel):
     moment: BirthMomentResponse
     bodies: list[dict[str, Any]]
     aspects: list[dict[str, Any]]
+    ayanamsa: float | None = None

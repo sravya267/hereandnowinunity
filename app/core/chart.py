@@ -15,7 +15,7 @@ import pandas as pd
 import swisseph as swe
 
 from app.core.aspects import calculate_aspects
-from app.core.constants import PLANETS
+from app.core.constants import PLANETS, degree_to_nakshatra
 from app.core.ephemeris import (
     ZodiacSystem,
     calculate_house_cusps,
@@ -34,8 +34,9 @@ class Chart:
     location_name: str
     moment: BirthMoment
     zodiac_system: ZodiacSystem
-    bodies: pd.DataFrame      # planets, nodes, angles, house cusps
-    aspects: pd.DataFrame     # pairwise aspects
+    bodies: pd.DataFrame
+    aspects: pd.DataFrame
+    ayanamsa: float | None = None
 
 
 def compute_chart(
@@ -58,10 +59,12 @@ def compute_chart(
     moment = resolve(birth_datetime, location_name)
 
     # Flags for Swiss Ephemeris
+    ayanamsa = None
     flags = swe.FLG_SWIEPH | swe.FLG_SPEED
     if zodiac_system == "Sidereal":
         swe.set_sid_mode(swe.SIDM_LAHIRI, 0, 0)
         flags |= swe.FLG_SIDEREAL
+        ayanamsa = swe.get_ayanamsa_ut(moment.julian_day_ut)
 
     positions = calculate_planetary_positions(moment.julian_day_ut, flags)
     houses = calculate_house_cusps(
@@ -101,6 +104,14 @@ def compute_chart(
         lambda s: "D" if s > 0 else "R" if s < 0 else ""
     )
 
+    # Nakshatra for sidereal charts
+    if zodiac_system == "Sidereal":
+        planet_mask = ~df["Body"].str.contains("House Cusp|Asc|MC|Desc|IC")
+        nk = df.loc[planet_mask, "Longitude (°)"].apply(degree_to_nakshatra).apply(pd.Series)
+        df.loc[planet_mask, "Nakshatra"] = nk["Nakshatra"].values
+        df.loc[planet_mask, "Pada"] = nk["Pada"].values
+        df.loc[planet_mask, "Nak Lord"] = nk["Lord"].values
+
     # Pre-compute unit-circle coordinates for plotting
     rad = np.deg2rad(df["Rotated_Pos"])
     df["rad_rot_x"] = np.cos(rad)
@@ -115,4 +126,5 @@ def compute_chart(
         zodiac_system=zodiac_system,
         bodies=df,
         aspects=aspects_df,
+        ayanamsa=ayanamsa,
     )
