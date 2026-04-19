@@ -18,13 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download ephemeris data
-        run: python scripts/download_ephemeris.py
-
       - name: Verify ephemeris files
         run: |
-          echo "Ephemeris files:"
-          ls -la ephe/
           test -f ephe/sepl_18.se1 || (echo "FATAL: sepl_18.se1 missing" && exit 1)
           test -f ephe/semo_18.se1 || (echo "FATAL: semo_18.se1 missing" && exit 1)
           test -f ephe/seas_18.se1 || (echo "FATAL: seas_18.se1 missing" && exit 1)
