@@ -45,3 +45,4 @@ class ChartResponse(BaseModel):
     bodies: list[dict[str, Any]]
     aspects: list[dict[str, Any]]
     ayanamsa: float | None = None
+    traits: list[str] | None = None
