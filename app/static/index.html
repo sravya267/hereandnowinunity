@@ -3,233 +3,62 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Astro Chart - Natal Chart Calculator</title>
+<title>Astro Chart</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;color:#3d3a36;font-size:13px;line-height:1.5}
 
-  body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background: #f5f3f0;
-    color: #3d3a36;
-    font-size: 13px;
-    line-height: 1.5;
-  }
+.toolbar{display:flex;align-items:center;background:#fff;border-bottom:1px solid #e8e4df;padding:0 16px;height:44px}
+.brand{font-size:15px;font-weight:600;color:#5a4e3c;margin-right:20px;white-space:nowrap}
+.brand span{font-weight:400;color:#a09788}
+.toolbar form{display:flex;align-items:center;gap:8px;flex:1}
+.sep{width:1px;height:22px;background:#e8e4df;flex-shrink:0}
+.toolbar label{font-size:11px;color:#9b9185;white-space:nowrap;flex-shrink:0}
+.toolbar input,.toolbar select{padding:4px 8px;border:1px solid #ddd8d1;border-radius:3px;background:#fcfbf9;color:#3d3a36;font-size:12px;font-family:inherit}
+.toolbar input:focus,.toolbar select:focus{outline:none;border-color:#b09e82}
+.toolbar input[type="date"]{width:145px}
+.toolbar input[type="time"]{width:115px}
+.toolbar input[type="text"]{width:160px}
+.toolbar select{width:90px}
+.btn-calc{padding:5px 16px;border:none;border-radius:3px;background:#8b7355;color:#fff;font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;white-space:nowrap}
+.btn-calc:hover{background:#7a644a}
+.btn-calc:disabled{opacity:.4;cursor:not-allowed}
 
-  .toolbar {
-    display: flex;
-    align-items: center;
-    background: #fff;
-    border-bottom: 1px solid #e8e4df;
-    padding: 0 16px;
-    height: 44px;
-  }
+.error-bar{background:#fdf2f2;border-bottom:1px solid #e8c4c4;color:#9b4d4d;padding:6px 16px;font-size:12px;display:none}
+.meta-bar{display:flex;gap:16px;padding:5px 16px;background:#faf8f5;border-bottom:1px solid #e8e4df;flex-wrap:wrap}
+.meta-item{font-size:11px;color:#9b9185}
+.meta-item b{color:#5a4e3c;font-weight:500}
 
-  .brand {
-    font-size: 15px;
-    font-weight: 600;
-    color: #5a4e3c;
-    margin-right: 20px;
-    white-space: nowrap;
-  }
-  .brand span { font-weight: 400; color: #a09788; }
+.page{display:none;padding:10px 16px}
+.page.active{display:block}
 
-  .toolbar form {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
-  }
+.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.card{background:#fff;border:1px solid #e8e4df;border-radius:5px;overflow:hidden;display:flex;flex-direction:column;height:500px}
 
-  .sep { width: 1px; height: 22px; background: #e8e4df; flex-shrink: 0; }
+.card-hdr{display:flex;justify-content:space-between;align-items:center;padding:5px 10px;background:#faf8f5;border-bottom:1px solid #e8e4df;flex-shrink:0}
+.card-hdr-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9b9185}
+.copy-btn{padding:2px 9px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#8b7355;font-size:10px;cursor:pointer;font-family:inherit}
+.copy-btn:hover{background:#ece7df}
 
-  .toolbar label { font-size: 11px; color: #9b9185; white-space: nowrap; flex-shrink: 0; }
+.card-body{flex:1;overflow:auto;min-height:0}
 
-  .toolbar input,
-  .toolbar select {
-    padding: 4px 8px;
-    border: 1px solid #ddd8d1;
-    border-radius: 3px;
-    background: #fcfbf9;
-    color: #3d3a36;
-    font-size: 12px;
-    font-family: inherit;
-  }
-  .toolbar input:focus,
-  .toolbar select:focus { outline: none; border-color: #b09e82; }
+canvas{display:block;width:100%;height:100%}
 
-  .toolbar input[type="date"] { width: 145px; }
-  .toolbar input[type="time"] { width: 115px; }
-  .toolbar input[type="text"] { width: 160px; }
-  .toolbar select { width: 90px; }
+.traits-wrap{padding:8px 10px;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start}
+.trait-tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10.5px;background:#f0ebe3;color:#5a4e3c;border:1px solid #ddd8d1;cursor:default}
 
-  .btn-calc {
-    padding: 5px 16px;
-    border: none;
-    border-radius: 3px;
-    background: #8b7355;
-    color: #fff;
-    font-size: 12px;
-    font-weight: 500;
-    font-family: inherit;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .btn-calc:hover { background: #7a644a; }
-  .btn-calc:disabled { opacity: 0.4; cursor: not-allowed; }
+.info-box{padding:4px 8px;font-size:10px;line-height:1.6;font-family:'Menlo','Consolas','Courier New',monospace;white-space:pre-wrap;word-break:break-word;user-select:text}
+.s-hdr{color:#b09e82;font-size:9px;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #f0ece7;margin-top:4px;margin-bottom:1px;padding-bottom:1px}
+.retro{color:#c0392b}
+.asp-line{color:#7a6e65}
 
-  .error-bar {
-    background: #fdf2f2;
-    border-bottom: 1px solid #e8c4c4;
-    color: #9b4d4d;
-    padding: 6px 16px;
-    font-size: 12px;
-    display: none;
-  }
+.empty-page{display:flex;align-items:center;justify-content:center;height:calc(100vh - 60px);color:#c4bdb4;font-size:14px}
+.loading{display:none;text-align:center;padding:40px;color:#9b9185}
+.loading::before{content:'';display:inline-block;width:16px;height:16px;border:2px solid #e8e4df;border-top-color:#8b7355;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
 
-  .meta-bar {
-    display: flex;
-    gap: 18px;
-    padding: 6px 16px;
-    background: #faf8f5;
-    border-bottom: 1px solid #e8e4df;
-    flex-wrap: wrap;
-  }
-  .meta-item { font-size: 11px; color: #9b9185; }
-  .meta-item b { color: #5a4e3c; font-weight: 500; }
-
-  .page { display: none; padding: 12px 16px; }
-  .page.active { display: block; }
-
-  .row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
-  .card {
-    background: #fff;
-    border: 1px solid #e8e4df;
-    border-radius: 5px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .card-title {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #9b9185;
-    padding: 6px 10px;
-    background: #faf8f5;
-    border-bottom: 1px solid #e8e4df;
-    flex-shrink: 0;
-  }
-
-  .card-body {
-    flex: 1;
-    overflow-y: auto;
-    min-height: 0;
-  }
-
-  .row-main .card { height: 520px; }
-
-  .wheel-frame { width: 100%; height: 100%; border: none; }
-
-  .wc-wrap { padding: 8px; text-align: center; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .wc-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; }
-
-  .info-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 8px;
-  }
-
-  .copy-btn {
-    padding: 2px 10px;
-    border: 1px solid #ddd8d1;
-    border-radius: 3px;
-    background: #faf8f5;
-    color: #8b7355;
-    font-size: 10px;
-    cursor: pointer;
-    font-family: inherit;
-  }
-  .copy-btn:hover { background: #ece7df; }
-
-  .info-box {
-    padding: 4px 8px;
-    font-size: 10.5px;
-    line-height: 1.55;
-    font-family: 'Menlo', 'Consolas', 'Courier New', monospace;
-    font-variant-numeric: tabular-nums;
-    user-select: text;
-    cursor: text;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-
-  .info-box .planet-line { color: #3d3a36; }
-  .info-box .section-hdr {
-    color: #9b9185;
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-top: 5px;
-    border-bottom: 1px solid #f0ece7;
-    padding-bottom: 1px;
-    margin-bottom: 1px;
-  }
-  .info-box .retro { color: #c0392b; }
-  .info-box .aspect-line { color: #6b6358; font-size: 10px; }
-
-  .note { color: #9b9185; font-size: 11px; margin-top: 6px; text-align: center; }
-
-  .empty-page {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: calc(100vh - 60px);
-    color: #c4bdb4;
-    font-size: 14px;
-  }
-
-  .loading {
-    display: none;
-    text-align: center;
-    padding: 40px;
-    color: #9b9185;
-  }
-  .loading::before {
-    content: '';
-    display: inline-block;
-    width: 16px; height: 16px;
-    border: 2px solid #e8e4df;
-    border-top-color: #8b7355;
-    border-radius: 50%;
-    animation: sp 0.6s linear infinite;
-    vertical-align: middle;
-    margin-right: 8px;
-  }
-  @keyframes sp { to { transform: rotate(360deg); } }
-
-  @media (max-width: 1100px) {
-    .row { grid-template-columns: 1fr 1fr; }
-    .row-main .card { height: 440px; }
-  }
-  @media (max-width: 700px) {
-    .row { grid-template-columns: 1fr; }
-    .toolbar { height: auto; padding: 8px 12px; flex-wrap: wrap; gap: 6px; }
-    .toolbar form { flex-wrap: wrap; }
-    .sep { display: none; }
-    .toolbar input[type="date"],
-    .toolbar input[type="time"],
-    .toolbar input[type="text"],
-    .toolbar select { width: 100%; }
-  }
+@media(max-width:1000px){.row{grid-template-columns:1fr 1fr}.card{height:440px}}
+@media(max-width:650px){.row{grid-template-columns:1fr}.toolbar{height:auto;padding:8px 12px;flex-wrap:wrap;gap:6px}.toolbar form{flex-wrap:wrap}.sep{display:none}.toolbar input[type="date"],.toolbar input[type="time"],.toolbar input[type="text"],.toolbar select{width:100%}}
 </style>
 </head>
 <body>
@@ -237,20 +66,14 @@
 <div class="toolbar">
   <div class="brand">Astro<span>Chart</span></div>
   <form id="chart-form">
-    <label>Date</label>
-    <input type="date" id="birth-date" required>
+    <label>Date</label><input type="date" id="birth-date" required>
     <div class="sep"></div>
-    <label>Time</label>
-    <input type="time" id="birth-time" step="60" required>
+    <label>Time</label><input type="time" id="birth-time" step="60" required>
     <div class="sep"></div>
-    <label>Place</label>
-    <input type="text" id="location" placeholder="City, Country" required>
+    <label>Place</label><input type="text" id="location" placeholder="City, Country" required>
     <div class="sep"></div>
     <label>System</label>
-    <select id="zodiac">
-      <option value="Tropical">Tropical</option>
-      <option value="Sidereal">Sidereal</option>
-    </select>
+    <select id="zodiac"><option value="Tropical">Tropical</option><option value="Sidereal">Sidereal</option></select>
     <button type="submit" class="btn-calc" id="submit-btn">Calculate</button>
   </form>
 </div>
@@ -261,198 +84,324 @@
 
 <div id="results" class="page">
   <div id="meta-bar" class="meta-bar"></div>
-
-  <div style="padding:12px 0;">
-    <!-- Main row: wheel | traits | info -->
-    <div class="row row-main">
+  <div style="padding:8px 0">
+    <div class="row">
       <div class="card">
-        <div class="card-title">Chart Wheel</div>
-        <div class="card-body" id="wheel-container"></div>
+        <div class="card-hdr"><span class="card-hdr-title">Chart Wheel</span></div>
+        <div class="card-body"><canvas id="wheel-canvas"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">Personality Traits</div>
-        <div class="card-body wc-wrap" id="wordcloud-container"></div>
+        <div class="card-hdr"><span class="card-hdr-title">Personality Strengths</span></div>
+        <div class="card-body traits-wrap" id="traits-box"></div>
       </div>
       <div class="card">
-        <div class="card-title">
-          <div class="info-header">
-            <span>Planetary Positions &amp; Aspects</span>
-            <button class="copy-btn" id="copy-btn" onclick="copyInfo()">Copy</button>
-          </div>
+        <div class="card-hdr">
+          <span class="card-hdr-title">Positions &amp; Aspects</span>
+          <button class="copy-btn" onclick="copyInfo()">Copy</button>
         </div>
-        <div class="card-body">
-          <div class="info-box" id="info-box"></div>
-        </div>
+        <div class="card-body"><div class="info-box" id="info-box"></div></div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-function copyInfo() {
-  var box = document.getElementById('info-box');
-  var text = box.innerText;
-  navigator.clipboard.writeText(text).then(function () {
-    var btn = document.getElementById('copy-btn');
-    btn.textContent = 'Copied!';
-    setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+// ─── Wheel drawing ────────────────────────────────────────────────────────────
+var SIGN_SYMBOLS = ['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+var SIGN_COLS    = ['#ffe8e8','#e8f5e9','#fffde7','#e3f2fd','#ffe8e8','#e8f5e9','#fffde7','#e3f2fd','#ffe8e8','#e8f5e9','#fffde7','#e3f2fd'];
+var NAK_NAMES    = ['Ashw','Bhar','Krit','Rohi','Mrig','Ardr','Puna','Push','Ashl','Magh','PPha','UPha','Hast','Chit','Swat','Vish','Anur','Jyes','Mool','PAsh','UAsh','Shra','Dhan','Shat','PBha','UBha','Reva'];
+
+function drawWheel(data) {
+  var cvs = document.getElementById('wheel-canvas');
+  var parent = cvs.parentElement;
+  var dpr = window.devicePixelRatio || 1;
+  var W = parent.clientWidth, H = parent.clientHeight;
+  cvs.width = W * dpr; cvs.height = H * dpr;
+  cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
+
+  var ctx = cvs.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  var cx = W / 2, cy = H / 2;
+  var isSid = data.zodiac_system === 'Sidereal';
+
+  // Radii — slightly smaller for sidereal to fit nak ring
+  var outerPad = isSid ? 28 : 8;
+  var R  = Math.min(cx, cy) - outerPad;
+  var r4 = R;           // sign ring outer
+  var r3 = R * 0.80;   // sign ring inner / planet label outer
+  var r2 = R * 0.68;   // planet symbol ring
+  var r1 = R * 0.54;   // house inner / aspect outer
+
+  // Rotation: place Desc at angle 0 (right)
+  var desc = data.bodies.find(function(b){ return b.Body === 'Desc'; });
+  var rotLon = desc ? desc['Longitude (\u00b0)'] : 0;
+
+  function lon2a(lon) { return -(lon - rotLon) * Math.PI / 180; }
+
+  // ── background
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(cx, cy, R + outerPad, 0, 2*Math.PI); ctx.fill();
+
+  // ── zodiac sign segments
+  for (var i = 0; i < 12; i++) {
+    var a1 = lon2a(i * 30);
+    var a2 = lon2a((i + 1) * 30);
+    ctx.beginPath();
+    ctx.arc(cx, cy, r4, a1, a2, true);
+    ctx.arc(cx, cy, r3, a2, a1, false);
+    ctx.closePath();
+    ctx.fillStyle = SIGN_COLS[i];
+    ctx.fill();
+    ctx.strokeStyle = '#d0cac2'; ctx.lineWidth = 0.5; ctx.stroke();
+
+    var midA = lon2a(i * 30 + 15);
+    var mr = (r4 + r3) / 2;
+    ctx.font = Math.round(R * 0.08) + 'px serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#555';
+    ctx.fillText(SIGN_SYMBOLS[i], cx + mr * Math.cos(midA), cy + mr * Math.sin(midA));
+  }
+
+  // ── nakshatra ring (sidereal)
+  if (isSid) {
+    var nakSpan = 360 / 27;
+    var nakR = R + outerPad - 4;
+    var nakInner = r4;
+    for (var ni = 0; ni < 27; ni++) {
+      var na1 = lon2a(ni * nakSpan);
+      var na2 = lon2a((ni + 1) * nakSpan);
+      ctx.beginPath();
+      ctx.arc(cx, cy, nakR, na1, na2, true);
+      ctx.arc(cx, cy, nakInner, na2, na1, false);
+      ctx.closePath();
+      ctx.fillStyle = ni % 2 === 0 ? '#fdf8f2' : '#f5efe6';
+      ctx.fill();
+      ctx.strokeStyle = '#e8e0d5'; ctx.lineWidth = 0.3; ctx.stroke();
+
+      var nMid = lon2a(ni * nakSpan + nakSpan / 2);
+      var nMr = (nakR + nakInner) / 2;
+      ctx.save();
+      ctx.translate(cx + nMr * Math.cos(nMid), cy + nMr * Math.sin(nMid));
+      ctx.rotate(nMid + Math.PI / 2);
+      ctx.font = Math.round(R * 0.047) + 'px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#8b7355';
+      ctx.fillText(NAK_NAMES[ni], 0, 0);
+      ctx.restore();
+    }
+  }
+
+  // ── inner guide circles
+  [r3, r2, r1].forEach(function(r) {
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI);
+    ctx.strokeStyle = '#ccc'; ctx.lineWidth = 0.5; ctx.stroke();
+  });
+
+  // ── house cusps
+  var cusps = data.bodies.filter(function(b){ return b.Body.indexOf('House Cusp') !== -1; });
+  cusps.forEach(function(c) {
+    var a = lon2a(c['Longitude (\u00b0)']);
+    ctx.beginPath();
+    ctx.moveTo(cx + r1 * Math.cos(a), cy + r1 * Math.sin(a));
+    ctx.lineTo(cx + r3 * Math.cos(a), cy + r3 * Math.sin(a));
+    ctx.strokeStyle = '#c8c0b5'; ctx.lineWidth = 0.5; ctx.stroke();
+  });
+
+  // ── house numbers at cusp midpoints
+  var sorted = cusps.slice().sort(function(a,b){ return a['Longitude (\u00b0)'] - b['Longitude (\u00b0)']; });
+  for (var hi = 0; hi < sorted.length; hi++) {
+    var l1 = sorted[hi]['Longitude (\u00b0)'];
+    var l2 = sorted[(hi+1) % sorted.length]['Longitude (\u00b0)'];
+    if (l2 <= l1) l2 += 360;
+    var hMid = lon2a((l1 + l2) / 2);
+    var hR = (r1 + r2) / 2;
+    ctx.font = Math.round(R * 0.055) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#aaa';
+    ctx.fillText(String(hi + 1), cx + hR * Math.cos(hMid), cy + hR * Math.sin(hMid));
+  }
+
+  // ── Asc / Desc / MC / IC axis lines
+  ['Asc','Desc','MC','IC'].forEach(function(name) {
+    var b = data.bodies.find(function(x){ return x.Body === name; });
+    if (!b) return;
+    var a = lon2a(b['Longitude (\u00b0)']);
+    ctx.beginPath();
+    ctx.moveTo(cx + r1 * Math.cos(a), cy + r1 * Math.sin(a));
+    ctx.lineTo(cx + r3 * Math.cos(a), cy + r3 * Math.sin(a));
+    ctx.strokeStyle = '#3d5a7a'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    var lR = r3 - 6;
+    ctx.font = 'bold ' + Math.round(R * 0.055) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#3d5a7a';
+    ctx.fillText(name, cx + lR * Math.cos(a), cy + lR * Math.sin(a));
+  });
+
+  // ── aspect lines
+  var posMap = {};
+  data.bodies.forEach(function(b){ posMap[b.Body] = lon2a(b['Longitude (\u00b0)']); });
+  (data.aspects || []).forEach(function(asp) {
+    var a1 = posMap[asp.Body1], a2 = posMap[asp.Body2];
+    if (a1 == null || a2 == null) return;
+    ctx.beginPath();
+    ctx.moveTo(cx + r1 * Math.cos(a1), cy + r1 * Math.sin(a1));
+    ctx.lineTo(cx + r1 * Math.cos(a2), cy + r1 * Math.sin(a2));
+    ctx.strokeStyle = asp.Color || '#999';
+    ctx.lineWidth = Math.max(0.4, (asp.Closeness || 0.5) * 1.2);
+    ctx.globalAlpha = Math.max(0.25, (asp.Closeness || 0.5) * 0.8);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  });
+
+  // ── planet symbols
+  var planets = data.bodies.filter(function(b){
+    return b.Symbol && b.Body.indexOf('House') === -1 &&
+      b.Body !== 'Asc' && b.Body !== 'MC' && b.Body !== 'Desc' && b.Body !== 'IC';
+  });
+  var pSymR = (r2 + r3) / 2;
+  var pDegR = r2 - 2;
+  planets.forEach(function(p) {
+    var a = lon2a(p['Longitude (\u00b0)']);
+    var px = cx + pSymR * Math.cos(a), py = cy + pSymR * Math.sin(a);
+
+    ctx.font = Math.round(R * 0.09) + 'px serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = p.Color || '#333';
+    ctx.fillText(p.Symbol, px, py);
+
+    // degree within sign
+    var d = p['Longitude (\u00b0)'] % 30;
+    var deg = Math.floor(d), mn = Math.floor((d - deg) * 60);
+    var lbl = deg + '\u00b0' + (mn < 10 ? '0' : '') + mn + "'";
+    if (p.Motion === 'R') lbl += 'R';
+    var dx = cx + pDegR * Math.cos(a), dy = cy + pDegR * Math.sin(a);
+    ctx.font = Math.round(R * 0.044) + 'px sans-serif';
+    ctx.fillStyle = p.Motion === 'R' ? '#c0392b' : '#666';
+    ctx.fillText(lbl, dx, dy);
   });
 }
 
-(function () {
-  var form = document.getElementById('chart-form');
+// ─── Info box ─────────────────────────────────────────────────────────────────
+function signDeg(lon) {
+  if (lon == null) return '';
+  var d = lon % 30, deg = Math.floor(d), mn = Math.floor((d - deg) * 60);
+  return deg + '\u00b0' + (mn < 10 ? '0' : '') + mn + "'";
+}
+function fmtDeg(d) {
+  if (d == null) return '';
+  var deg = Math.floor(d), mn = Math.floor((d - deg) * 60);
+  return deg + '\u00b0' + (mn < 10 ? '0' : '') + mn + "'";
+}
+
+function buildInfoBox(d) {
+  var isSid = d.zodiac_system === 'Sidereal';
+  var planets = d.bodies.filter(function(x){
+    return x.Body && x.Body.indexOf('House') === -1 &&
+      x.Body !== 'Asc' && x.Body !== 'MC' && x.Body !== 'Desc' && x.Body !== 'IC';
+  });
+  var angles  = d.bodies.filter(function(x){ return ['Asc','MC','Desc','IC'].indexOf(x.Body) !== -1; });
+  var houses  = d.bodies.filter(function(x){ return x.Body && x.Body.indexOf('House Cusp') !== -1; });
+
+  var html = '<div class="s-hdr">Planets</div>';
+  planets.forEach(function(p) {
+    var sym    = p.Symbol || '';
+    var motion = p.Motion === 'R' ? '<span class="retro"> (R)</span>' : ' (D)';
+    var house  = p.House ? ' \u2022 H' + p.House : '';
+    var nak    = (isSid && p.Nakshatra) ? ' \u2022 ' + p.Nakshatra + ' P' + p.Pada : '';
+    html += sym + ' ' + p.Body + motion + '  ' + p.Sign + ' ' + signDeg(p['Longitude (\u00b0)']) + house + nak + '\n';
+  });
+
+  if (angles.length) {
+    html += '<div class="s-hdr">Angles</div>';
+    angles.forEach(function(a){ html += a.Body + '  ' + a.Sign + ' ' + signDeg(a['Longitude (\u00b0)']) + '\n'; });
+  }
+  if (houses.length) {
+    html += '<div class="s-hdr">Houses</div>';
+    houses.forEach(function(h){
+      html += h.Body.replace('House Cusp ','H') + '  ' + h.Sign + ' ' + signDeg(h['Longitude (\u00b0)']) + '\n';
+    });
+  }
+  if (d.aspects && d.aspects.length) {
+    html += '<div class="s-hdr">Aspects (' + d.aspects.length + ')</div>';
+    d.aspects.forEach(function(a){
+      var orb = (a.Angle != null && a.Degrees != null) ? fmtDeg(Math.abs(a.Angle - a.Degrees)) : '';
+      html += '<span class="asp-line">' + a.Body1 + ' ' + (a.aspect_symbol||'') + ' ' + a.Body2 + '  ' + a.Aspect + (orb ? '  orb ' + orb : '') + '</span>\n';
+    });
+  }
+  document.getElementById('info-box').innerHTML = html;
+}
+
+function copyInfo() {
+  var txt = document.getElementById('info-box').innerText;
+  navigator.clipboard.writeText(txt).then(function(){
+    var b = document.querySelector('.copy-btn');
+    b.textContent = 'Copied!';
+    setTimeout(function(){ b.textContent = 'Copy'; }, 1500);
+  });
+}
+
+// ─── Traits ──────────────────────────────────────────────────────────────────
+function buildTraits(traits) {
+  var box = document.getElementById('traits-box');
+  if (!traits || !traits.length) { box.innerHTML = '<span style="color:#c4bdb4;font-size:11px">No trait data</span>'; return; }
+  box.innerHTML = traits.map(function(t){
+    return '<span class="trait-tag">' + t + '</span>';
+  }).join('');
+}
+
+// ─── Meta bar ────────────────────────────────────────────────────────────────
+function buildMeta(d) {
+  var items = [['Location',d.location],['Timezone',d.moment.timezone],['System',d.zodiac_system],
+    ['Coords', d.moment.latitude.toFixed(4)+', '+d.moment.longitude.toFixed(4)]];
+  if (d.ayanamsa != null) items.push(['Ayanamsa', fmtDeg(d.ayanamsa)]);
+  document.getElementById('meta-bar').innerHTML = items.map(function(x){
+    return '<div class="meta-item">'+x[0]+': <b>'+x[1]+'</b></div>';
+  }).join('');
+}
+
+// ─── Form submit ─────────────────────────────────────────────────────────────
+(function(){
+  var form    = document.getElementById('chart-form');
   var spinner = document.getElementById('spinner');
   var results = document.getElementById('results');
-  var empty = document.getElementById('empty-state');
-  var errBar = document.getElementById('error-bar');
-  var btn = document.getElementById('submit-btn');
+  var empty   = document.getElementById('empty-state');
+  var errBar  = document.getElementById('error-bar');
+  var btn     = document.getElementById('submit-btn');
 
-  var SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    errBar.style.display = 'none';
+    results.classList.remove('active');
+    empty.style.display = 'none';
+    spinner.style.display = 'block';
+    btn.disabled = true;
 
-  function payload() {
-    return {
+    var p = {
       birth_datetime: document.getElementById('birth-date').value + 'T' + document.getElementById('birth-time').value + ':00',
       location: document.getElementById('location').value.trim(),
       zodiac_system: document.getElementById('zodiac').value,
     };
-  }
 
-  function err(m) { errBar.textContent = m; errBar.style.display = 'block'; }
-  function clr() { errBar.style.display = 'none'; }
-
-  function signDeg(lon) {
-    if (lon == null) return '';
-    var d = lon % 30;
-    var deg = Math.floor(d);
-    var min = Math.floor((d - deg) * 60);
-    return deg + '\u00b0' + (min < 10 ? '0' : '') + min + "'";
-  }
-
-  function fmtDeg(d) {
-    if (d == null) return '';
-    var deg = Math.floor(d);
-    var min = Math.floor((d - deg) * 60);
-    return deg + '\u00b0' + (min < 10 ? '0' : '') + min + "'";
-  }
-
-  function meta(d) {
-    var items = [
-      ['Location', d.location],
-      ['Timezone', d.moment.timezone],
-      ['System', d.zodiac_system],
-      ['Coords', d.moment.latitude.toFixed(4) + ', ' + d.moment.longitude.toFixed(4)],
-    ];
-    if (d.ayanamsa != null) items.push(['Ayanamsa (Lahiri)', fmtDeg(d.ayanamsa)]);
-    document.getElementById('meta-bar').innerHTML = items.map(function (x) {
-      return '<div class="meta-item">' + x[0] + ': <b>' + x[1] + '</b></div>';
-    }).join('');
-  }
-
-  function buildInfoBox(d) {
-    var box = document.getElementById('info-box');
-    var html = '';
-    var isSidereal = d.zodiac_system === 'Sidereal';
-
-    var planets = d.bodies.filter(function (x) {
-      return x.Body && x.Body.indexOf('House') === -1 &&
-        x.Body !== 'Asc' && x.Body !== 'MC' && x.Body !== 'Desc' && x.Body !== 'IC';
-    });
-
-    html += '<div class="section-hdr">Planets</div>';
-    planets.forEach(function (p) {
-      var sym = p.Symbol || '';
-      var motion = p.Motion === 'R' ? ' <span class="retro">(R)</span>' : p.Motion === 'D' ? ' (D)' : '';
-      var house = p.House ? ' in ' + p.House + (p.House === '1' ? 'st' : p.House === '2' ? 'nd' : p.House === '3' ? 'rd' : 'th') + ' House' : '';
-      var nak = '';
-      if (isSidereal && p.Nakshatra) {
-        nak = ' \u2022 ' + p.Nakshatra + ' P' + p.Pada + ' (' + p['Nak Lord'] + ')';
-      }
-      html += '<div class="planet-line">' + sym + ' ' + p.Body + motion + '  in ' + p.Sign + ' ' + signDeg(p['Longitude (\u00b0)']) + house + nak + '</div>';
-    });
-
-    var angles = d.bodies.filter(function (x) {
-      return x.Body === 'Asc' || x.Body === 'MC' || x.Body === 'Desc' || x.Body === 'IC';
-    });
-    if (angles.length) {
-      html += '<div class="section-hdr">Angles</div>';
-      angles.forEach(function (a) {
-        html += '<div class="planet-line">' + a.Body + '  in ' + a.Sign + ' ' + signDeg(a['Longitude (\u00b0)']) + '</div>';
-      });
-    }
-
-    var houses = d.bodies.filter(function (x) { return x.Body && x.Body.indexOf('House Cusp') !== -1; });
-    if (houses.length) {
-      html += '<div class="section-hdr">Houses</div>';
-      houses.forEach(function (h) {
-        var num = h.Body.replace('House Cusp ', '');
-        html += '<div class="planet-line">House ' + num + '  in ' + h.Sign + ' ' + signDeg(h['Longitude (\u00b0)']) + '</div>';
-      });
-    }
-
-    if (d.aspects && d.aspects.length) {
-      html += '<div class="section-hdr">Aspects (' + d.aspects.length + ')</div>';
-      d.aspects.forEach(function (a) {
-        var orb = a.Angle != null && a.Degrees != null ? fmtDeg(Math.abs(a.Angle - a.Degrees)) : '';
-        html += '<div class="aspect-line">' + a.Body1 + ' ' + (a.aspect_symbol || '') + ' ' + a.Body2 + '  ' + a.Aspect + (orb ? ' (orb ' + orb + ')' : '') + '</div>';
-      });
-    }
-
-    box.innerHTML = html;
-  }
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault(); clr();
-    results.classList.remove('active'); empty.style.display = 'none';
-    spinner.style.display = 'block'; btn.disabled = true;
-
-    var p = payload(), h = { 'Content-Type': 'application/json' }, b = JSON.stringify(p);
-
-    fetch('/chart', { method: 'POST', headers: h, body: b })
-      .then(function (r) {
-        if (!r.ok) return r.json().then(function (d) { throw new Error(d.detail || 'Failed'); });
+    fetch('/chart', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(p) })
+      .then(function(r){
+        if (!r.ok) return r.json().then(function(d){ throw new Error(d.detail || 'Failed'); });
         return r.json();
       })
-      .then(function (d) {
+      .then(function(d){
         spinner.style.display = 'none'; btn.disabled = false;
-        meta(d);
+        buildMeta(d);
+        buildTraits(d.traits);
         buildInfoBox(d);
         results.classList.add('active');
-
-        fetch('/chart/wheel', { method: 'POST', headers: h, body: b })
-          .then(function (r) { return r.ok ? r.text() : null; })
-          .then(function (html) {
-            var wc = document.getElementById('wheel-container');
-            if (html) {
-              var f = document.createElement('iframe');
-              f.className = 'wheel-frame';
-              f.srcdoc = html;
-              wc.innerHTML = '';
-              wc.appendChild(f);
-            } else {
-              wc.innerHTML = '<p class="note" style="padding:20px;">Chart wheel unavailable</p>';
-            }
-          })
-          .catch(function () {
-            document.getElementById('wheel-container').innerHTML = '<p class="note" style="padding:20px;">Chart wheel unavailable</p>';
-          });
-
-        fetch('/chart/wordcloud', { method: 'POST', headers: h, body: b })
-          .then(function (r) { return r.ok ? r.blob() : null; })
-          .then(function (bl) {
-            var cc = document.getElementById('wordcloud-container');
-            if (bl) {
-              cc.innerHTML = '<img class="wc-wrap" src="' + URL.createObjectURL(bl) + '" alt="Personality Traits">';
-            } else {
-              cc.innerHTML = '<p class="note">Trait analysis unavailable</p>';
-            }
-          })
-          .catch(function () {
-            document.getElementById('wordcloud-container').innerHTML = '<p class="note">Trait analysis unavailable</p>';
-          });
+        // draw wheel after layout settles
+        requestAnimationFrame(function(){ drawWheel(d); });
       })
-      .catch(function (ex) {
+      .catch(function(ex){
         spinner.style.display = 'none'; btn.disabled = false;
-        err(ex.message || 'Network error');
+        errBar.textContent = ex.message || 'Network error';
+        errBar.style.display = 'block';
         empty.style.display = 'flex';
       });
   });

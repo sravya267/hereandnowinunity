@@ -10,10 +10,13 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Literal
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import swisseph as swe
 
+from app.config import settings
 from app.core.aspects import calculate_aspects
 from app.core.constants import PLANETS, degree_to_nakshatra
 from app.core.ephemeris import (
@@ -37,6 +40,7 @@ class Chart:
     bodies: pd.DataFrame
     aspects: pd.DataFrame
     ayanamsa: float | None = None
+    traits: list[str] | None = None
 
 
 def compute_chart(
@@ -118,6 +122,7 @@ def compute_chart(
     df["rad_rot_y"] = np.sin(rad)
 
     aspects_df = calculate_aspects(df)
+    traits = _compute_traits(df)
 
     return Chart(
         birth_datetime=birth_datetime,
@@ -127,4 +132,30 @@ def compute_chart(
         bodies=df,
         aspects=aspects_df,
         ayanamsa=ayanamsa,
+        traits=traits,
     )
+
+
+def _compute_traits(bodies: pd.DataFrame) -> list[str]:
+    csv_path = Path(settings.PERSONALITIES_CSV)
+    if not csv_path.exists():
+        return []
+    df_csv = pd.read_csv(csv_path, dtype=str)
+    df_csv = df_csv.map(lambda x: x.replace(" ", "") if isinstance(x, str) else x)
+    melted = pd.melt(
+        bodies[~bodies["Body"].str.contains("Cusp")],
+        id_vars=["Body", "Sys"],
+        value_vars=["Sign", "House"],
+        var_name="Attribute",
+        value_name="Value",
+    )
+    merged = pd.merge(
+        melted, df_csv,
+        left_on=["Body", "Value"],
+        right_on=["Planet", "SignsAndHouses"],
+        how="left",
+    )
+    raw = ",".join(merged["Positives"].dropna().str.lower())
+    if not raw:
+        return []
+    return sorted(set(t.strip() for t in raw.split(",") if t.strip()))
