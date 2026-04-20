@@ -23,7 +23,7 @@ import plotly.graph_objects as go  # noqa: E402
 from wordcloud import WordCloud  # noqa: E402
 
 from app.config import settings  # noqa: E402
-from app.core.constants import ZODIAC_INFO  # noqa: E402
+from app.core.constants import NAKSHATRA_NAMES, ZODIAC_INFO  # noqa: E402
 
 
 # Geometry derived from settings
@@ -40,17 +40,8 @@ CIRCLE_4 = CIRCLE_3 + CIRCLE_SPACING
 def generate_zodiac_chart(
     bodies: pd.DataFrame,
     aspects_df: pd.DataFrame,
+    zodiac_system: str = "Tropical",
 ) -> go.Figure:
-    """Render the full zodiac wheel for the given chart data.
-
-    Parameters
-    ----------
-    bodies
-        DataFrame from :class:`app.core.chart.Chart.bodies` with
-        pre-computed ``Rotated_Pos``, ``rad_rot_x``, ``rad_rot_y``.
-    aspects_df
-        DataFrame from :class:`app.core.chart.Chart.aspects`.
-    """
     fig = go.Figure()
     _setup_layout(fig)
     _draw_base_circles(fig)
@@ -64,6 +55,9 @@ def generate_zodiac_chart(
     _draw_planets(fig, bodies)
     _draw_aspect_lines(fig, bodies, aspects_df)
 
+    if zodiac_system == "Sidereal":
+        _draw_nakshatra_ring(fig, rotation_deg)
+
     return fig
 
 
@@ -75,10 +69,10 @@ def _setup_layout(fig: go.Figure) -> None:
                      showgrid=False, zeroline=False)
     fig.update_layout(
         showlegend=False,
-        width=800,
-        height=800,
+        autosize=True,
+        margin=dict(l=10, r=10, t=10, b=10),
         plot_bgcolor="white",
-        xaxis=dict(showgrid=False, zeroline=False),
+        xaxis=dict(showgrid=False, zeroline=False, scaleanchor="y"),
         yaxis=dict(showgrid=False, zeroline=False),
     )
 
@@ -285,6 +279,31 @@ def _draw_aspect_lines(
         )
 
 
+def _draw_nakshatra_ring(fig: go.Figure, rotation_deg: float) -> None:
+    nak_r = CIRCLE_4 + CIRCLE_SPACING * 0.6
+    span = 360 / 27
+    for i, name in enumerate(NAKSHATRA_NAMES):
+        start_deg = i * span - rotation_deg
+        mid_angle = np.deg2rad(start_deg + span / 2)
+        fig.add_annotation(
+            x=nak_r * np.cos(mid_angle),
+            y=nak_r * np.sin(mid_angle),
+            text=name[:4],
+            showarrow=False,
+            font=dict(size=7, color="#8b7355"),
+            xanchor="center", yanchor="middle",
+            textangle=float(-np.degrees(mid_angle)),
+        )
+        tick_angle = np.deg2rad(start_deg)
+        fig.add_shape(
+            type="line",
+            x0=CIRCLE_4 * np.cos(tick_angle), y0=CIRCLE_4 * np.sin(tick_angle),
+            x1=(CIRCLE_4 + CIRCLE_SPACING * 0.3) * np.cos(tick_angle),
+            y1=(CIRCLE_4 + CIRCLE_SPACING * 0.3) * np.sin(tick_angle),
+            line=dict(color="#c4bdb4", width=0.5),
+        )
+
+
 # ---------------------------------------------------------------------------
 # Word clouds
 # ---------------------------------------------------------------------------
@@ -320,29 +339,22 @@ def generate_wordclouds(
     )
 
     positives = ",".join(merged["Positives"].dropna().str.lower())
-    negatives = ",".join(merged["Negatives"].dropna().str.lower())
-
-    # WordCloud raises on empty input; fall back to a placeholder
     positives = positives or "none"
-    negatives = negatives or "none"
 
-    pos_wc = WordCloud(width=800, height=400,
-                       background_color="white").generate(positives)
-    neg_wc = WordCloud(width=800, height=400,
-                       background_color="white").generate(negatives)
+    wc = WordCloud(
+        width=800, height=600,
+        background_color="white",
+        colormap="copper",
+        max_words=80,
+    ).generate(positives)
 
-    fig = plt.figure(figsize=(15, 10))
-    plt.subplot(1, 2, 1)
-    plt.imshow(pos_wc, interpolation="bilinear")
+    fig = plt.figure(figsize=(8, 6))
+    plt.imshow(wc, interpolation="bilinear")
     plt.axis("off")
-    plt.title("Strengths")
-    plt.subplot(1, 2, 2)
-    plt.imshow(neg_wc, interpolation="bilinear")
-    plt.axis("off")
-    plt.title("Stress Causing Emotions")
+    plt.title("Strengths & Personality Traits", fontsize=12, color="#5a4e3c", pad=8)
 
     buf = io.BytesIO()
-    fig.savefig(buf, format="png", bbox_inches="tight")
+    fig.savefig(buf, format="png", bbox_inches="tight", dpi=120)
     plt.close(fig)
     buf.seek(0)
     return buf.read()
