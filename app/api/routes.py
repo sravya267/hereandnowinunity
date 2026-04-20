@@ -94,8 +94,9 @@ def chart_wheel(req: ChartRequest) -> HTMLResponse:
     except LocationNotFound as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    fig = generate_zodiac_chart(chart.bodies, chart.aspects)
-    return HTMLResponse(content=fig.to_html(include_plotlyjs="cdn", full_html=True))
+    fig = generate_zodiac_chart(chart.bodies, chart.aspects, chart.zodiac_system)
+    html = fig.to_html(include_plotlyjs="cdn", full_html=True, config={"responsive": True})
+    return HTMLResponse(content=html)
 
 
 @router.post(
