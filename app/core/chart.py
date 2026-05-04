@@ -40,7 +40,7 @@ class Chart:
     bodies: pd.DataFrame
     aspects: pd.DataFrame
     ayanamsa: float | None = None
-    traits: list[str] | None = None
+    traits: list[dict] | None = None
 
 
 def compute_chart(
@@ -136,7 +136,7 @@ def compute_chart(
     )
 
 
-def _compute_traits(bodies: pd.DataFrame) -> list[str]:
+def _compute_traits(bodies: pd.DataFrame) -> list[dict]:
     csv_path = Path(settings.PERSONALITIES_CSV)
     if not csv_path.exists():
         return []
@@ -158,4 +158,12 @@ def _compute_traits(bodies: pd.DataFrame) -> list[str]:
     raw = ",".join(merged["Positives"].dropna().str.lower())
     if not raw:
         return []
-    return sorted(set(t.strip() for t in raw.split(",") if t.strip()))
+    counts: dict[str, int] = {}
+    for t in raw.split(","):
+        t = t.strip()
+        if t:
+            counts[t] = counts.get(t, 0) + 1
+    return [
+        {"word": w, "weight": c}
+        for w, c in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+    ]
