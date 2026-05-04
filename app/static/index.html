@@ -175,6 +175,7 @@ canvas{display:block;width:100%;height:100%}
 <script>
 // ─── Wheel drawing ────────────────────────────────────────────────────────────
 var SIGN_SYMBOLS = ['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+var SIGN_NAMES_W = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 // Element-tinted glyphs: Fire=red, Earth=green, Air=amber, Water=blue
 var SIGN_GLYPH_COLS = ['#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e'];
 var NAK_NAMES = ['Ashw','Bhar','Krit','Rohi','Mrig','Ardr','Puna','Push','Ashl','Magh','PPha','UPha','Hast','Chit','Swat','Vish','Anur','Jyes','Mool','PAsh','UAsh','Shra','Dhan','Shat','PBha','UBha','Reva'];
@@ -260,7 +261,7 @@ function drawWheel(data) {
   ctx.fillStyle = '#fff';
   ctx.fillRect(0, 0, W, H);
 
-  // ── zodiac sign band (white cells, hairline separators, element-tinted glyphs)
+  // ── zodiac sign band (white cells, hairline separators, element-tinted names)
   for (var i = 0; i < 12; i++) {
     var sa1 = lon2a(i * 30);
     var sa2 = lon2a((i + 1) * 30);
@@ -275,10 +276,14 @@ function drawWheel(data) {
     var midA = lon2a(i * 30 + 15);
     var mr = (r4 + r3) / 2;
     var sgp = pt(mr, midA);
-    ctx.font = Math.round(R * 0.075) + 'px serif';
+    ctx.save();
+    ctx.translate(sgp[0], sgp[1]);
+    ctx.rotate(midA + Math.PI / 2);
+    ctx.font = '600 ' + Math.round(R * 0.038) + 'px sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = SIGN_GLYPH_COLS[i];
-    ctx.fillText(SIGN_SYMBOLS[i], sgp[0], sgp[1]);
+    ctx.fillText(SIGN_NAMES_W[i], 0, 0);
+    ctx.restore();
   }
 
   // ── degree tick marks (outside the sign band)
