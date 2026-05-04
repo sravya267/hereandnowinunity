@@ -463,7 +463,9 @@ function drawWheel(data) {
     var lbp = pt(it.rSym - R*0.095, a);
     ctx.save();
     ctx.translate(lbp[0], lbp[1]);
-    ctx.rotate(a + Math.PI / 2);
+    // Radial orientation (parallel to aspect lines). Flip on left half so text stays upright.
+    var flip = (a > Math.PI / 2 || a < -Math.PI / 2) ? Math.PI : 0;
+    ctx.rotate(a + flip);
     ctx.font = Math.round(R * 0.032) + 'px sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = p.Motion === 'R' ? '#c0392b' : '#444';
