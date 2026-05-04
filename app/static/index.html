@@ -32,8 +32,8 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .page{display:none;padding:10px 16px}
 .page.active{display:block}
 
-.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.card{background:#fff;border:1px solid #e8e4df;border-radius:5px;overflow:hidden;display:flex;flex-direction:column;height:500px}
+.row{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+.card{background:#fff;border:1px solid #e8e4df;border-radius:5px;overflow:hidden;display:flex;flex-direction:column;height:640px}
 
 .card-hdr{display:flex;justify-content:space-between;align-items:center;padding:5px 10px;background:#faf8f5;border-bottom:1px solid #e8e4df;flex-shrink:0}
 .card-hdr-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9b9185}
@@ -58,9 +58,16 @@ canvas{display:block;width:100%;height:100%}
 .asp-pop input[type="checkbox"]{accent-color:#8b7355}
 .asp-pop .asp-glyph{display:inline-block;width:14px;text-align:center;color:#8b7355}
 
-.traits-wrap{padding:10px;display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;align-content:center;justify-content:center;line-height:1}
-.trait-bubble{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:.55em .9em;font-weight:500;letter-spacing:.01em;cursor:default;border:1px solid rgba(0,0,0,.04);box-shadow:inset 0 -2px 0 rgba(0,0,0,.04),0 1px 2px rgba(60,50,30,.06);transition:transform .15s ease,box-shadow .15s ease}
-.trait-bubble:hover{transform:translateY(-1px);box-shadow:inset 0 -2px 0 rgba(0,0,0,.05),0 3px 6px rgba(60,50,30,.12)}
+.gear-btn{padding:2px 7px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#5a4e3c;font-size:13px;cursor:pointer;font-family:inherit;line-height:1}
+.gear-btn:hover{background:#f5efe6}
+.settings-panel{display:none;border-bottom:1px solid #f0ece7;background:#fcfbf9;padding:8px 10px;font-size:11px;color:#5a4e3c}
+.settings-panel.open{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px}
+.settings-panel .grp{display:flex;flex-direction:column;gap:3px}
+.settings-panel .grp-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9b9185;margin-bottom:2px}
+.settings-panel .grp label{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:11px;color:#5a4e3c;text-transform:none;letter-spacing:0}
+.settings-panel .grp label:hover{color:#3d3a36}
+.settings-panel input[type="checkbox"]{accent-color:#8b7355}
+.settings-panel select{padding:2px 5px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#5a4e3c;font-size:11px;font-family:inherit;width:fit-content}
 
 .info-box{padding:4px 8px;font-size:10px;line-height:1.6;font-family:'Menlo','Consolas','Courier New',monospace;white-space:pre-wrap;word-break:break-word;user-select:text}
 .s-hdr{color:#b09e82;font-size:9px;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #f0ece7;margin-top:4px;margin-bottom:1px;padding-bottom:1px}
@@ -72,8 +79,8 @@ canvas{display:block;width:100%;height:100%}
 .loading::before{content:'';display:inline-block;width:16px;height:16px;border:2px solid #e8e4df;border-top-color:#8b7355;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes sp{to{transform:rotate(360deg)}}
 
-@media(max-width:1000px){.row{grid-template-columns:1fr 1fr}.card{height:440px}}
-@media(max-width:650px){.row{grid-template-columns:1fr}.toolbar{height:auto;padding:8px 12px;flex-wrap:wrap;gap:6px}.toolbar form{flex-wrap:wrap}.sep{display:none}.toolbar input[type="date"],.toolbar input[type="time"],.toolbar input[type="text"],.toolbar select{width:100%}}
+@media(max-width:900px){.row{grid-template-columns:1fr}.card{height:540px}}
+@media(max-width:650px){.toolbar{height:auto;padding:8px 12px;flex-wrap:wrap;gap:6px}.toolbar form{flex-wrap:wrap}.sep{display:none}.toolbar input[type="date"],.toolbar input[type="time"],.toolbar input[type="text"],.toolbar select{width:100%}}
 </style>
 </head>
 <body>
@@ -113,12 +120,38 @@ canvas{display:block;width:100%;height:100%}
             <button type="button" class="asp-toggle" id="asp-toggle">All majors &#9662;</button>
             <div class="asp-pop" id="asp-pop"></div>
           </div>
+          <div class="sep" style="height:14px"></div>
+          <button type="button" class="gear-btn" id="gear-btn" title="More settings">&#9881;</button>
+        </div>
+        <div class="settings-panel" id="settings-panel">
+          <div class="grp">
+            <div class="grp-title">Display</div>
+            <label><input type="checkbox" data-disp="Chiron" checked> Chiron</label>
+            <label><input type="checkbox" data-disp="Nodes" checked> Lunar Nodes</label>
+            <label><input type="checkbox" data-disp="Angles" checked> Angles (Asc/MC)</label>
+          </div>
+          <div class="grp">
+            <div class="grp-title">Aspects to</div>
+            <label><input type="checkbox" data-aspto="Chiron" checked> Chiron</label>
+            <label><input type="checkbox" data-aspto="Nodes" checked> Lunar Nodes</label>
+            <label><input type="checkbox" data-aspto="Angles" checked> ASC &amp; MC</label>
+          </div>
+          <div class="grp">
+            <div class="grp-title">Aspect Orbs</div>
+            <select id="orb-preset">
+              <option value="0.5">Tight (0.5&times;)</option>
+              <option value="1" selected>Default</option>
+              <option value="1.5">Wide (1.5&times;)</option>
+            </select>
+          </div>
+          <div class="grp">
+            <div class="grp-title">House system</div>
+            <select id="house-system" disabled title="Coming soon">
+              <option>Default (Koch / Whole-Sign)</option>
+            </select>
+          </div>
         </div>
         <div class="card-body"><canvas id="wheel-canvas"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-hdr"><span class="card-hdr-title">Personality Strengths</span></div>
-        <div class="card-body traits-wrap" id="traits-box"></div>
       </div>
       <div class="card">
         <div class="card-hdr">
@@ -140,20 +173,38 @@ var NAK_NAMES = ['Ashw','Bhar','Krit','Rohi','Mrig','Ardr','Puna','Push','Ashl',
 
 // Aspect catalog. `kind` drives line color: hard=red, soft=blue, minor=grey.
 var ASP_TYPES = [
-  {name:'Conjunction', sym:'☌', kind:'conj',  defaultOn:true},
-  {name:'Opposition',  sym:'☍', kind:'hard',  defaultOn:true},
-  {name:'Trine',       sym:'△', kind:'soft',  defaultOn:true},
-  {name:'Square',      sym:'□', kind:'hard',  defaultOn:true},
-  {name:'Sextile',     sym:'✱', kind:'soft',  defaultOn:true},
-  {name:'Quintile',    sym:'⚼', kind:'minor', defaultOn:false},
-  {name:'Septile',     sym:'⚤', kind:'minor', defaultOn:false},
-  {name:'Semi-square', sym:'∠', kind:'hard',  defaultOn:false},
-  {name:'Novile',      sym:'⭘', kind:'minor', defaultOn:false},
-  {name:'Decile',      sym:'⭑', kind:'minor', defaultOn:false},
-  {name:'Undecile',    sym:'⭒', kind:'minor', defaultOn:false},
-  {name:'Semi-sextile',sym:'⚹', kind:'minor', defaultOn:false}
+  {name:'Conjunction',  sym:'☌',  kind:'conj',  defaultOn:true},
+  {name:'Opposition',   sym:'☍',  kind:'hard',  defaultOn:true},
+  {name:'Trine',        sym:'△',  kind:'soft',  defaultOn:true},
+  {name:'Square',       sym:'□',  kind:'hard',  defaultOn:true},
+  {name:'Sextile',      sym:'✶',  kind:'soft',  defaultOn:true},
+  {name:'Quincunx',     sym:'⚻',  kind:'minor', defaultOn:false},
+  {name:'Semi-sextile', sym:'⚹',  kind:'minor', defaultOn:false},
+  {name:'Semi-square',  sym:'∠',  kind:'hard',  defaultOn:false},
+  {name:'Sesquisquare', sym:'Sq', kind:'hard',  defaultOn:false},
+  {name:'Quintile',     sym:'⚼',  kind:'minor', defaultOn:false},
+  {name:'Bi-Quintile',  sym:'bQ', kind:'minor', defaultOn:false},
+  {name:'Septile',      sym:'⚤',  kind:'minor', defaultOn:false},
+  {name:'Novile',       sym:'⭘',  kind:'minor', defaultOn:false},
+  {name:'Decile',       sym:'⭑',  kind:'minor', defaultOn:false},
+  {name:'Undecile',     sym:'⭒',  kind:'minor', defaultOn:false}
 ];
 var ASP_COLOR = {hard:'#c0392b', soft:'#2e6fbf', minor:'#9a8f80', conj:'#7d3c98'};
+
+// Display toggles (whether a body's symbol is drawn) and aspect-to toggles
+// (whether aspect lines involving this body are drawn).
+var BODY_DISPLAY = {Chiron:true, Nodes:true, Angles:true};
+var ASPECT_TO    = {Chiron:true, Nodes:true, Angles:true};
+var ORB_PRESET = 1.0;
+var NODE_NAMES  = ['North Node','South Node','True Node','Mean Node','Rahu','Ketu'];
+var ANGLE_NAMES = ['Asc','Desc','MC','IC'];
+
+function bodyGroup(name) {
+  if (name === 'Chiron') return 'Chiron';
+  if (NODE_NAMES.indexOf(name) !== -1) return 'Nodes';
+  if (ANGLE_NAMES.indexOf(name) !== -1) return 'Angles';
+  return null;
+}
 
 // Filter state. ASP_FILTER[name] = bool. MAX_ORB capped at this value (in degrees).
 var ASP_FILTER = {};
@@ -296,7 +347,7 @@ function drawWheel(data) {
   }
 
   // ── Asc / Desc / MC / IC axes (bold black, span r1 to outer rim)
-  ['Asc','Desc','MC','IC'].forEach(function(name) {
+  if (BODY_DISPLAY.Angles) ['Asc','Desc','MC','IC'].forEach(function(name) {
     var b = data.bodies.find(function(x){ return x.Body === name; });
     if (!b) return;
     var aa = lon2a(b['Longitude (°)']);
@@ -314,8 +365,11 @@ function drawWheel(data) {
 
   // ── planets sorted by longitude; resolve close clusters by radial offset
   var planets = data.bodies.filter(function(b){
-    return b.Symbol && b.Body.indexOf('House') === -1 &&
-      b.Body !== 'Asc' && b.Body !== 'MC' && b.Body !== 'Desc' && b.Body !== 'IC';
+    if (!b.Symbol || b.Body.indexOf('House') !== -1) return false;
+    if (ANGLE_NAMES.indexOf(b.Body) !== -1) return false;
+    var grp = bodyGroup(b.Body);
+    if (grp && !BODY_DISPLAY[grp]) return false;
+    return true;
   }).slice().sort(function(a,b){
     return a['Longitude (°)'] - b['Longitude (°)'];
   });
@@ -345,10 +399,12 @@ function drawWheel(data) {
 
   var aspects = (data.aspects || []).filter(function(a) {
     if (!ASP_FILTER[a.Aspect]) return false;
+    var g1 = bodyGroup(a.Body1), g2 = bodyGroup(a.Body2);
+    if ((g1 && !ASPECT_TO[g1]) || (g2 && !ASPECT_TO[g2])) return false;
     var orbDelta = (a.Orb != null && a.Closeness != null)
       ? (1 - a.Closeness) * a.Orb
       : Math.abs((a.Angle || 0) - (a.Degrees || 0));
-    return orbDelta <= MAX_ORB;
+    return orbDelta <= MAX_ORB * ORB_PRESET;
   });
 
   aspects.forEach(function(asp) {
@@ -445,57 +501,6 @@ function copyInfo() {
   });
 }
 
-// ─── Traits (bubble word cloud) ──────────────────────────────────────────────
-var BUBBLE_PALETTE = [
-  {bg:'#fde2e4',fg:'#8a3a48'},
-  {bg:'#fad2b1',fg:'#8a5a2c'},
-  {bg:'#fff1b6',fg:'#7a6322'},
-  {bg:'#d8ecd0',fg:'#3d6b3a'},
-  {bg:'#cfe7e3',fg:'#2f6b65'},
-  {bg:'#d6e4f5',fg:'#3a5a8a'},
-  {bg:'#e2d6f2',fg:'#5a3d8a'},
-  {bg:'#f5d6e8',fg:'#8a3d6e'},
-  {bg:'#ede2c8',fg:'#7a5e2c'},
-  {bg:'#dfe8d6',fg:'#4a6b35'}
-];
-
-function hashStr(s) {
-  var h = 0;
-  for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-  return Math.abs(h);
-}
-
-function buildTraits(traits) {
-  var box = document.getElementById('traits-box');
-  if (!traits || !traits.length) {
-    box.innerHTML = '<span style="color:#c4bdb4;font-size:11px">No trait data</span>';
-    return;
-  }
-  // Normalize: support legacy list[str] or new list[{word,weight}].
-  var items = traits.map(function(t){
-    if (typeof t === 'string') return {word:t, weight:1};
-    return {word:t.word, weight:t.weight || 1};
-  });
-  var weights = items.map(function(i){ return i.weight; });
-  var wMin = Math.min.apply(null, weights);
-  var wMax = Math.max.apply(null, weights);
-  var fMin = 11, fMax = 30;
-
-  items.sort(function(a, b){
-    return (hashStr(a.word) % 1000) - (hashStr(b.word) % 1000);
-  });
-
-  box.innerHTML = items.map(function(it){
-    var t = wMax === wMin ? 0.5 : (it.weight - wMin) / (wMax - wMin);
-    var size = (fMin + t * (fMax - fMin)).toFixed(1);
-    var pal = BUBBLE_PALETTE[hashStr(it.word) % BUBBLE_PALETTE.length];
-    var style = 'font-size:' + size + 'px;background:' + pal.bg + ';color:' + pal.fg + ';';
-    var title = 'weight: ' + it.weight;
-    return '<span class="trait-bubble" style="' + style + '" title="' + title + '">' +
-      it.word + '</span>';
-  }).join('');
-}
-
 // ─── Meta bar ────────────────────────────────────────────────────────────────
 function buildMeta(d) {
   var items = [['Location',d.location],['Timezone',d.moment.timezone],['System',d.zodiac_system],
@@ -551,6 +556,30 @@ function updateAspToggleLabel() {
     if (LAST_DATA) drawWheel(LAST_DATA);
   });
 
+  // Gear: toggle the extended settings panel.
+  var gear = document.getElementById('gear-btn');
+  var panel = document.getElementById('settings-panel');
+  gear.addEventListener('click', function(){
+    panel.classList.toggle('open');
+    if (LAST_DATA) requestAnimationFrame(function(){ drawWheel(LAST_DATA); });
+  });
+
+  // Display + Aspects-to checkboxes.
+  panel.addEventListener('change', function(e){
+    var cb = e.target;
+    if (!cb || cb.tagName !== 'INPUT' || cb.type !== 'checkbox') return;
+    if (cb.dataset.disp)  BODY_DISPLAY[cb.dataset.disp]  = cb.checked;
+    if (cb.dataset.aspto) ASPECT_TO[cb.dataset.aspto]    = cb.checked;
+    if (LAST_DATA) drawWheel(LAST_DATA);
+  });
+
+  // Orb preset multiplier.
+  var preset = document.getElementById('orb-preset');
+  preset.addEventListener('change', function(){
+    ORB_PRESET = parseFloat(preset.value);
+    if (LAST_DATA) drawWheel(LAST_DATA);
+  });
+
   updateAspToggleLabel();
 
   window.addEventListener('resize', function(){
@@ -590,7 +619,6 @@ function updateAspToggleLabel() {
         spinner.style.display = 'none'; btn.disabled = false;
         LAST_DATA = d;
         buildMeta(d);
-        buildTraits(d.traits);
         buildInfoBox(d);
         results.classList.add('active');
         requestAnimationFrame(function(){ drawWheel(d); });

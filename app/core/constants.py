@@ -77,13 +77,17 @@ PLANET_IDS: dict[str, int] = {
 # Aspects
 # ---------------------------------------------------------------------------
 # Orbs are doubled vs. the raw values to match the notebook's behaviour.
-_BASE_ORBS = [5, 5, 5, 5, 4, 2, 3, 1, 2, 2, 1, 1]
+_BASE_ORBS = [5, 5, 5, 5, 4, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1]
 
 ASPECTS: pd.DataFrame = pd.DataFrame({
-    "Degrees": [0.0, 180.0, 120.0, 90.0, 72.0, 60.0, 360 / 7, 45.0, 40.0, 36.0, 360 / 11, 30.0],
+    "Degrees": [
+        0.0, 180.0, 120.0, 90.0, 72.0, 60.0, 360 / 7,
+        45.0, 40.0, 36.0, 144.0, 360 / 11, 30.0, 150.0, 135.0,
+    ],
     "Aspect": [
         "Conjunction", "Opposition", "Trine", "Square", "Quintile", "Sextile", "Septile",
-        "Semi-square", "Novile", "Decile", "Undecile", "Semi-sextile",
+        "Semi-square", "Novile", "Decile", "Bi-Quintile", "Undecile", "Semi-sextile",
+        "Quincunx", "Sesquisquare",
     ],
     "Orb": [o * 2 for o in _BASE_ORBS],
     "Description": [
@@ -97,14 +101,18 @@ ASPECTS: pd.DataFrame = pd.DataFrame({
         "Indicates minor challenges and friction, requiring adjustments.",
         "Connected to spiritual insights, deep wisdom, or enlightenment.",
         "Related to subtle talents and creative nuances.",
+        "Doubled-quintile resonance; stylistic or artistic refinement.",
         "Reflects minor but significant interactions, often nuanced or specialized.",
         "Mildly harmonious or challenging, offers slight opportunities.",
+        "Inconjunct adjustment requiring re-orientation between energies.",
+        "Sesquiquadrate (tri-octile); minor friction needing release.",
     ],
     "Color": [
         "#7D3C98", "#FF0000", "#0000FF", "#FF4500", "#1E90FF", "#4682B4", "#87CEEB",
-        "#FF6347", "#ADD8E6", "#B0E0E6", "#5F9EA0", "#00BFFF",
+        "#FF6347", "#ADD8E6", "#B0E0E6", "#9B59B6", "#5F9EA0", "#00BFFF",
+        "#16A085", "#E67E22",
     ],
-    "aspect_symbol": ["☌", "☍", "△", "□", "⚼", "✶", "⚤", "∠", "⭘", "⭑", "⭒", "⚹"],
+    "aspect_symbol": ["☌", "☍", "△", "□", "⚼", "✶", "⚤", "∠", "⭘", "⭑", "bQ", "⭒", "⚹", "⚻", "Sq"],
 })
 
 
