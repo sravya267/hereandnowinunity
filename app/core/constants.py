@@ -77,16 +77,17 @@ PLANET_IDS: dict[str, int] = {
 # Aspects
 # ---------------------------------------------------------------------------
 # Orbs are doubled vs. the raw values to match the notebook's behaviour.
-_BASE_ORBS = [5, 5, 5, 4, 2, 3, 1, 2, 2, 1, 1]
+_BASE_ORBS = [5, 5, 5, 5, 4, 2, 3, 1, 2, 2, 1, 1]
 
 ASPECTS: pd.DataFrame = pd.DataFrame({
-    "Degrees": [180.0, 120.0, 90.0, 72.0, 60.0, 360 / 7, 45.0, 40.0, 36.0, 360 / 11, 30.0],
+    "Degrees": [0.0, 180.0, 120.0, 90.0, 72.0, 60.0, 360 / 7, 45.0, 40.0, 36.0, 360 / 11, 30.0],
     "Aspect": [
-        "Opposition", "Trine", "Square", "Quintile", "Sextile", "Septile",
+        "Conjunction", "Opposition", "Trine", "Square", "Quintile", "Sextile", "Septile",
         "Semi-square", "Novile", "Decile", "Undecile", "Semi-sextile",
     ],
     "Orb": [o * 2 for o in _BASE_ORBS],
     "Description": [
+        "A merging of planetary energies; highly significant and intensifying.",
         "Indicates tension, conflict, or balance between opposing forces.",
         "Harmonious aspect that facilitates natural flow and ease.",
         "Challenging aspect causing tension and requiring effort to overcome.",
@@ -100,10 +101,10 @@ ASPECTS: pd.DataFrame = pd.DataFrame({
         "Mildly harmonious or challenging, offers slight opportunities.",
     ],
     "Color": [
-        "#FF0000", "#0000FF", "#FF4500", "#1E90FF", "#4682B4", "#87CEEB",
+        "#7D3C98", "#FF0000", "#0000FF", "#FF4500", "#1E90FF", "#4682B4", "#87CEEB",
         "#FF6347", "#ADD8E6", "#B0E0E6", "#5F9EA0", "#00BFFF",
     ],
-    "aspect_symbol": ["☍", "△", "□", "⚼", "✶", "⚤", "☌", "⭘", "⭑", "⭒", "⚹"],
+    "aspect_symbol": ["☌", "☍", "△", "□", "⚼", "✶", "⚤", "∠", "⭘", "⭑", "⭒", "⚹"],
 })
 
 
