@@ -87,6 +87,7 @@ def calculate_aspects(
                 "Aspect": row["Aspect"],
                 "Angle": float(angle),
                 "Degrees": row["Degrees"],
+                "Orb": float(asp_orbs[k]),
                 "Color": row["Color"],
                 "aspect_symbol": row["aspect_symbol"],
                 "Description": row["Description"],
@@ -101,7 +102,7 @@ def calculate_aspects(
 def _empty_result() -> pd.DataFrame:
     """Return an empty DataFrame with the expected schema."""
     return pd.DataFrame(columns=[
-        "Body1", "Body2", "Aspect", "Angle", "Degrees",
+        "Body1", "Body2", "Aspect", "Angle", "Degrees", "Orb",
         "Color", "aspect_symbol", "Description", "Closeness",
     ])
 
