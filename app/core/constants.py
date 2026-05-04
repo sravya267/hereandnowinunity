@@ -48,11 +48,16 @@ PLANETS: pd.DataFrame = pd.DataFrame({
     "Planet": [
         "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn",
         "Uranus", "Neptune", "Pluto", "Chiron", "North Node", "South Node",
+        "Vertex", "Fortune",
     ],
-    "Symbol": ["☉", "☾", "☿", "♀", "♂", "♃", "♄", "♅", "♆", "♇", "⚷", "☊", "☋"],
+    "Symbol": [
+        "☉", "☾", "☿", "♀", "♂", "♃", "♄", "♅", "♆", "♇", "⚷", "☊", "☋",
+        "Vx", "⊗",
+    ],
     "Color": [
         "#F8F71A", "#b0c4de", "#34F520", "#F871F0", "#FB1406", "#C4C321",
         "#3421A1", "#A01414", "#68D6F3", "#D3E0E4", "#808080", "#696969", "#696969",
+        "#7d3c98", "#16a085",
     ],
 })
 
@@ -77,16 +82,21 @@ PLANET_IDS: dict[str, int] = {
 # Aspects
 # ---------------------------------------------------------------------------
 # Orbs are doubled vs. the raw values to match the notebook's behaviour.
-_BASE_ORBS = [5, 5, 5, 4, 2, 3, 1, 2, 2, 1, 1]
+_BASE_ORBS = [5, 5, 5, 5, 4, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1]
 
 ASPECTS: pd.DataFrame = pd.DataFrame({
-    "Degrees": [180.0, 120.0, 90.0, 72.0, 60.0, 360 / 7, 45.0, 40.0, 36.0, 360 / 11, 30.0],
+    "Degrees": [
+        0.0, 180.0, 120.0, 90.0, 72.0, 60.0, 360 / 7,
+        45.0, 40.0, 36.0, 144.0, 360 / 11, 30.0, 150.0, 135.0,
+    ],
     "Aspect": [
-        "Opposition", "Trine", "Square", "Quintile", "Sextile", "Septile",
-        "Semi-square", "Novile", "Decile", "Undecile", "Semi-sextile",
+        "Conjunction", "Opposition", "Trine", "Square", "Quintile", "Sextile", "Septile",
+        "Semi-square", "Novile", "Decile", "Bi-Quintile", "Undecile", "Semi-sextile",
+        "Quincunx", "Sesquisquare",
     ],
     "Orb": [o * 2 for o in _BASE_ORBS],
     "Description": [
+        "A merging of planetary energies; highly significant and intensifying.",
         "Indicates tension, conflict, or balance between opposing forces.",
         "Harmonious aspect that facilitates natural flow and ease.",
         "Challenging aspect causing tension and requiring effort to overcome.",
@@ -96,14 +106,18 @@ ASPECTS: pd.DataFrame = pd.DataFrame({
         "Indicates minor challenges and friction, requiring adjustments.",
         "Connected to spiritual insights, deep wisdom, or enlightenment.",
         "Related to subtle talents and creative nuances.",
+        "Doubled-quintile resonance; stylistic or artistic refinement.",
         "Reflects minor but significant interactions, often nuanced or specialized.",
         "Mildly harmonious or challenging, offers slight opportunities.",
+        "Inconjunct adjustment requiring re-orientation between energies.",
+        "Sesquiquadrate (tri-octile); minor friction needing release.",
     ],
     "Color": [
-        "#FF0000", "#0000FF", "#FF4500", "#1E90FF", "#4682B4", "#87CEEB",
-        "#FF6347", "#ADD8E6", "#B0E0E6", "#5F9EA0", "#00BFFF",
+        "#7D3C98", "#FF0000", "#0000FF", "#FF4500", "#1E90FF", "#4682B4", "#87CEEB",
+        "#FF6347", "#ADD8E6", "#B0E0E6", "#9B59B6", "#5F9EA0", "#00BFFF",
+        "#16A085", "#E67E22",
     ],
-    "aspect_symbol": ["☍", "△", "□", "⚼", "✶", "⚤", "☌", "⭘", "⭑", "⭒", "⚹"],
+    "aspect_symbol": ["☌", "☍", "△", "□", "⚼", "✶", "⚤", "∠", "⭘", "⭑", "bQ", "⭒", "⚹", "⚻", "Sq"],
 })
 
 
