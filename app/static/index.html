@@ -44,8 +44,9 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 
 canvas{display:block;width:100%;height:100%}
 
-.traits-wrap{padding:8px 10px;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start}
-.trait-tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10.5px;background:#f0ebe3;color:#5a4e3c;border:1px solid #ddd8d1;cursor:default}
+.traits-wrap{padding:10px;display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;align-content:center;justify-content:center;line-height:1}
+.trait-bubble{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:.55em .9em;font-weight:500;letter-spacing:.01em;cursor:default;border:1px solid rgba(0,0,0,.04);box-shadow:inset 0 -2px 0 rgba(0,0,0,.04),0 1px 2px rgba(60,50,30,.06);transition:transform .15s ease,box-shadow .15s ease}
+.trait-bubble:hover{transform:translateY(-1px);box-shadow:inset 0 -2px 0 rgba(0,0,0,.05),0 3px 6px rgba(60,50,30,.12)}
 
 .info-box{padding:4px 8px;font-size:10px;line-height:1.6;font-family:'Menlo','Consolas','Courier New',monospace;white-space:pre-wrap;word-break:break-word;user-select:text}
 .s-hdr{color:#b09e82;font-size:9px;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #f0ece7;margin-top:4px;margin-bottom:1px;padding-bottom:1px}
@@ -342,12 +343,55 @@ function copyInfo() {
   });
 }
 
-// ─── Traits ──────────────────────────────────────────────────────────────────
+// ─── Traits (bubble word cloud) ──────────────────────────────────────────────
+var BUBBLE_PALETTE = [
+  {bg:'#fde2e4',fg:'#8a3a48'},
+  {bg:'#fad2b1',fg:'#8a5a2c'},
+  {bg:'#fff1b6',fg:'#7a6322'},
+  {bg:'#d8ecd0',fg:'#3d6b3a'},
+  {bg:'#cfe7e3',fg:'#2f6b65'},
+  {bg:'#d6e4f5',fg:'#3a5a8a'},
+  {bg:'#e2d6f2',fg:'#5a3d8a'},
+  {bg:'#f5d6e8',fg:'#8a3d6e'},
+  {bg:'#ede2c8',fg:'#7a5e2c'},
+  {bg:'#dfe8d6',fg:'#4a6b35'}
+];
+
+function hashStr(s) {
+  var h = 0;
+  for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
 function buildTraits(traits) {
   var box = document.getElementById('traits-box');
-  if (!traits || !traits.length) { box.innerHTML = '<span style="color:#c4bdb4;font-size:11px">No trait data</span>'; return; }
-  box.innerHTML = traits.map(function(t){
-    return '<span class="trait-tag">' + t + '</span>';
+  if (!traits || !traits.length) {
+    box.innerHTML = '<span style="color:#c4bdb4;font-size:11px">No trait data</span>';
+    return;
+  }
+  // Normalize: support legacy list[str] or new list[{word,weight}].
+  var items = traits.map(function(t){
+    if (typeof t === 'string') return {word:t, weight:1};
+    return {word:t.word, weight:t.weight || 1};
+  });
+  var weights = items.map(function(i){ return i.weight; });
+  var wMin = Math.min.apply(null, weights);
+  var wMax = Math.max.apply(null, weights);
+  var fMin = 11, fMax = 30;
+
+  // Stable shuffle so colors+positions feel cloud-like, not alphabetical.
+  items.sort(function(a, b){
+    return (hashStr(a.word) % 1000) - (hashStr(b.word) % 1000);
+  });
+
+  box.innerHTML = items.map(function(it){
+    var t = wMax === wMin ? 0.5 : (it.weight - wMin) / (wMax - wMin);
+    var size = (fMin + t * (fMax - fMin)).toFixed(1);
+    var pal = BUBBLE_PALETTE[hashStr(it.word) % BUBBLE_PALETTE.length];
+    var style = 'font-size:' + size + 'px;background:' + pal.bg + ';color:' + pal.fg + ';';
+    var title = 'weight: ' + it.weight;
+    return '<span class="trait-bubble" style="' + style + '" title="' + title + '">' +
+      it.word + '</span>';
   }).join('');
 }
 
