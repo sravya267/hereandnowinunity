@@ -59,6 +59,7 @@ def create_chart(req: ChartRequest) -> ChartResponse:
             birth_datetime=req.birth_datetime,
             location_name=req.location,
             zodiac_system=req.zodiac_system,
+            house_system=req.house_system,
         )
     except LocationNotFound as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -91,6 +92,7 @@ def chart_wheel(req: ChartRequest) -> HTMLResponse:
             birth_datetime=req.birth_datetime,
             location_name=req.location,
             zodiac_system=req.zodiac_system,
+            house_system=req.house_system,
         )
     except LocationNotFound as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -112,6 +114,7 @@ def chart_wordcloud(req: ChartRequest) -> Response:
             birth_datetime=req.birth_datetime,
             location_name=req.location,
             zodiac_system=req.zodiac_system,
+            house_system=req.house_system,
         )
         png_bytes = generate_wordclouds(chart.bodies)
     except FileNotFoundError as exc:

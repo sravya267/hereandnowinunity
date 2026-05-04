@@ -18,8 +18,9 @@ import swisseph as swe
 
 from app.config import settings
 from app.core.aspects import calculate_aspects
-from app.core.constants import PLANETS, degree_to_nakshatra
+from app.core.constants import PLANETS, degree_to_nakshatra, degree_to_sign
 from app.core.ephemeris import (
+    HouseSystem,
     ZodiacSystem,
     calculate_house_cusps,
     calculate_planetary_positions,
@@ -47,6 +48,7 @@ def compute_chart(
     birth_datetime: datetime,
     location_name: str,
     zodiac_system: ZodiacSystem = "Tropical",
+    house_system: HouseSystem = "Koch",
 ) -> Chart:
     """Compute a complete natal chart for the given birth moment.
 
@@ -57,8 +59,9 @@ def compute_chart(
     location_name
         Human-readable place name (geocoded via Nominatim).
     zodiac_system
-        ``"Tropical"`` (Koch houses) or ``"Sidereal"`` (Whole Sign,
-        Lahiri Ayanamsa).
+        ``"Tropical"`` or ``"Sidereal"`` (Lahiri Ayanamsa).
+    house_system
+        Tropical only — Sidereal always uses Whole Sign.
     """
     moment = resolve(birth_datetime, location_name)
 
@@ -76,7 +79,12 @@ def compute_chart(
         moment.latitude,
         moment.longitude,
         zodiac_system,
+        house_system,
     )
+
+    fortune = _compute_part_of_fortune(positions, houses)
+    if fortune is not None:
+        positions.append(fortune)
 
     df = pd.DataFrame(positions + houses)
     df["Sys"] = zodiac_system
@@ -134,6 +142,47 @@ def compute_chart(
         ayanamsa=ayanamsa,
         traits=traits,
     )
+
+
+def _compute_part_of_fortune(
+    positions: list[dict], houses: list[dict]
+) -> dict | None:
+    """Lot of Fortune: Asc + Moon - Sun (day) or Asc + Sun - Moon (night).
+
+    A chart is considered "day" if the Sun is above the horizon, i.e. on
+    the same half of the wheel as the MC. The test compares the Sun's
+    angular distance to MC vs IC, which is robust at any latitude.
+    """
+    by_name = {p["Body"]: p for p in positions}
+    sun = by_name.get("Sun")
+    moon = by_name.get("Moon")
+    asc = next((h for h in houses if h["Body"] == "Asc"), None)
+    mc = next((h for h in houses if h["Body"] == "MC"), None)
+    if not (sun and moon and asc and mc):
+        return None
+
+    sun_lon = sun["Longitude (°)"]
+    moon_lon = moon["Longitude (°)"]
+    asc_lon = asc["Longitude (°)"]
+    mc_lon = mc["Longitude (°)"]
+    ic_lon = (mc_lon + 180) % 360
+
+    def _arc(a: float, b: float) -> float:
+        d = abs(a - b) % 360
+        return min(d, 360 - d)
+
+    is_day = _arc(sun_lon, mc_lon) < _arc(sun_lon, ic_lon)
+    fortune = (asc_lon + moon_lon - sun_lon) % 360 if is_day else (asc_lon + sun_lon - moon_lon) % 360
+
+    return {
+        "Body": "Fortune",
+        "Longitude (°)": fortune,
+        "Latitude (°)": 0.0,
+        "RA (°)": 0.0,
+        "Declination (°)": 0.0,
+        "Speed (°/day)": 0.0,
+        "Sign": degree_to_sign(fortune),
+    }
 
 
 def _compute_traits(bodies: pd.DataFrame) -> list[dict]:

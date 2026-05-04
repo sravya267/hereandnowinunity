@@ -10,6 +10,21 @@ from app.core.constants import PLANET_IDS, degree_to_sign
 
 
 ZodiacSystem = Literal["Tropical", "Sidereal"]
+HouseSystem = Literal[
+    "Placidus", "Koch", "Whole Sign", "Equal", "Porphyry",
+    "Regiomontanus", "Campanus",
+]
+
+# Swiss Ephemeris house-system codes (single-byte ASCII).
+HOUSE_SYSTEM_CODES: dict[str, bytes] = {
+    "Placidus": b"P",
+    "Koch": b"K",
+    "Whole Sign": b"W",
+    "Equal": b"E",
+    "Porphyry": b"O",
+    "Regiomontanus": b"R",
+    "Campanus": b"C",
+}
 
 
 def _ensure_ephe() -> None:
@@ -62,15 +77,17 @@ def calculate_house_cusps(
     latitude: float,
     longitude: float,
     system: ZodiacSystem,
+    house_system: HouseSystem = "Koch",
 ) -> list[dict]:
-    """Return house cusps plus Ascendant, MC, Descendant, and IC.
+    """Return house cusps plus Ascendant, MC, Descendant, IC, and Vertex.
 
-    Tropical charts use the Koch house system. Sidereal charts use Whole
-    Sign houses with the Lahiri Ayanamsa.
+    Tropical charts honor ``house_system``. Sidereal charts always use
+    Whole Sign with the Lahiri Ayanamsa (the standard Vedic convention).
     """
     _ensure_ephe()
     if system == "Tropical":
-        house_positions, ascmc = swe.houses(julian_day, latitude, longitude, b"K")
+        code = HOUSE_SYSTEM_CODES.get(house_system, b"K")
+        house_positions, ascmc = swe.houses(julian_day, latitude, longitude, code)
     else:
         swe.set_sid_mode(swe.SIDM_LAHIRI)
         ayanamsa = swe.get_ayanamsa(julian_day)
@@ -90,6 +107,7 @@ def calculate_house_cusps(
 
     asc = ascmc[0]
     mc = ascmc[1]
+    vertex = ascmc[3] % 360
     cusps.extend([
         {"Body": "Asc", "Longitude (°)": asc, "Sign": degree_to_sign(asc)},
         {"Body": "MC", "Longitude (°)": mc, "Sign": degree_to_sign(mc)},
@@ -103,6 +121,7 @@ def calculate_house_cusps(
             "Longitude (°)": (mc + 180) % 360,
             "Sign": degree_to_sign((mc + 180) % 360),
         },
+        {"Body": "Vertex", "Longitude (°)": vertex, "Sign": degree_to_sign(vertex)},
     ])
     return cusps
 
