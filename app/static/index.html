@@ -140,7 +140,7 @@ var NAK_NAMES = ['Ashw','Bhar','Krit','Rohi','Mrig','Ardr','Puna','Push','Ashl',
 
 // Aspect catalog. `kind` drives line color: hard=red, soft=blue, minor=grey.
 var ASP_TYPES = [
-  {name:'Conjunction', sym:'☌', kind:'soft',  defaultOn:true},
+  {name:'Conjunction', sym:'☌', kind:'conj',  defaultOn:true},
   {name:'Opposition',  sym:'☍', kind:'hard',  defaultOn:true},
   {name:'Trine',       sym:'△', kind:'soft',  defaultOn:true},
   {name:'Square',      sym:'□', kind:'hard',  defaultOn:true},
@@ -153,7 +153,7 @@ var ASP_TYPES = [
   {name:'Undecile',    sym:'⭒', kind:'minor', defaultOn:false},
   {name:'Semi-sextile',sym:'⚹', kind:'minor', defaultOn:false}
 ];
-var ASP_COLOR = {hard:'#c0392b', soft:'#2e6fbf', minor:'#9a8f80'};
+var ASP_COLOR = {hard:'#c0392b', soft:'#2e6fbf', minor:'#9a8f80', conj:'#7d3c98'};
 
 // Filter state. ASP_FILTER[name] = bool. MAX_ORB capped at this value (in degrees).
 var ASP_FILTER = {};
@@ -322,12 +322,13 @@ function drawWheel(data) {
 
   var clusterDeg = 360 / (2 * Math.PI * rPl) * (R * 0.07);
   var rOffset = R * 0.075;
+  var rMin = r1 + R * 0.03;  // never let a planet symbol cross into the aspect circle
   var lastLon = -1e9, lastShift = 0;
   var placements = planets.map(function(p) {
     var lon = p['Longitude (°)'];
     var shift = (lon - lastLon < clusterDeg) ? lastShift + 1 : 0;
     lastLon = lon; lastShift = shift;
-    return { p: p, r: rPl - shift * rOffset, a: lon2a(lon) };
+    return { p: p, r: Math.max(rMin, rPl - shift * rOffset), a: lon2a(lon) };
   });
 
   // tick from inner ring toward each planet's true longitude
