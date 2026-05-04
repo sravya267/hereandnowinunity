@@ -122,6 +122,16 @@ canvas{display:block;width:100%;height:100%}
         <div class="settings-panel" id="settings-panel">
           <div class="grp">
             <div class="grp-title">Display</div>
+            <label><input type="checkbox" data-disp-name="Sun" checked> Sun</label>
+            <label><input type="checkbox" data-disp-name="Moon" checked> Moon</label>
+            <label><input type="checkbox" data-disp-name="Mercury" checked> Mercury</label>
+            <label><input type="checkbox" data-disp-name="Venus" checked> Venus</label>
+            <label><input type="checkbox" data-disp-name="Mars" checked> Mars</label>
+            <label><input type="checkbox" data-disp-name="Jupiter" checked> Jupiter</label>
+            <label><input type="checkbox" data-disp-name="Saturn" checked> Saturn</label>
+            <label><input type="checkbox" data-disp-name="Uranus" checked> Uranus</label>
+            <label><input type="checkbox" data-disp-name="Neptune" checked> Neptune</label>
+            <label><input type="checkbox" data-disp-name="Pluto" checked> Pluto</label>
             <label><input type="checkbox" data-disp="Chiron"> Chiron</label>
             <label><input type="checkbox" data-disp="Nodes"> Lunar Nodes</label>
             <label><input type="checkbox" data-disp="Angles"> Angles (Asc/MC)</label>
@@ -210,9 +220,14 @@ function aspLineColor(meta) {
   return '#1e8449';
 }
 
-// Display toggles (whether a body's symbol is drawn) and aspect-to toggles
-// (whether aspect lines involving this body are drawn).
-var BODY_DISPLAY = {Chiron:false, Nodes:false, Angles:false, Points:false};
+// Display toggles. Per-planet keys default to true; group keys default to false.
+// Unchecking a body hides its symbol and any aspect lines involving it.
+var PLANET_NAMES = ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
+var BODY_DISPLAY = {
+  Sun:true, Moon:true, Mercury:true, Venus:true, Mars:true,
+  Jupiter:true, Saturn:true, Uranus:true, Neptune:true, Pluto:true,
+  Chiron:false, Nodes:false, Angles:false, Points:false
+};
 var ASPECT_TO    = {Chiron:false, Nodes:false, Angles:false, Points:false};
 var ORB_TYPE = 'pct';
 var MAJOR_ORB_VAL = 100;
@@ -391,6 +406,7 @@ function drawWheel(data) {
   var planets = data.bodies.filter(function(b){
     if (!b.Symbol || b.Body.indexOf('House') !== -1) return false;
     if (ANGLE_NAMES.indexOf(b.Body) !== -1) return false;
+    if (BODY_DISPLAY.hasOwnProperty(b.Body) && !BODY_DISPLAY[b.Body]) return false;
     var grp = bodyGroup(b.Body);
     if (grp && !BODY_DISPLAY[grp]) return false;
     return true;
@@ -417,7 +433,7 @@ function drawWheel(data) {
     ctx.rotate(a + Math.PI / 2);
     ctx.font = 'bold ' + Math.round(R * 0.088) + 'px serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = p.Color || '#222';
+    ctx.fillStyle = '#000';
     ctx.fillText(p.Symbol, 0, 0);
     ctx.restore();
     var dd = p['Longitude (°)'] % 30;
@@ -441,6 +457,9 @@ function drawWheel(data) {
 
   var aspects = (data.aspects || []).filter(function(a) {
     if (!ASP_FILTER[a.Aspect]) return false;
+    // Per-body display: hidden bodies hide their aspect lines
+    if (BODY_DISPLAY.hasOwnProperty(a.Body1) && !BODY_DISPLAY[a.Body1]) return false;
+    if (BODY_DISPLAY.hasOwnProperty(a.Body2) && !BODY_DISPLAY[a.Body2]) return false;
     var g1 = bodyGroup(a.Body1), g2 = bodyGroup(a.Body2);
     if ((g1 && !ASPECT_TO[g1]) || (g2 && !ASPECT_TO[g2])) return false;
     var meta2 = ASP_TYPES.find(function(t){ return t.name === a.Aspect; });
@@ -597,6 +616,9 @@ function updateAspToggleLabel() {
   panel.addEventListener('change', function(e){
     var cb = e.target;
     if (!cb || cb.tagName !== 'INPUT' || cb.type !== 'checkbox') return;
+    if (cb.dataset.dispName) {
+      BODY_DISPLAY[cb.dataset.dispName] = cb.checked;
+    }
     if (cb.dataset.disp) {
       var key = cb.dataset.disp;
       BODY_DISPLAY[key] = cb.checked;
@@ -611,22 +633,46 @@ function updateAspToggleLabel() {
   });
 
   // Major / minor orb inputs + type selector.
-  document.getElementById('major-orb-val').addEventListener('input', function(){
-    MAJOR_ORB_VAL = parseFloat(this.value) || 100;
-    if (LAST_DATA) drawWheel(LAST_DATA);
-  });
-  document.getElementById('minor-orb-val').addEventListener('input', function(){
-    MINOR_ORB_VAL = parseFloat(this.value) || 50;
-    if (LAST_DATA) drawWheel(LAST_DATA);
-  });
+  function bindOrb(id, setter, fallback) {
+    var el = document.getElementById(id);
+    function update() {
+      var v = parseFloat(el.value);
+      setter(isFinite(v) ? v : fallback);
+      if (LAST_DATA) drawWheel(LAST_DATA);
+    }
+    el.addEventListener('input', update);
+    el.addEventListener('change', update);
+  }
+  bindOrb('major-orb-val', function(v){ MAJOR_ORB_VAL = v; }, 100);
+  bindOrb('minor-orb-val', function(v){ MINOR_ORB_VAL = v; }, 50);
+
+  // Switching units adjusts both inputs to mode-appropriate defaults.
   document.getElementById('orb-type').addEventListener('change', function(){
     ORB_TYPE = this.value;
+    var maj = document.getElementById('major-orb-val');
+    var mn  = document.getElementById('minor-orb-val');
+    if (ORB_TYPE === 'deg') {
+      maj.min = '0.5'; maj.max = '15'; maj.step = '0.5'; maj.value = '6';
+      mn.min  = '0.5'; mn.max  = '15'; mn.step  = '0.5'; mn.value  = '3';
+      MAJOR_ORB_VAL = 6; MINOR_ORB_VAL = 3;
+    } else {
+      maj.min = '10'; maj.max = '200'; maj.step = '10'; maj.value = '100';
+      mn.min  = '10'; mn.max  = '200'; mn.step  = '10'; mn.value  = '50';
+      MAJOR_ORB_VAL = 100; MINOR_ORB_VAL = 50;
+    }
     if (LAST_DATA) drawWheel(LAST_DATA);
   });
 
   // House system: requires a server round-trip — re-submit the form.
   document.getElementById('house-system').addEventListener('change', function(){
     if (LAST_DATA) document.getElementById('chart-form').requestSubmit();
+  });
+
+  // Switching to Sidereal forces Whole Sign houses (Vedic convention).
+  document.getElementById('zodiac').addEventListener('change', function(){
+    if (this.value === 'Sidereal') {
+      document.getElementById('house-system').value = 'Whole Sign';
+    }
   });
 
   updateAspToggleLabel();
