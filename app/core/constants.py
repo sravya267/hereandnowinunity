@@ -48,11 +48,16 @@ PLANETS: pd.DataFrame = pd.DataFrame({
     "Planet": [
         "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn",
         "Uranus", "Neptune", "Pluto", "Chiron", "North Node", "South Node",
+        "Vertex", "Fortune",
     ],
-    "Symbol": ["☉", "☾", "☿", "♀", "♂", "♃", "♄", "♅", "♆", "♇", "⚷", "☊", "☋"],
+    "Symbol": [
+        "☉", "☾", "☿", "♀", "♂", "♃", "♄", "♅", "♆", "♇", "⚷", "☊", "☋",
+        "Vx", "⊗",
+    ],
     "Color": [
         "#F8F71A", "#b0c4de", "#34F520", "#F871F0", "#FB1406", "#C4C321",
         "#3421A1", "#A01414", "#68D6F3", "#D3E0E4", "#808080", "#696969", "#696969",
+        "#7d3c98", "#16a085",
     ],
 })
 

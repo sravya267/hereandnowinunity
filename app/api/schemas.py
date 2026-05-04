@@ -26,6 +26,13 @@ class ChartRequest(BaseModel):
         description="Zodiac system. Tropical uses Koch houses; "
                     "Sidereal uses Whole Sign with Lahiri Ayanamsa.",
     )
+    house_system: Literal[
+        "Placidus", "Koch", "Whole Sign", "Equal", "Porphyry",
+        "Regiomontanus", "Campanus",
+    ] = Field(
+        default="Koch",
+        description="House system (tropical only). Sidereal charts always use Whole Sign.",
+    )
 
 
 class BirthMomentResponse(BaseModel):

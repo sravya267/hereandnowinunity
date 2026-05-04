@@ -129,12 +129,14 @@ canvas{display:block;width:100%;height:100%}
             <label><input type="checkbox" data-disp="Chiron" checked> Chiron</label>
             <label><input type="checkbox" data-disp="Nodes" checked> Lunar Nodes</label>
             <label><input type="checkbox" data-disp="Angles" checked> Angles (Asc/MC)</label>
+            <label><input type="checkbox" data-disp="Points" checked> Vertex &amp; Fortune</label>
           </div>
           <div class="grp">
             <div class="grp-title">Aspects to</div>
             <label><input type="checkbox" data-aspto="Chiron" checked> Chiron</label>
             <label><input type="checkbox" data-aspto="Nodes" checked> Lunar Nodes</label>
             <label><input type="checkbox" data-aspto="Angles" checked> ASC &amp; MC</label>
+            <label><input type="checkbox" data-aspto="Points" checked> Vertex &amp; Fortune</label>
           </div>
           <div class="grp">
             <div class="grp-title">Aspect Orbs</div>
@@ -146,8 +148,14 @@ canvas{display:block;width:100%;height:100%}
           </div>
           <div class="grp">
             <div class="grp-title">House system</div>
-            <select id="house-system" disabled title="Coming soon">
-              <option>Default (Koch / Whole-Sign)</option>
+            <select id="house-system" title="Tropical only — Sidereal always uses Whole Sign">
+              <option value="Koch" selected>Koch</option>
+              <option value="Placidus">Placidus</option>
+              <option value="Whole Sign">Whole Sign</option>
+              <option value="Equal">Equal</option>
+              <option value="Porphyry">Porphyry</option>
+              <option value="Regiomontanus">Regiomontanus</option>
+              <option value="Campanus">Campanus</option>
             </select>
           </div>
         </div>
@@ -193,16 +201,18 @@ var ASP_COLOR = {hard:'#c0392b', soft:'#2e6fbf', minor:'#9a8f80', conj:'#7d3c98'
 
 // Display toggles (whether a body's symbol is drawn) and aspect-to toggles
 // (whether aspect lines involving this body are drawn).
-var BODY_DISPLAY = {Chiron:true, Nodes:true, Angles:true};
-var ASPECT_TO    = {Chiron:true, Nodes:true, Angles:true};
+var BODY_DISPLAY = {Chiron:true, Nodes:true, Angles:true, Points:true};
+var ASPECT_TO    = {Chiron:true, Nodes:true, Angles:true, Points:true};
 var ORB_PRESET = 1.0;
 var NODE_NAMES  = ['North Node','South Node','True Node','Mean Node','Rahu','Ketu'];
 var ANGLE_NAMES = ['Asc','Desc','MC','IC'];
+var POINT_NAMES = ['Vertex','Fortune'];
 
 function bodyGroup(name) {
   if (name === 'Chiron') return 'Chiron';
   if (NODE_NAMES.indexOf(name) !== -1) return 'Nodes';
   if (ANGLE_NAMES.indexOf(name) !== -1) return 'Angles';
+  if (POINT_NAMES.indexOf(name) !== -1) return 'Points';
   return null;
 }
 
@@ -458,9 +468,11 @@ function buildInfoBox(d) {
   var isSid = d.zodiac_system === 'Sidereal';
   var planets = d.bodies.filter(function(x){
     return x.Body && x.Body.indexOf('House') === -1 &&
-      x.Body !== 'Asc' && x.Body !== 'MC' && x.Body !== 'Desc' && x.Body !== 'IC';
+      ANGLE_NAMES.indexOf(x.Body) === -1 &&
+      POINT_NAMES.indexOf(x.Body) === -1;
   });
-  var angles  = d.bodies.filter(function(x){ return ['Asc','MC','Desc','IC'].indexOf(x.Body) !== -1; });
+  var angles  = d.bodies.filter(function(x){ return ANGLE_NAMES.indexOf(x.Body) !== -1; });
+  var points  = d.bodies.filter(function(x){ return POINT_NAMES.indexOf(x.Body) !== -1; });
   var houses  = d.bodies.filter(function(x){ return x.Body && x.Body.indexOf('House Cusp') !== -1; });
 
   var html = '<div class="s-hdr">Planets</div>';
@@ -475,6 +487,14 @@ function buildInfoBox(d) {
   if (angles.length) {
     html += '<div class="s-hdr">Angles</div>';
     angles.forEach(function(a){ html += a.Body + '  ' + a.Sign + ' ' + signDeg(a['Longitude (°)']) + '\n'; });
+  }
+  if (points.length) {
+    html += '<div class="s-hdr">Points</div>';
+    points.forEach(function(p){
+      var sym = p.Symbol ? p.Symbol + ' ' : '';
+      var house = p.House ? ' • H' + p.House : '';
+      html += sym + p.Body + '  ' + p.Sign + ' ' + signDeg(p['Longitude (°)']) + house + '\n';
+    });
   }
   if (houses.length) {
     html += '<div class="s-hdr">Houses</div>';
@@ -580,6 +600,11 @@ function updateAspToggleLabel() {
     if (LAST_DATA) drawWheel(LAST_DATA);
   });
 
+  // House system: requires a server round-trip — re-submit the form.
+  document.getElementById('house-system').addEventListener('change', function(){
+    if (LAST_DATA) document.getElementById('chart-form').requestSubmit();
+  });
+
   updateAspToggleLabel();
 
   window.addEventListener('resize', function(){
@@ -608,6 +633,7 @@ function updateAspToggleLabel() {
       birth_datetime: document.getElementById('birth-date').value + 'T' + document.getElementById('birth-time').value + ':00',
       location: document.getElementById('location').value.trim(),
       zodiac_system: document.getElementById('zodiac').value,
+      house_system: document.getElementById('house-system').value,
     };
 
     fetch('/chart', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(p) })
