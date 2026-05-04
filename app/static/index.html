@@ -182,7 +182,7 @@ var NAK_NAMES = ['Ashw','Bhar','Krit','Rohi','Mrig','Ardr','Puna','Push','Ashl',
 
 // Aspect catalog. `kind` drives line color: hard=red, soft=blue, minor=grey.
 var ASP_TYPES = [
-  {name:'Conjunction',  sym:'☌',  kind:'conj',  defaultOn:true},
+  {name:'Conjunction',  sym:'☌',  kind:'hard',  defaultOn:true},
   {name:'Opposition',   sym:'☍',  kind:'hard',  defaultOn:true},
   {name:'Trine',        sym:'△',  kind:'soft',  defaultOn:true},
   {name:'Square',       sym:'□',  kind:'hard',  defaultOn:true},
@@ -198,7 +198,7 @@ var ASP_TYPES = [
   {name:'Decile',       sym:'⭑',  kind:'minor', defaultOn:false},
   {name:'Undecile',     sym:'⭒',  kind:'minor', defaultOn:false}
 ];
-var ASP_COLOR = {hard:'#c0392b', soft:'#2e6fbf', minor:'#9a8f80', conj:'#7d3c98'};
+var ASP_COLOR = {hard:'#c0392b', soft:'#2e6fbf', minor:'#9a8f80'};
 
 // Display toggles (whether a body's symbol is drawn) and aspect-to toggles
 // (whether aspect lines involving this body are drawn).
@@ -242,7 +242,7 @@ function drawWheel(data) {
   var isSid = data.zodiac_system === 'Sidereal';
 
   // Radii (outer to inner).
-  var outerPad = isSid ? 26 : 6;
+  var outerPad = isSid ? 26 : 65;
   var R   = Math.min(cx, cy) - outerPad;
   var rTickOut = R;
   var r4  = R * 0.93;  // sign ring outer
@@ -378,35 +378,80 @@ function drawWheel(data) {
     ctx.fillText(name, lp[0], lp[1]);
   });
 
-  // ── planets sorted by longitude; resolve close clusters by radial offset
+  // ── planets (outer ring for tropical; inner for sidereal)
   var planets = data.bodies.filter(function(b){
     if (!b.Symbol || b.Body.indexOf('House') !== -1) return false;
     if (ANGLE_NAMES.indexOf(b.Body) !== -1) return false;
     var grp = bodyGroup(b.Body);
     if (grp && !BODY_DISPLAY[grp]) return false;
     return true;
-  }).slice().sort(function(a,b){
-    return a['Longitude (°)'] - b['Longitude (°)'];
-  });
+  }).slice().sort(function(a,b){ return a['Longitude (°)'] - b['Longitude (°)']; });
 
-  var clusterDeg = 360 / (2 * Math.PI * rPl) * (R * 0.07);
-  var rOffset = R * 0.075;
-  var rMin = r1 + R * 0.03;  // never let a planet symbol cross into the aspect circle
+  var clusterDeg = 6;
   var lastLon = -1e9, lastShift = 0;
-  var placements = planets.map(function(p) {
-    var lon = p['Longitude (°)'];
-    var shift = (lon - lastLon < clusterDeg) ? lastShift + 1 : 0;
-    lastLon = lon; lastShift = shift;
-    return { p: p, r: Math.max(rMin, rPl - shift * rOffset), a: lon2a(lon) };
-  });
 
-  // tick from inner ring toward each planet's true longitude
-  placements.forEach(function(it){
-    var t1 = pt(r2, it.a), t2 = pt(r2 - R*0.018, it.a);
-    ctx.beginPath();
-    ctx.moveTo(t1[0], t1[1]); ctx.lineTo(t2[0], t2[1]);
-    ctx.strokeStyle = '#999'; ctx.lineWidth = 0.5; ctx.stroke();
-  });
+  if (!isSid) {
+    // ── outer placement (tropical): symbols sit just outside the sign ring
+    var rPl_base = R + 12, rPl_step = 18;
+    var placements = planets.map(function(p) {
+      var lon = p['Longitude (°)'];
+      var shift = (lon - lastLon < clusterDeg) ? Math.min(lastShift + 1, 2) : 0;
+      lastLon = lon; lastShift = shift;
+      return { p: p, r: rPl_base + shift * rPl_step, a: lon2a(lon) };
+    });
+    placements.forEach(function(it){
+      var t1 = pt(R, it.a), t2 = pt(R + 8, it.a);
+      ctx.beginPath(); ctx.moveTo(t1[0], t1[1]); ctx.lineTo(t2[0], t2[1]);
+      ctx.strokeStyle = '#aaa'; ctx.lineWidth = 0.8; ctx.stroke();
+    });
+    placements.forEach(function(it) {
+      var p = it.p, a = it.a;
+      var ssp = pt(it.r, a);
+      ctx.font = Math.round(R * 0.068) + 'px serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = p.Color || '#222';
+      ctx.fillText(p.Symbol, ssp[0], ssp[1]);
+      var dd = p['Longitude (°)'] % 30;
+      var deg = Math.floor(dd), mn = Math.floor((dd - deg) * 60);
+      var lbl = deg + '°' + (mn < 10 ? '0' : '') + mn + "'";
+      if (p.Motion === 'R') lbl += ' R';
+      var lbp = pt(it.r + 14, a);
+      ctx.font = Math.round(R * 0.028) + 'px sans-serif';
+      ctx.fillStyle = p.Motion === 'R' ? '#c0392b' : '#555';
+      ctx.fillText(lbl, lbp[0], lbp[1]);
+    });
+
+  } else {
+    // ── inner placement (sidereal): original inside-wheel rendering
+    var rOffset = R * 0.075, rMin = r1 + R * 0.03;
+    var placements = planets.map(function(p) {
+      var lon = p['Longitude (°)'];
+      var shift = (lon - lastLon < clusterDeg) ? lastShift + 1 : 0;
+      lastLon = lon; lastShift = shift;
+      return { p: p, r: Math.max(rMin, rPl - shift * rOffset), a: lon2a(lon) };
+    });
+    placements.forEach(function(it){
+      var t1 = pt(r2, it.a), t2 = pt(r2 - R*0.018, it.a);
+      ctx.beginPath(); ctx.moveTo(t1[0], t1[1]); ctx.lineTo(t2[0], t2[1]);
+      ctx.strokeStyle = '#999'; ctx.lineWidth = 0.5; ctx.stroke();
+    });
+    placements.forEach(function(it) {
+      var p = it.p, a = it.a;
+      var ssp = pt(it.r, a);
+      ctx.font = Math.round(R * 0.075) + 'px serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = p.Color || '#222';
+      ctx.fillText(p.Symbol, ssp[0], ssp[1]);
+      var dd = p['Longitude (°)'] % 30;
+      var deg = Math.floor(dd), mn = Math.floor((dd - deg) * 60);
+      var lbl = deg + '°' + (mn < 10 ? '0' : '') + mn + "'";
+      if (p.Motion === 'R') lbl += ' R';
+      var lbp = pt(it.r - R*0.06, a);
+      ctx.font = Math.round(R * 0.034) + 'px sans-serif';
+      ctx.fillStyle = p.Motion === 'R' ? '#c0392b' : '#555';
+      ctx.fillText(lbl, lbp[0], lbp[1]);
+    });
+  }
 
   // ── aspect lines (filtered by orb cap and aspect-type toggles)
   var posMap = {};
@@ -429,31 +474,14 @@ function drawWheel(data) {
     var col = meta ? ASP_COLOR[meta.kind] : '#999';
     var ep1 = pt(r1, a1), ep2 = pt(r1, a2);
     ctx.beginPath();
+    if (meta && meta.kind === 'minor') ctx.setLineDash([3, 4]);
     ctx.moveTo(ep1[0], ep1[1]); ctx.lineTo(ep2[0], ep2[1]);
     ctx.strokeStyle = col;
     ctx.lineWidth = Math.max(0.5, (asp.Closeness || 0.5) * 1.6);
     ctx.globalAlpha = Math.max(0.35, (asp.Closeness || 0.5) * 0.9);
     ctx.stroke();
+    ctx.setLineDash([]);
     ctx.globalAlpha = 1;
-  });
-
-  // ── planet symbols + degree-min labels
-  placements.forEach(function(it) {
-    var p = it.p, a = it.a;
-    var ssp = pt(it.r, a);
-    ctx.font = Math.round(R * 0.075) + 'px serif';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = p.Color || '#222';
-    ctx.fillText(p.Symbol, ssp[0], ssp[1]);
-
-    var dd = p['Longitude (°)'] % 30;
-    var deg = Math.floor(dd), mn = Math.floor((dd - deg) * 60);
-    var lbl = deg + '°' + (mn < 10 ? '0' : '') + mn + "'";
-    if (p.Motion === 'R') lbl += ' R';
-    var lbp = pt(it.r - R*0.06, a);
-    ctx.font = Math.round(R * 0.034) + 'px sans-serif';
-    ctx.fillStyle = p.Motion === 'R' ? '#c0392b' : '#555';
-    ctx.fillText(lbl, lbp[0], lbp[1]);
   });
 }
 
