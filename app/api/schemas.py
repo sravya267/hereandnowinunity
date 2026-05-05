@@ -54,3 +54,4 @@ class ChartResponse(BaseModel):
     ayanamsa: float | None = None
     traits: list[dict[str, Any]] | None = None
     patterns: list[dict[str, Any]] | None = None
+    harmonics: list[dict[str, Any]] | None = None

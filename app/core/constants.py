@@ -82,17 +82,34 @@ PLANET_IDS: dict[str, int] = {
 # Aspects
 # ---------------------------------------------------------------------------
 # Orbs are doubled vs. the raw values to match the notebook's behaviour.
-_BASE_ORBS = [5, 5, 5, 5, 4, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1]
+# New (post-Cochrane) higher-harmonic aspects use base orb 1.5 (→ 3°) for
+# the 7th-harmonic family and 1 (→ 2°) for the 9th/10th-harmonic family.
+_BASE_ORBS = [
+    5, 5, 5, 5, 4, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1,
+    1.5, 1.5, 1, 1, 1,
+]
 
 ASPECTS: pd.DataFrame = pd.DataFrame({
     "Degrees": [
         0.0, 180.0, 120.0, 90.0, 72.0, 60.0, 360 / 7,
         45.0, 40.0, 36.0, 144.0, 360 / 11, 30.0, 150.0, 135.0,
+        # Cochrane vibrational additions:
+        2 * 360 / 7,    # Biseptile  ≈ 102.857°
+        3 * 360 / 7,    # Triseptile ≈ 154.286°
+        80.0,           # Bi-Novile
+        160.0,          # Quadri-Novile
+        108.0,          # Tri-Decile
     ],
     "Aspect": [
         "Conjunction", "Opposition", "Trine", "Square", "Quintile", "Sextile", "Septile",
         "Semi-square", "Novile", "Decile", "Bi-Quintile", "Undecile", "Semi-sextile",
         "Quincunx", "Sesquisquare",
+        "Biseptile", "Triseptile", "Bi-Novile", "Quadri-Novile", "Tri-Decile",
+    ],
+    "Harmonic": [
+        1, 2, 3, 4, 5, 6, 7,
+        8, 9, 10, 5, 11, 12, 12, 8,
+        7, 7, 9, 9, 10,
     ],
     "Orb": [o * 2 for o in _BASE_ORBS],
     "Description": [
@@ -111,13 +128,23 @@ ASPECTS: pd.DataFrame = pd.DataFrame({
         "Mildly harmonious or challenging, offers slight opportunities.",
         "Inconjunct adjustment requiring re-orientation between energies.",
         "Sesquiquadrate (tri-octile); minor friction needing release.",
+        "Doubled-septile resonance; fated, irrational creative inspiration.",
+        "Tripled-septile resonance; deep spiritual calling and karmic flow.",
+        "Doubled-novile; refinement of inner ideals and completion.",
+        "Quadrupled-novile; sustained drive toward ideal completion.",
+        "Tripled-decile; refined creative focus and skill expression.",
     ],
     "Color": [
         "#7D3C98", "#FF0000", "#0000FF", "#FF4500", "#1E90FF", "#4682B4", "#87CEEB",
         "#FF6347", "#ADD8E6", "#B0E0E6", "#9B59B6", "#5F9EA0", "#00BFFF",
         "#16A085", "#E67E22",
+        "#5DADE2", "#5DADE2", "#A569BD", "#A569BD", "#48C9B0",
     ],
-    "aspect_symbol": ["☌", "☍", "△", "□", "⚼", "✶", "⚤", "∠", "⭘", "⭑", "bQ", "⭒", "⚹", "⚻", "Sq"],
+    "aspect_symbol": [
+        "☌", "☍", "△", "□", "⚼", "✶", "⚤",
+        "∠", "⭘", "⭑", "bQ", "⭒", "⚹", "⚻", "Sq",
+        "bS", "tS", "bN", "qN", "tD",
+    ],
 })
 
 
