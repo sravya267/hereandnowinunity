@@ -680,8 +680,9 @@ function buildHarmGrid() {
 function drawMiniWheel(canvas, data) {
   var parent = canvas.parentElement;
   var dpr = window.devicePixelRatio || 1;
-  var W = parent.clientWidth, H = parent.clientHeight;
-  if (W < 4 || H < 4) return;
+  var W = parent.clientWidth;
+  var H = W; // force square — aspect-ratio:1 CSS may not set clientHeight correctly
+  if (W < 4) return;
   canvas.width = W * dpr; canvas.height = H * dpr;
   canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
   var ctx = canvas.getContext('2d');
@@ -719,6 +720,38 @@ function drawMiniWheel(canvas, data) {
     if (grp && !BODY_DISPLAY[grp]) return false;
     return true;
   }).slice().sort(function(a,b){ return a['Longitude (°)'] - b['Longitude (°)']; });
+
+  // Aspect lines in harmonic space: conjunctions within ~8°, other standard aspects
+  var ASP_DEFS = [
+    {name:'Conjunction', angle:0,   orb:8,  color:'#c0392b'},
+    {name:'Opposition',  angle:180, orb:8,  color:'#8e44ad'},
+    {name:'Trine',       angle:120, orb:6,  color:'#27ae60'},
+    {name:'Square',      angle:90,  orb:6,  color:'#e67e22'},
+    {name:'Sextile',     angle:60,  orb:4,  color:'#2980b9'},
+  ];
+  for (var i = 0; i < planets.length; i++) {
+    for (var j = i + 1; j < planets.length; j++) {
+      var diff = Math.abs(planets[i]['Longitude (°)'] - planets[j]['Longitude (°)']);
+      diff = Math.min(diff, 360 - diff);
+      for (var k = 0; k < ASP_DEFS.length; k++) {
+        var ad = ASP_DEFS[k];
+        var orb = Math.abs(diff - ad.angle);
+        if (orb <= ad.orb) {
+          var closeness = 1 - orb / ad.orb;
+          var a1 = lon2a(planets[i]['Longitude (°)']);
+          var a2 = lon2a(planets[j]['Longitude (°)']);
+          var ep1 = pt(R * 0.55, a1), ep2 = pt(R * 0.55, a2);
+          ctx.beginPath(); ctx.moveTo(ep1[0], ep1[1]); ctx.lineTo(ep2[0], ep2[1]);
+          ctx.strokeStyle = ad.color;
+          ctx.lineWidth = Math.max(0.3, closeness * 1.2);
+          ctx.globalAlpha = 0.25 + closeness * 0.55;
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+          break;
+        }
+      }
+    }
+  }
 
   var rPlanet = R * 0.78, rShift = R * 0.13;
   var lastLon = -1e9, lastShift = 0;
