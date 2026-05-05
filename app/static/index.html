@@ -32,14 +32,14 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .page{display:none;padding:10px 16px}
 .page.active{display:block}
 
-.row{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .card{background:#fff;border:1px solid #e8e4df;border-radius:5px;overflow:hidden;display:flex;flex-direction:column}
 .card-wheel{height:600px}
 .card-info{height:380px}
-.harm-bar{display:flex;flex-wrap:wrap;gap:3px;padding:5px 10px;background:#faf8f5;border-bottom:1px solid #f0ece7}
-.harm-tab{padding:2px 8px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#8b7355;font-size:10px;font-weight:600;letter-spacing:.03em;cursor:pointer;font-family:inherit;transition:background .1s}
-.harm-tab:hover{background:#f5efe6}
-.harm-tab.active{background:#8b7355;color:#fff;border-color:#8b7355}
+.harm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px;height:100%;overflow:auto}
+.harm-cell{position:relative;background:#fff;border:1px solid #e8e4df;border-radius:4px;overflow:hidden;aspect-ratio:1}
+.harm-cell canvas{display:block;width:100%;height:100%}
+.harm-cell-label{position:absolute;top:3px;left:5px;font-size:10px;font-weight:700;color:#5a4e3c;background:rgba(255,255,255,.85);padding:0 4px;border-radius:2px;z-index:2;letter-spacing:.04em}
 .pat-list{padding:6px 8px;font-size:11px;line-height:1.6;overflow:auto;height:100%}
 .pat-item{border-bottom:1px solid #f0ece7;padding:5px 0}
 .pat-item:last-child{border-bottom:none}
@@ -130,98 +130,90 @@ canvas{display:block;width:100%;height:100%}
 <div id="results" class="page">
   <div id="meta-bar" class="meta-bar"></div>
   <div style="padding:8px 0 0">
-    <!-- Full-width chart wheel with harmonic tab bar -->
-    <div class="card card-wheel" style="margin-bottom:10px">
-      <div class="card-hdr"><span class="card-hdr-title">Chart Wheel</span></div>
-      <!-- Harmonic tabs: H1 = natal, H2–H12, H25 -->
-      <div class="harm-bar" id="harm-bar">
-        <button class="harm-tab active" data-harm="1">H1 natal</button>
-        <button class="harm-tab" data-harm="2">H2</button>
-        <button class="harm-tab" data-harm="3">H3</button>
-        <button class="harm-tab" data-harm="4">H4</button>
-        <button class="harm-tab" data-harm="5">H5</button>
-        <button class="harm-tab" data-harm="6">H6</button>
-        <button class="harm-tab" data-harm="7">H7</button>
-        <button class="harm-tab" data-harm="8">H8</button>
-        <button class="harm-tab" data-harm="9">H9</button>
-        <button class="harm-tab" data-harm="10">H10</button>
-        <button class="harm-tab" data-harm="11">H11</button>
-        <button class="harm-tab" data-harm="12">H12</button>
-        <button class="harm-tab" data-harm="25">H25</button>
-      </div>
-      <div class="filter-bar">
-        <label>Aspects</label>
-        <div class="asp-menu">
-          <button type="button" class="asp-toggle" id="asp-toggle">All majors &#9662;</button>
-          <div class="asp-pop" id="asp-pop"></div>
-        </div>
-        <div class="sep" style="height:14px"></div>
-        <button type="button" class="gear-btn" id="gear-btn" title="More settings">&#9881;</button>
-      </div>
-      <div class="settings-panel" id="settings-panel">
-        <div class="grp grp-wide">
-          <div class="grp-title-row">
-            <div class="grp-title">Display</div>
-            <button type="button" class="grp-mini" data-bulk="disp" data-bulk-state="all">All</button>
-            <button type="button" class="grp-mini" data-bulk="disp" data-bulk-state="none">None</button>
+    <!-- Top row: H1 natal (left) + harmonics grid (right) -->
+    <div class="row" style="margin-bottom:10px">
+      <div class="card card-wheel">
+        <div class="card-hdr"><span class="card-hdr-title">Chart Wheel — H1 Natal</span></div>
+        <div class="filter-bar">
+          <label>Aspects</label>
+          <div class="asp-menu">
+            <button type="button" class="asp-toggle" id="asp-toggle">All majors &#9662;</button>
+            <div class="asp-pop" id="asp-pop"></div>
           </div>
-          <div class="grp-flow">
-            <label><input type="checkbox" data-disp-name="Sun" checked> Sun</label>
-            <label><input type="checkbox" data-disp-name="Moon" checked> Moon</label>
-            <label><input type="checkbox" data-disp-name="Mercury" checked> Mercury</label>
-            <label><input type="checkbox" data-disp-name="Venus" checked> Venus</label>
-            <label><input type="checkbox" data-disp-name="Mars" checked> Mars</label>
-            <label><input type="checkbox" data-disp-name="Jupiter" checked> Jupiter</label>
-            <label><input type="checkbox" data-disp-name="Saturn" checked> Saturn</label>
-            <label><input type="checkbox" data-disp-name="Uranus" checked> Uranus</label>
-            <label><input type="checkbox" data-disp-name="Neptune" checked> Neptune</label>
-            <label><input type="checkbox" data-disp-name="Pluto" checked> Pluto</label>
-            <label><input type="checkbox" data-disp="Chiron"> Chiron</label>
-            <label><input type="checkbox" data-disp="Nodes"> Lunar Nodes</label>
-            <label><input type="checkbox" data-disp="Angles"> Angles (Asc/MC)</label>
-            <label><input type="checkbox" data-disp="Points"> Vertex &amp; Fortune</label>
-          </div>
+          <div class="sep" style="height:14px"></div>
+          <button type="button" class="gear-btn" id="gear-btn" title="More settings">&#9881;</button>
         </div>
-        <div class="grp">
-          <div class="grp-title-row">
-            <div class="grp-title">Aspects to</div>
-            <button type="button" class="grp-mini" data-bulk="aspto" data-bulk-state="all">All</button>
-            <button type="button" class="grp-mini" data-bulk="aspto" data-bulk-state="none">None</button>
+        <div class="settings-panel" id="settings-panel">
+          <div class="grp grp-wide">
+            <div class="grp-title-row">
+              <div class="grp-title">Display</div>
+              <button type="button" class="grp-mini" data-bulk="disp" data-bulk-state="all">All</button>
+              <button type="button" class="grp-mini" data-bulk="disp" data-bulk-state="none">None</button>
+            </div>
+            <div class="grp-flow">
+              <label><input type="checkbox" data-disp-name="Sun" checked> Sun</label>
+              <label><input type="checkbox" data-disp-name="Moon" checked> Moon</label>
+              <label><input type="checkbox" data-disp-name="Mercury" checked> Mercury</label>
+              <label><input type="checkbox" data-disp-name="Venus" checked> Venus</label>
+              <label><input type="checkbox" data-disp-name="Mars" checked> Mars</label>
+              <label><input type="checkbox" data-disp-name="Jupiter" checked> Jupiter</label>
+              <label><input type="checkbox" data-disp-name="Saturn" checked> Saturn</label>
+              <label><input type="checkbox" data-disp-name="Uranus" checked> Uranus</label>
+              <label><input type="checkbox" data-disp-name="Neptune" checked> Neptune</label>
+              <label><input type="checkbox" data-disp-name="Pluto" checked> Pluto</label>
+              <label><input type="checkbox" data-disp="Chiron"> Chiron</label>
+              <label><input type="checkbox" data-disp="Nodes"> Lunar Nodes</label>
+              <label><input type="checkbox" data-disp="Angles"> Angles (Asc/MC)</label>
+              <label><input type="checkbox" data-disp="Points"> Vertex &amp; Fortune</label>
+            </div>
           </div>
-          <label><input type="checkbox" data-aspto="Chiron"> Chiron</label>
-          <label><input type="checkbox" data-aspto="Nodes"> Lunar Nodes</label>
-          <label><input type="checkbox" data-aspto="Angles"> ASC &amp; MC</label>
-          <label><input type="checkbox" data-aspto="Points"> Vertex &amp; Fortune</label>
-        </div>
-        <div class="grp">
-          <div class="grp-title">Orbs</div>
-          <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
-            <span style="font-size:11px;min-width:34px">Major</span>
-            <input type="number" id="major-orb-val" value="100" min="10" max="200" step="10" style="width:52px;font-size:12px">
-            <select id="orb-type" style="font-size:12px">
-              <option value="pct" selected>% of max</option>
-              <option value="deg">° fixed</option>
+          <div class="grp">
+            <div class="grp-title-row">
+              <div class="grp-title">Aspects to</div>
+              <button type="button" class="grp-mini" data-bulk="aspto" data-bulk-state="all">All</button>
+              <button type="button" class="grp-mini" data-bulk="aspto" data-bulk-state="none">None</button>
+            </div>
+            <label><input type="checkbox" data-aspto="Chiron"> Chiron</label>
+            <label><input type="checkbox" data-aspto="Nodes"> Lunar Nodes</label>
+            <label><input type="checkbox" data-aspto="Angles"> ASC &amp; MC</label>
+            <label><input type="checkbox" data-aspto="Points"> Vertex &amp; Fortune</label>
+          </div>
+          <div class="grp">
+            <div class="grp-title">Orbs</div>
+            <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+              <span style="font-size:11px;min-width:34px">Major</span>
+              <input type="number" id="major-orb-val" value="100" min="10" max="200" step="10" style="width:52px;font-size:12px">
+              <select id="orb-type" style="font-size:12px">
+                <option value="pct" selected>% of max</option>
+                <option value="deg">° fixed</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px">
+              <span style="font-size:11px;min-width:34px">Minor</span>
+              <input type="number" id="minor-orb-val" value="50" min="10" max="200" step="10" style="width:52px;font-size:12px">
+            </div>
+          </div>
+          <div class="grp">
+            <div class="grp-title">House system</div>
+            <select id="house-system" title="Tropical only — Sidereal always uses Whole Sign">
+              <option value="Koch" selected>Koch</option>
+              <option value="Placidus">Placidus</option>
+              <option value="Whole Sign">Whole Sign</option>
+              <option value="Equal">Equal</option>
+              <option value="Porphyry">Porphyry</option>
+              <option value="Regiomontanus">Regiomontanus</option>
+              <option value="Campanus">Campanus</option>
             </select>
           </div>
-          <div style="display:flex;align-items:center;gap:5px">
-            <span style="font-size:11px;min-width:34px">Minor</span>
-            <input type="number" id="minor-orb-val" value="50" min="10" max="200" step="10" style="width:52px;font-size:12px">
-          </div>
         </div>
-        <div class="grp">
-          <div class="grp-title">House system</div>
-          <select id="house-system" title="Tropical only — Sidereal always uses Whole Sign">
-            <option value="Koch" selected>Koch</option>
-            <option value="Placidus">Placidus</option>
-            <option value="Whole Sign">Whole Sign</option>
-            <option value="Equal">Equal</option>
-            <option value="Porphyry">Porphyry</option>
-            <option value="Regiomontanus">Regiomontanus</option>
-            <option value="Campanus">Campanus</option>
-          </select>
+        <div class="card-body"><canvas id="wheel-canvas"></canvas></div>
+      </div>
+      <div class="card card-wheel">
+        <div class="card-hdr"><span class="card-hdr-title">Harmonic Charts</span></div>
+        <div class="card-body">
+          <div class="harm-grid" id="harm-grid"></div>
         </div>
       </div>
-      <div class="card-body"><canvas id="wheel-canvas"></canvas></div>
     </div>
     <!-- Bottom row: Positions/Aspects + Patterns -->
     <div class="row" style="padding-bottom:10px">
@@ -244,8 +236,6 @@ canvas{display:block;width:100%;height:100%}
 // ─── Harmonic data transform ─────────────────────────────────────────────────
 var HARM_SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 function lonToSign(lon) { return HARM_SIGNS[Math.floor(((lon % 360) + 360) % 360 / 30) % 12]; }
-
-var CURRENT_HARM = 1;
 
 function computeHarmonicData(data, n) {
   if (n === 1) return data;
@@ -672,21 +662,93 @@ function buildPatterns(d) {
   }).join('');
 }
 
-// ─── Harmonic tab handler ────────────────────────────────────────────────────
-function drawCurrentWheel() {
-  if (!LAST_DATA) return;
-  drawWheel(computeHarmonicData(LAST_DATA, CURRENT_HARM));
+// ─── Harmonic mini-wheels ────────────────────────────────────────────────────
+var HARM_LIST = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 25];
+
+function buildHarmGrid() {
+  var grid = document.getElementById('harm-grid');
+  if (!grid || grid.dataset.built === '1') return;
+  grid.innerHTML = HARM_LIST.map(function(n){
+    return '<div class="harm-cell">' +
+      '<div class="harm-cell-label">H' + n + '</div>' +
+      '<canvas data-harm="' + n + '"></canvas>' +
+    '</div>';
+  }).join('');
+  grid.dataset.built = '1';
 }
 
-document.addEventListener('click', function(e) {
-  var btn = e.target.closest('.harm-tab');
-  if (!btn || !LAST_DATA) return;
-  CURRENT_HARM = parseInt(btn.dataset.harm, 10);
-  document.querySelectorAll('.harm-tab').forEach(function(t){
-    t.classList.toggle('active', t === btn);
+function drawMiniWheel(canvas, data) {
+  var parent = canvas.parentElement;
+  var dpr = window.devicePixelRatio || 1;
+  var W = parent.clientWidth, H = parent.clientHeight;
+  if (W < 4 || H < 4) return;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  var ctx = canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr, dpr);
+
+  var cx = W / 2, cy = H / 2;
+  var R = Math.min(cx, cy) - 4;
+
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, W, H);
+
+  // Outer + inner ring
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2*Math.PI);
+  ctx.strokeStyle = '#cbb' ; ctx.lineWidth = 0.6; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, R*0.55, 0, 2*Math.PI);
+  ctx.strokeStyle = '#e8e0d5'; ctx.lineWidth = 0.4; ctx.stroke();
+
+  // 12 sign division spokes (Aries at 0° anchor, no rotation needed for mini)
+  function lon2a(lon) { return -lon * Math.PI / 180; }
+  function pt(r, a) { return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; }
+  for (var i = 0; i < 12; i++) {
+    var a = lon2a(i * 30);
+    var p1 = pt(R*0.55, a), p2 = pt(R, a);
+    ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
+    ctx.strokeStyle = '#eee'; ctx.lineWidth = 0.4; ctx.stroke();
+  }
+
+  // Planets — bold symbols, cluster-stack inward
+  var planets = (data.bodies || []).filter(function(b){
+    if (!b.Symbol || !b.Body || b.Body.indexOf('House') !== -1) return false;
+    if (ANGLE_NAMES.indexOf(b.Body) !== -1) return false;
+    if (BODY_DISPLAY.hasOwnProperty(b.Body) && !BODY_DISPLAY[b.Body]) return false;
+    var grp = bodyGroup(b.Body);
+    if (grp && !BODY_DISPLAY[grp]) return false;
+    return true;
+  }).slice().sort(function(a,b){ return a['Longitude (°)'] - b['Longitude (°)']; });
+
+  var rPlanet = R * 0.78, rShift = R * 0.13;
+  var lastLon = -1e9, lastShift = 0;
+  planets.forEach(function(p) {
+    var lon = p['Longitude (°)'];
+    var s = (lon - lastLon < 8) ? Math.min(lastShift + 1, 3) : 0;
+    lastLon = lon; lastShift = s;
+    var r = Math.max(R*0.58, rPlanet - s * rShift);
+    var a = lon2a(lon);
+    var sp = pt(r, a);
+    var isAccent = (p.Body === 'Venus' || p.Body === 'Mars');
+    ctx.font = 'bold ' + Math.round(R * (isAccent ? 0.20 : 0.17)) + 'px serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = isAccent ? (p.Color || '#000') : '#000';
+    ctx.fillText(p.Symbol, sp[0], sp[1]);
   });
-  requestAnimationFrame(drawCurrentWheel);
-});
+}
+
+function redrawAll() {
+  if (!LAST_DATA) return;
+  drawWheel(LAST_DATA);
+  buildHarmGrid();
+  HARM_LIST.forEach(function(n){
+    var cv = document.querySelector('canvas[data-harm="' + n + '"]');
+    if (cv) drawMiniWheel(cv, computeHarmonicData(LAST_DATA, n));
+  });
+}
+
+// Backwards-compat alias used by older redraw call sites
+function drawCurrentWheel() { redrawAll(); }
 
 // ─── Filter controls ─────────────────────────────────────────────────────────
 function updateAspToggleLabel() {
@@ -899,13 +961,11 @@ function updateAspToggleLabel() {
       .then(function(d){
         spinner.style.display = 'none'; btn.disabled = false;
         LAST_DATA = d;
-        CURRENT_HARM = 1;
-        document.querySelectorAll('.harm-tab').forEach(function(t){ t.classList.toggle('active', t.dataset.harm === '1'); });
         buildMeta(d);
         buildInfoBox(d);
         buildPatterns(d);
         results.classList.add('active');
-        requestAnimationFrame(function(){ drawWheel(d); });
+        requestAnimationFrame(redrawAll);
       })
       .catch(function(ex){
         spinner.style.display = 'none'; btn.disabled = false;
