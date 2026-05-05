@@ -28,6 +28,7 @@ from app.core.ephemeris import (
     extract_cusp_number,
 )
 from app.core.geocoding import BirthMoment, resolve
+from app.core.harmonics import rank_harmonic_families
 from app.core.patterns import detect_patterns
 
 
@@ -44,6 +45,7 @@ class Chart:
     ayanamsa: float | None = None
     traits: list[dict] | None = None
     patterns: list[dict] | None = None
+    harmonics: list[dict] | None = None
 
 
 def compute_chart(
@@ -134,6 +136,7 @@ def compute_chart(
     aspects_df = calculate_aspects(df)
     traits = _compute_traits(df)
     patterns = detect_patterns(aspects_df)
+    harmonics = rank_harmonic_families(aspects_df)
 
     return Chart(
         birth_datetime=birth_datetime,
@@ -145,6 +148,7 @@ def compute_chart(
         ayanamsa=ayanamsa,
         traits=traits,
         patterns=patterns,
+        harmonics=harmonics,
     )
 
 

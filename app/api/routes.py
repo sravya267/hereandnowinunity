@@ -82,6 +82,7 @@ def create_chart(req: ChartRequest) -> ChartResponse:
         ayanamsa=chart.ayanamsa,
         traits=chart.traits,
         patterns=chart.patterns,
+        harmonics=chart.harmonics,
     )
 
 
