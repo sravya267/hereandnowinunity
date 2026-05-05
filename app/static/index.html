@@ -66,6 +66,10 @@ canvas{display:block;width:100%;height:100%}
 .asp-pop label:hover{background:#faf6ee}
 .asp-pop input[type="checkbox"]{accent-color:#8b7355}
 .asp-pop .asp-glyph{display:inline-block;width:14px;text-align:center;color:#8b7355}
+.pat-pill{display:flex;align-items:center;gap:6px;padding:4px 8px;margin:2px 0;border-radius:3px;font-size:11px;cursor:pointer;user-select:none;color:#9b9185;background:#fff;border:1px solid transparent;transition:all .1s}
+.pat-pill:hover{background:#faf6ee}
+.pat-pill.on{background:#f0ebe1;color:#5a4e3c;border-color:#ddd8d1;font-weight:600}
+.pat-pill .pat-pill-icon{width:14px;text-align:center}
 
 .gear-btn{padding:2px 7px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#5a4e3c;font-size:13px;cursor:pointer;font-family:inherit;line-height:1}
 .gear-btn:hover{background:#f5efe6}
@@ -720,62 +724,58 @@ function updateAspToggleLabel() {
     if (!pop.contains(e.target) && e.target !== toggle) pop.classList.remove('open');
   });
 
-  // Patterns dropdown — same UI shell as Aspects, filters the Patterns card.
+  // Patterns dropdown — pill-toggle buttons (highlighted = included in view).
   var patPop = document.getElementById('pat-pop');
-  patPop.innerHTML =
-    '<div class="asp-pop-hdr">' +
-      '<span style="font-size:9px;color:#9b9185;text-transform:uppercase;letter-spacing:.05em">Pattern types</span>' +
-      '<div class="asp-pop-hdr-btns">' +
-        '<button type="button" data-pat-bulk="all">All</button>' +
-        '<button type="button" data-pat-bulk="none">None</button>' +
-      '</div>' +
-    '</div>' +
-    PAT_TYPES.map(function(t){
-      var checked = PAT_FILTER[t] ? 'checked' : '';
-      var icon = PAT_ICONS[t] || '◉';
-      return '<label><input type="checkbox" data-pat="' + t + '" ' + checked +
-             '><span class="asp-glyph">' + icon + '</span>' + t + '</label>';
-    }).join('');
 
-  function updatePatToggleLabel() {
+  function renderPatPills() {
     var on = PAT_TYPES.filter(function(t){ return PAT_FILTER[t]; });
-    var lbl;
-    if (on.length === 0) lbl = 'None';
-    else if (on.length === PAT_TYPES.length) lbl = 'All';
-    else if (on.length <= 2) lbl = on.join(', ');
-    else lbl = on.length + ' selected';
-    document.getElementById('pat-toggle').innerHTML = lbl + ' ▾';
+    var lbl = on.length === 0 ? 'None' : on.length === PAT_TYPES.length ? 'All' : on.length + ' types';
+    document.getElementById('pat-toggle').textContent = lbl + ' ▾';
+    patPop.innerHTML =
+      '<div class="asp-pop-hdr">' +
+        '<span style="font-size:9px;color:#9b9185;text-transform:uppercase;letter-spacing:.05em">Show patterns</span>' +
+        '<div class="asp-pop-hdr-btns">' +
+          '<button type="button" data-pat-bulk="all">All</button>' +
+          '<button type="button" data-pat-bulk="none">None</button>' +
+        '</div>' +
+      '</div>' +
+      PAT_TYPES.map(function(t){
+        var cls = PAT_FILTER[t] ? 'pat-pill on' : 'pat-pill';
+        var icon = PAT_ICONS[t] || '◉';
+        return '<div class="' + cls + '" data-pat="' + t + '">' +
+               '<span class="pat-pill-icon">' + icon + '</span>' + t + '</div>';
+      }).join('');
   }
 
-  patPop.addEventListener('change', function(e){
-    var cb = e.target;
-    if (cb && cb.matches('input[type="checkbox"]')) {
-      PAT_FILTER[cb.dataset.pat] = cb.checked;
-      updatePatToggleLabel();
+  patPop.addEventListener('click', function(e){
+    e.stopPropagation();
+    var bulk = e.target.closest('button[data-pat-bulk]');
+    if (bulk) {
+      var on = bulk.dataset.patBulk === 'all';
+      PAT_TYPES.forEach(function(t){ PAT_FILTER[t] = on; });
+      renderPatPills();
+      if (LAST_DATA) buildPatterns(LAST_DATA);
+      return;
+    }
+    var pill = e.target.closest('.pat-pill');
+    if (pill) {
+      var t = pill.dataset.pat;
+      PAT_FILTER[t] = !PAT_FILTER[t];
+      renderPatPills();
       if (LAST_DATA) buildPatterns(LAST_DATA);
     }
   });
-  patPop.addEventListener('click', function(e){
-    var b = e.target.closest('button[data-pat-bulk]');
-    if (!b) return;
-    e.stopPropagation();
-    var on = b.dataset.patBulk === 'all';
-    patPop.querySelectorAll('input[data-pat]').forEach(function(cb){
-      cb.checked = on;
-      PAT_FILTER[cb.dataset.pat] = on;
-    });
-    updatePatToggleLabel();
-    if (LAST_DATA) buildPatterns(LAST_DATA);
-  });
+
   var patToggle = document.getElementById('pat-toggle');
   patToggle.addEventListener('click', function(e){
     e.stopPropagation();
     patPop.classList.toggle('open');
+    if (patPop.classList.contains('open')) renderPatPills();
   });
   document.addEventListener('click', function(e){
     if (!patPop.contains(e.target) && e.target !== patToggle) patPop.classList.remove('open');
   });
-  updatePatToggleLabel();
+  renderPatPills();
 
   // Gear: toggle the extended settings panel.
   var gear = document.getElementById('gear-btn');
