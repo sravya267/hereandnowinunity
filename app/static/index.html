@@ -200,9 +200,12 @@ canvas{display:block;width:100%;height:100%}
         </div>
       </div>
       <div class="card card-wheel">
-        <div class="card-hdr"><span class="card-hdr-title">Harmonic Charts</span></div>
-        <div class="card-body" style="display:flex;align-items:center;justify-content:center;color:#c4bdb4;font-size:13px;text-align:center;padding:20px">
-          Harmonic visualizations coming soon.
+        <div class="card-hdr"><span class="card-hdr-title">Vibrational Resonance — by Harmonic Family</span></div>
+        <div class="card-body" id="harm-body">
+          <div id="harm-empty" style="display:flex;align-items:center;justify-content:center;height:100%;color:#c4bdb4;font-size:13px;text-align:center;padding:20px">
+            Calculate a chart to see which harmonic families hum most.
+          </div>
+          <div id="harm-list" style="display:none;padding:14px 18px;font-size:12px"></div>
         </div>
       </div>
     </div>
@@ -655,6 +658,40 @@ function redrawAll() {
   drawWheel(LAST_DATA);
 }
 
+// Render the descending harmonic-family list (Cochrane vibrations) into the
+// "Vibrational Resonance" card. Score = sum of Closeness across the family.
+function renderHarmonics(d) {
+  var listEl = document.getElementById('harm-list');
+  var emptyEl = document.getElementById('harm-empty');
+  var rows = (d && d.harmonics) || [];
+  if (!rows.length) {
+    listEl.style.display = 'none';
+    emptyEl.style.display = 'flex';
+    emptyEl.textContent = 'No harmonic resonances detected.';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  listEl.style.display = 'block';
+  var top = rows[0].score || 1;
+  var html = '<div style="font-size:10px;color:#9b9185;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">' +
+             'Top humming families · sorted descending</div>';
+  html += rows.map(function(r, i){
+    var pct = Math.max(4, Math.round((r.score / top) * 100));
+    return (
+      '<div style="display:flex;align-items:center;gap:8px;margin:4px 0">' +
+        '<div style="width:14px;text-align:right;color:#b09e82;font-size:10px">' + (i+1) + '</div>' +
+        '<div style="width:90px;color:#5a4e3c;font-weight:600">H' + r.harmonic + ' · ' + r.name + '</div>' +
+        '<div style="flex:1;height:8px;background:#f5efe6;border-radius:3px;overflow:hidden">' +
+          '<div style="width:' + pct + '%;height:100%;background:#8b7355"></div>' +
+        '</div>' +
+        '<div style="width:80px;text-align:right;color:#9b9185;font-size:10px">' +
+          r.score.toFixed(2) + ' · ' + r.count + ' asp</div>' +
+      '</div>'
+    );
+  }).join('');
+  listEl.innerHTML = html;
+}
+
 // Backwards-compat alias used by older redraw call sites
 function drawCurrentWheel() { redrawAll(); }
 
@@ -865,6 +902,7 @@ function drawCurrentWheel() { redrawAll(); }
         LAST_DATA = d;
         buildMeta(d);
         buildInfoBox(d);
+        renderHarmonics(d);
         results.classList.add('active');
         requestAnimationFrame(redrawAll);
       })
