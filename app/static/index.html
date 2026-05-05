@@ -512,6 +512,22 @@ function drawWheel(data) {
   var posMap = {};
   data.bodies.forEach(function(b){ posMap[b.Body] = lon2a(b['Longitude (°)']); });
 
+  // Build set of body-pairs that belong to any currently-active pattern type.
+  // These get drawn with extra emphasis so the user sees the pattern on the chart.
+  var patternEdges = {};
+  (data.patterns || []).forEach(function(p){
+    if (!PAT_FILTER[p.type]) return;
+    var bodies = p.bodies || [];
+    for (var i = 0; i < bodies.length; i++) {
+      for (var j = i + 1; j < bodies.length; j++) {
+        var a = bodies[i], b = bodies[j];
+        var key = a < b ? a + '|' + b : b + '|' + a;
+        patternEdges[key] = true;
+      }
+    }
+  });
+  function edgeKey(a, b) { return a < b ? a + '|' + b : b + '|' + a; }
+
   var aspects = (data.aspects || []).filter(function(a) {
     if (!ASP_FILTER[a.Aspect]) return false;
     // Per-body display: hidden bodies hide their aspect lines
@@ -535,12 +551,22 @@ function drawWheel(data) {
     var meta = ASP_TYPES.find(function(t){ return t.name === asp.Aspect; });
     var closeness = asp.Closeness || 0.5;
     var ep1 = pt(r1, a1), ep2 = pt(r1, a2);
+    var inPattern = patternEdges[edgeKey(asp.Body1, asp.Body2)];
     ctx.beginPath();
     ctx.moveTo(ep1[0], ep1[1]); ctx.lineTo(ep2[0], ep2[1]);
     ctx.strokeStyle = aspLineColor(meta);
-    ctx.lineWidth = Math.max(0.4, closeness * 2.5);
-    ctx.globalAlpha = 0.25 + closeness * 0.75;
-    ctx.stroke();
+    if (inPattern) {
+      ctx.lineWidth = Math.max(2.5, closeness * 4);
+      ctx.globalAlpha = 1;
+      ctx.shadowColor = aspLineColor(meta);
+      ctx.shadowBlur = 6;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    } else {
+      ctx.lineWidth = Math.max(0.4, closeness * 2.5);
+      ctx.globalAlpha = 0.25 + closeness * 0.75;
+      ctx.stroke();
+    }
     ctx.globalAlpha = 1;
   });
 }
@@ -754,7 +780,7 @@ function updateAspToggleLabel() {
       var on = bulk.dataset.patBulk === 'all';
       PAT_TYPES.forEach(function(t){ PAT_FILTER[t] = on; });
       renderPatPills();
-      if (LAST_DATA) buildPatterns(LAST_DATA);
+      if (LAST_DATA) { buildPatterns(LAST_DATA); drawCurrentWheel(); }
       return;
     }
     var pill = e.target.closest('.pat-pill');
@@ -762,7 +788,7 @@ function updateAspToggleLabel() {
       var t = pill.dataset.pat;
       PAT_FILTER[t] = !PAT_FILTER[t];
       renderPatPills();
-      if (LAST_DATA) buildPatterns(LAST_DATA);
+      if (LAST_DATA) { buildPatterns(LAST_DATA); drawCurrentWheel(); }
     }
   });
 
