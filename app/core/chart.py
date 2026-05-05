@@ -28,6 +28,7 @@ from app.core.ephemeris import (
     extract_cusp_number,
 )
 from app.core.geocoding import BirthMoment, resolve
+from app.core.patterns import detect_patterns
 
 
 @dataclass(frozen=True)
@@ -42,6 +43,7 @@ class Chart:
     aspects: pd.DataFrame
     ayanamsa: float | None = None
     traits: list[dict] | None = None
+    patterns: list[dict] | None = None
 
 
 def compute_chart(
@@ -131,6 +133,7 @@ def compute_chart(
 
     aspects_df = calculate_aspects(df)
     traits = _compute_traits(df)
+    patterns = detect_patterns(aspects_df)
 
     return Chart(
         birth_datetime=birth_datetime,
@@ -141,6 +144,7 @@ def compute_chart(
         aspects=aspects_df,
         ayanamsa=ayanamsa,
         traits=traits,
+        patterns=patterns,
     )
 
 
