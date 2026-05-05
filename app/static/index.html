@@ -53,44 +53,36 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 
 canvas{display:block;width:100%;height:100%}
 
-.filter-bar{display:flex;align-items:center;gap:10px;padding:5px 10px;background:#fcfbf9;border-bottom:1px solid #f0ece7;flex-wrap:wrap;font-size:11px;color:#6b6358}
-.filter-bar label{font-size:10px;color:#9b9185;text-transform:uppercase;letter-spacing:.04em}
-.filter-bar input[type="range"]{width:90px;accent-color:#8b7355}
-.filter-bar .orb-val{font-variant-numeric:tabular-nums;color:#5a4e3c;min-width:28px;text-align:right}
-.asp-menu{position:relative}
-.asp-toggle{padding:2px 8px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#5a4e3c;font-size:11px;cursor:pointer;font-family:inherit}
-.asp-toggle:hover{background:#f5efe6}
-.asp-pop{display:none;position:absolute;top:calc(100% + 4px);left:0;background:#fff;border:1px solid #ddd8d1;border-radius:4px;box-shadow:0 4px 14px rgba(60,50,30,.12);padding:6px 8px;z-index:10;min-width:180px;max-height:260px;overflow:auto}
-.asp-pop.open{display:block}
-.asp-pop label{display:flex;align-items:center;gap:6px;padding:3px 2px;font-size:11px;color:#5a4e3c;text-transform:none;letter-spacing:0;cursor:pointer}
-.asp-pop label:hover{background:#faf6ee}
-.asp-pop input[type="checkbox"]{accent-color:#8b7355}
-.asp-pop .asp-glyph{display:inline-block;width:14px;text-align:center;color:#8b7355}
-.pat-pill{display:flex;align-items:center;gap:6px;padding:4px 8px;margin:2px 0;border-radius:3px;font-size:11px;cursor:pointer;user-select:none;color:#9b9185;background:#fff;border:1px solid transparent;transition:all .1s}
+.chart-row{display:flex;flex:1;min-height:0;overflow:hidden}
+.canvas-wrap{flex:1;min-width:0;position:relative;overflow:hidden}
+.canvas-wrap canvas{display:block;width:100%;height:100%}
+.filter-panel{width:210px;flex-shrink:0;border-left:1px solid #f0ece7;background:#fcfbf9;overflow-y:auto;padding:10px 12px;font-size:11px;color:#5a4e3c;transition:width .2s,padding .2s}
+.filter-panel.closed{width:0;padding:0;overflow:hidden}
+.fp-hdr{display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9b9185;padding-bottom:4px;border-bottom:1px solid #f0ece7;margin:10px 0 5px}
+.fp-hdr:first-child{margin-top:0}
+.fp-hdr-btns{display:flex;gap:3px;flex-shrink:0}
+.fp-hdr-btns button{font-size:9px;padding:1px 5px;border:1px solid #ddd8d1;background:#fff;color:#8b7355;border-radius:3px;cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:.04em}
+.fp-hdr-btns button:hover{background:#f5efe6;color:#5a4e3c}
+.filter-panel label{display:flex;align-items:center;gap:5px;cursor:pointer;padding:2px 0;font-size:11px;color:#5a4e3c;line-height:1.4}
+.filter-panel label:hover{color:#3d3a36}
+.filter-panel input[type="checkbox"]{accent-color:#8b7355}
+.filter-panel select{padding:2px 5px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#5a4e3c;font-size:11px;font-family:inherit;width:100%;margin-top:2px}
+.filter-panel input[type="number"]{padding:2px 4px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#5a4e3c;font-size:11px;font-family:inherit;width:52px}
+.fp-flow{display:flex;flex-wrap:wrap;gap:2px 12px}
+.fp-flow label{flex:0 0 auto}
+.fp-asp-glyph{display:inline-block;width:14px;text-align:center;color:#8b7355;flex-shrink:0}
+.pat-pill{display:flex;align-items:center;gap:6px;padding:3px 6px;margin:2px 0;border-radius:3px;font-size:11px;cursor:pointer;user-select:none;color:#9b9185;border:1px solid transparent;transition:all .1s}
 .pat-pill:hover{background:#faf6ee}
 .pat-pill.on{background:#f0ebe1;color:#5a4e3c;border-color:#ddd8d1;font-weight:600}
-.pat-pill .pat-pill-icon{width:14px;text-align:center}
-
+.pat-pill .pat-pill-icon{width:14px;text-align:center;flex-shrink:0}
+.pat-tooltip{display:none;position:absolute;background:#fff;border:1px solid #ddd8d1;border-radius:4px;box-shadow:0 4px 14px rgba(60,50,30,.15);padding:8px 10px;font-size:11px;max-width:220px;z-index:20;pointer-events:none;line-height:1.5;color:#5a4e3c}
+.pat-tooltip.vis{display:block}
+.pat-tooltip .pt-type{font-weight:600;margin-bottom:2px}
+.pat-tooltip .pt-bodies{color:#8b7355;font-size:10px}
+.pat-tooltip .pt-score{color:#9b9185;font-size:10px}
+.pat-tooltip .pt-desc{color:#7a705e;font-size:10px;margin-top:3px;font-style:italic}
 .gear-btn{padding:2px 7px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#5a4e3c;font-size:13px;cursor:pointer;font-family:inherit;line-height:1}
 .gear-btn:hover{background:#f5efe6}
-.settings-panel{display:none;border-bottom:1px solid #f0ece7;background:#fcfbf9;padding:8px 10px;font-size:11px;color:#5a4e3c}
-.settings-panel.open{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px 16px}
-.settings-panel .grp{display:flex;flex-direction:column;gap:3px}
-.settings-panel .grp-wide{grid-column:1/-1}
-.settings-panel .grp-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9b9185}
-.settings-panel .grp-title-row{display:flex;align-items:center;gap:6px;margin-bottom:2px}
-.settings-panel .grp-mini{font-size:9px;padding:1px 6px;border:1px solid #ddd8d1;background:#fff;color:#8b7355;border-radius:3px;cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:.04em}
-.settings-panel .grp-mini:hover{background:#f5efe6;color:#5a4e3c}
-.settings-panel .grp-flow{display:flex;flex-wrap:wrap;gap:2px 14px}
-.settings-panel .grp-flow label{flex:0 0 auto}
-.settings-panel .grp label{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:11px;color:#5a4e3c;text-transform:none;letter-spacing:0}
-.settings-panel .grp label:hover{color:#3d3a36}
-.settings-panel input[type="checkbox"]{accent-color:#8b7355}
-.settings-panel select{padding:2px 5px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#5a4e3c;font-size:11px;font-family:inherit;width:fit-content}
-.asp-pop-hdr{display:flex;align-items:center;justify-content:space-between;padding:2px 2px 4px;border-bottom:1px solid #f0ece7;margin-bottom:3px;gap:6px}
-.asp-pop-hdr-btns{display:flex;gap:4px}
-.asp-pop-hdr-btns button{font-size:9px;padding:1px 6px;border:1px solid #ddd8d1;background:#fff;color:#8b7355;border-radius:3px;cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:.04em}
-.asp-pop-hdr-btns button:hover{background:#f5efe6;color:#5a4e3c}
 
 .info-box{padding:4px 8px;font-size:10px;line-height:1.6;font-family:'Menlo','Consolas','Courier New',monospace;white-space:pre-wrap;word-break:break-word;user-select:text}
 .s-hdr{color:#b09e82;font-size:9px;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #f0ece7;margin-top:4px;margin-bottom:1px;padding-bottom:1px}
@@ -133,30 +125,42 @@ canvas{display:block;width:100%;height:100%}
     <!-- Top row: H1 natal (left) + harmonics grid (right) -->
     <div class="row" style="margin-bottom:10px">
       <div class="card card-wheel">
-        <div class="card-hdr"><span class="card-hdr-title">Chart Wheel — H1 Natal</span></div>
-        <div class="filter-bar">
-          <label>Aspects</label>
-          <div class="asp-menu">
-            <button type="button" class="asp-toggle" id="asp-toggle">All majors &#9662;</button>
-            <div class="asp-pop" id="asp-pop"></div>
-          </div>
-          <div class="sep" style="height:14px"></div>
-          <label>Patterns</label>
-          <div class="asp-menu">
-            <button type="button" class="asp-toggle" id="pat-toggle">All &#9662;</button>
-            <div class="asp-pop" id="pat-pop"></div>
-          </div>
-          <div class="sep" style="height:14px"></div>
-          <button type="button" class="gear-btn" id="gear-btn" title="More settings">&#9881;</button>
+        <div class="card-hdr">
+          <span class="card-hdr-title">Chart Wheel — H1 Natal</span>
+          <button type="button" class="gear-btn" id="gear-btn" title="Toggle filters">&#9881;</button>
         </div>
-        <div class="settings-panel" id="settings-panel">
-          <div class="grp grp-wide">
-            <div class="grp-title-row">
-              <div class="grp-title">Display</div>
-              <button type="button" class="grp-mini" data-bulk="disp" data-bulk-state="all">All</button>
-              <button type="button" class="grp-mini" data-bulk="disp" data-bulk-state="none">None</button>
+        <div class="chart-row">
+          <div class="canvas-wrap">
+            <canvas id="wheel-canvas"></canvas>
+            <div id="pat-tooltip" class="pat-tooltip"></div>
+          </div>
+          <div class="filter-panel" id="filter-panel">
+            <div class="fp-hdr">
+              <span>Aspects</span>
+              <div class="fp-hdr-btns">
+                <button data-asp-bulk="all">All</button>
+                <button data-asp-bulk="none">None</button>
+                <button data-asp-bulk="major">Major</button>
+                <button data-asp-bulk="minor">Minor</button>
+              </div>
             </div>
-            <div class="grp-flow">
+            <div id="asp-list"></div>
+            <div class="fp-hdr">
+              <span>Patterns</span>
+              <div class="fp-hdr-btns">
+                <button data-pat-bulk="all">All</button>
+                <button data-pat-bulk="none">None</button>
+              </div>
+            </div>
+            <div id="pat-filter-list"></div>
+            <div class="fp-hdr">
+              <span>Display</span>
+              <div class="fp-hdr-btns">
+                <button data-bulk="disp" data-bulk-state="all">All</button>
+                <button data-bulk="disp" data-bulk-state="none">None</button>
+              </div>
+            </div>
+            <div class="fp-flow">
               <label><input type="checkbox" data-disp-name="Sun" checked> Sun</label>
               <label><input type="checkbox" data-disp-name="Moon" checked> Moon</label>
               <label><input type="checkbox" data-disp-name="Mercury" checked> Mercury</label>
@@ -172,35 +176,31 @@ canvas{display:block;width:100%;height:100%}
               <label><input type="checkbox" data-disp="Angles"> Angles (Asc/MC)</label>
               <label><input type="checkbox" data-disp="Points"> Vertex &amp; Fortune</label>
             </div>
-          </div>
-          <div class="grp">
-            <div class="grp-title-row">
-              <div class="grp-title">Aspects to</div>
-              <button type="button" class="grp-mini" data-bulk="aspto" data-bulk-state="all">All</button>
-              <button type="button" class="grp-mini" data-bulk="aspto" data-bulk-state="none">None</button>
+            <div class="fp-hdr">
+              <span>Aspects To</span>
+              <div class="fp-hdr-btns">
+                <button data-bulk="aspto" data-bulk-state="all">All</button>
+                <button data-bulk="aspto" data-bulk-state="none">None</button>
+              </div>
             </div>
             <label><input type="checkbox" data-aspto="Chiron"> Chiron</label>
             <label><input type="checkbox" data-aspto="Nodes"> Lunar Nodes</label>
             <label><input type="checkbox" data-aspto="Angles"> ASC &amp; MC</label>
             <label><input type="checkbox" data-aspto="Points"> Vertex &amp; Fortune</label>
-          </div>
-          <div class="grp">
-            <div class="grp-title">Orbs</div>
+            <div class="fp-hdr"><span>Orbs</span></div>
             <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
-              <span style="font-size:11px;min-width:34px">Major</span>
-              <input type="number" id="major-orb-val" value="100" min="10" max="200" step="10" style="width:52px;font-size:12px">
-              <select id="orb-type" style="font-size:12px">
+              <span style="min-width:36px">Major</span>
+              <input type="number" id="major-orb-val" value="100" min="10" max="200" step="10">
+              <select id="orb-type">
                 <option value="pct" selected>% of max</option>
-                <option value="deg">° fixed</option>
+                <option value="deg">&#176; fixed</option>
               </select>
             </div>
             <div style="display:flex;align-items:center;gap:5px">
-              <span style="font-size:11px;min-width:34px">Minor</span>
-              <input type="number" id="minor-orb-val" value="50" min="10" max="200" step="10" style="width:52px;font-size:12px">
+              <span style="min-width:36px">Minor</span>
+              <input type="number" id="minor-orb-val" value="50" min="10" max="200" step="10">
             </div>
-          </div>
-          <div class="grp">
-            <div class="grp-title">House system</div>
+            <div class="fp-hdr"><span>House System</span></div>
             <select id="house-system" title="Tropical only — Sidereal always uses Whole Sign">
               <option value="Koch" selected>Koch</option>
               <option value="Placidus">Placidus</option>
@@ -212,7 +212,6 @@ canvas{display:block;width:100%;height:100%}
             </select>
           </div>
         </div>
-        <div class="card-body"><canvas id="wheel-canvas"></canvas></div>
       </div>
       <div class="card card-wheel">
         <div class="card-hdr"><span class="card-hdr-title">Harmonic Charts</span></div>
@@ -221,18 +220,14 @@ canvas{display:block;width:100%;height:100%}
         </div>
       </div>
     </div>
-    <!-- Bottom row: Positions/Aspects + Patterns -->
-    <div class="row" style="padding-bottom:10px">
+    <!-- Bottom row: Positions/Aspects -->
+    <div style="padding-bottom:10px">
       <div class="card card-info">
         <div class="card-hdr">
           <span class="card-hdr-title">Positions &amp; Aspects</span>
           <button class="copy-btn" onclick="copyInfo()">Copy</button>
         </div>
         <div class="card-body"><div class="info-box" id="info-box"></div></div>
-      </div>
-      <div class="card card-info">
-        <div class="card-hdr"><span class="card-hdr-title">Patterns</span></div>
-        <div class="card-body"><div class="pat-list" id="pat-list"><span style="color:#c4bdb4;font-size:12px">No patterns detected.</span></div></div>
       </div>
     </div>
   </div>
@@ -304,9 +299,11 @@ ASP_TYPES.forEach(function(a){ ASP_FILTER[a.name] = a.defaultOn; });
 
 // Latest chart data, kept so filter changes can re-render without re-fetching.
 var LAST_DATA = null;
+var PAT_SEGMENTS = []; // aspect segments belonging to active patterns, set by drawWheel
 
 function drawWheel(data) {
   if (!data) return;
+  PAT_SEGMENTS = [];
   var cvs = document.getElementById('wheel-canvas');
   var parent = cvs.parentElement;
   var dpr = window.devicePixelRatio || 1;
@@ -522,7 +519,8 @@ function drawWheel(data) {
       for (var j = i + 1; j < bodies.length; j++) {
         var a = bodies[i], b = bodies[j];
         var key = a < b ? a + '|' + b : b + '|' + a;
-        patternEdges[key] = true;
+        if (!patternEdges[key]) patternEdges[key] = [];
+        patternEdges[key].push(p);
       }
     }
   });
@@ -563,6 +561,7 @@ function drawWheel(data) {
       ctx.shadowBlur = 6;
       ctx.stroke();
       ctx.shadowBlur = 0;
+      PAT_SEGMENTS.push({x1:ep1[0], y1:ep1[1], x2:ep2[0], y2:ep2[1], pats: inPattern});
     } else {
       ctx.lineWidth = Math.max(0.4, closeness * 2.5);
       ctx.globalAlpha = hasActivePatterns ? 0.08 : 0.25 + closeness * 0.75;
@@ -664,25 +663,6 @@ var PAT_TYPES = ['Grand Trine', 'T-Square', 'Yod', 'Grand Cross', 'Kite', 'Mysti
 var PAT_FILTER = {};
 PAT_TYPES.forEach(function(t){ PAT_FILTER[t] = true; });
 
-function buildPatterns(d) {
-  var el = document.getElementById('pat-list');
-  var pats = (d.patterns || []).filter(function(p){ return PAT_FILTER[p.type] !== false; });
-  if (!pats.length) {
-    el.innerHTML = '<span style="color:#c4bdb4;font-size:12px">No patterns to display.</span>';
-    return;
-  }
-  el.innerHTML = pats.map(function(p) {
-    var icon = PAT_ICONS[p.type] || '◉';
-    var pct = Math.round(p.score * 100);
-    var apex = p.apex ? ' — apex: <b>' + p.apex + '</b>' : '';
-    return '<div class="pat-item">' +
-      '<span class="pat-type">' + icon + ' ' + p.type + '</span>' +
-      '<span class="pat-score">' + pct + '% tight</span>' +
-      '<div class="pat-bodies">' + p.bodies.join(' · ') + apex + '</div>' +
-      '<div class="pat-desc">' + p.description + '</div>' +
-    '</div>';
-  }).join('');
-}
 
 function redrawAll() {
   if (!LAST_DATA) return;
@@ -692,240 +672,200 @@ function redrawAll() {
 // Backwards-compat alias used by older redraw call sites
 function drawCurrentWheel() { redrawAll(); }
 
-// ─── Filter controls ─────────────────────────────────────────────────────────
-function updateAspToggleLabel() {
-  var on = ASP_TYPES.filter(function(t){ return ASP_FILTER[t.name]; });
-  var lbl;
-  if (on.length === 0) lbl = 'None';
-  else if (on.length === ASP_TYPES.length) lbl = 'All';
-  else if (on.length <= 3) lbl = on.map(function(t){ return t.name; }).join(', ');
-  else lbl = on.length + ' selected';
-  document.getElementById('asp-toggle').innerHTML = lbl + ' ▾';
-}
 
 (function initFilters(){
-  var pop = document.getElementById('asp-pop');
-  var popHdr =
-    '<div class="asp-pop-hdr">' +
-      '<span style="font-size:9px;color:#9b9185;text-transform:uppercase;letter-spacing:.05em">Aspect types</span>' +
-      '<div class="asp-pop-hdr-btns">' +
-        '<button type="button" data-asp-bulk="all">All</button>' +
-        '<button type="button" data-asp-bulk="none">None</button>' +
-        '<button type="button" data-asp-bulk="major">Major</button>' +
-        '<button type="button" data-asp-bulk="minor">Minor</button>' +
-      '</div>' +
-    '</div>';
-  pop.innerHTML = popHdr + ASP_TYPES.map(function(t, i){
+  var fp = document.getElementById('filter-panel');
+
+  // Build aspect checkboxes inline
+  document.getElementById('asp-list').innerHTML = ASP_TYPES.map(function(t){
     var checked = ASP_FILTER[t.name] ? 'checked' : '';
     return '<label><input type="checkbox" data-asp="' + t.name + '" ' + checked +
-           '><span class="asp-glyph">' + t.sym + '</span>' + t.name + '</label>';
+           '><span class="fp-asp-glyph">' + t.sym + '</span>' + t.name + '</label>';
   }).join('');
 
-  pop.addEventListener('change', function(e){
-    var cb = e.target;
-    if (cb && cb.matches('input[type="checkbox"]')) {
-      ASP_FILTER[cb.dataset.asp] = cb.checked;
-      updateAspToggleLabel();
-      if (LAST_DATA) drawCurrentWheel();
-    }
-  });
-
-  // Asp pop All / None / Major / Minor bulk toggles
-  pop.addEventListener('click', function(e){
-    var b = e.target.closest('button[data-asp-bulk]');
-    if (!b) return;
-    e.stopPropagation();
-    var mode = b.dataset.aspBulk;
-    pop.querySelectorAll('input[data-asp]').forEach(function(cb){
-      var t = ASP_TYPES.find(function(x){ return x.name === cb.dataset.asp; });
-      var on = mode === 'all' || (mode === 'major' && t && t.major) || (mode === 'minor' && t && !t.major);
-      cb.checked = on;
-      ASP_FILTER[cb.dataset.asp] = on;
-    });
-    updateAspToggleLabel();
-    if (LAST_DATA) drawCurrentWheel();
-  });
-
-  var toggle = document.getElementById('asp-toggle');
-  toggle.addEventListener('click', function(e){
-    e.stopPropagation();
-    pop.classList.toggle('open');
-  });
-  document.addEventListener('click', function(e){
-    if (!pop.contains(e.target) && e.target !== toggle) pop.classList.remove('open');
-  });
-
-  // Patterns dropdown — pill-toggle buttons (highlighted = included in view).
-  var patPop = document.getElementById('pat-pop');
-
-  function renderPatPills() {
-    var on = PAT_TYPES.filter(function(t){ return PAT_FILTER[t]; });
-    var lbl = on.length === 0 ? 'None' : on.length === PAT_TYPES.length ? 'All' : on.length + ' types';
-    document.getElementById('pat-toggle').textContent = lbl + ' ▾';
-    patPop.innerHTML =
-      '<div class="asp-pop-hdr">' +
-        '<span style="font-size:9px;color:#9b9185;text-transform:uppercase;letter-spacing:.05em">Show patterns</span>' +
-        '<div class="asp-pop-hdr-btns">' +
-          '<button type="button" data-pat-bulk="all">All</button>' +
-          '<button type="button" data-pat-bulk="none">None</button>' +
-        '</div>' +
-      '</div>' +
-      PAT_TYPES.map(function(t){
-        var cls = PAT_FILTER[t] ? 'pat-pill on' : 'pat-pill';
-        var icon = PAT_ICONS[t] || '◉';
-        return '<div class="' + cls + '" data-pat="' + t + '">' +
-               '<span class="pat-pill-icon">' + icon + '</span>' + t + '</div>';
-      }).join('');
+  // Build pattern pills inline
+  function renderPatFilter() {
+    document.getElementById('pat-filter-list').innerHTML = PAT_TYPES.map(function(t){
+      var cls = PAT_FILTER[t] ? 'pat-pill on' : 'pat-pill';
+      return '<div class="' + cls + '" data-pat="' + t + '">' +
+             '<span class="pat-pill-icon">' + (PAT_ICONS[t] || '◉') + '</span>' + t + '</div>';
+    }).join('');
   }
+  renderPatFilter();
 
-  patPop.addEventListener('click', function(e){
-    e.stopPropagation();
-    var bulk = e.target.closest('button[data-pat-bulk]');
-    if (bulk) {
-      var on = bulk.dataset.patBulk === 'all';
-      PAT_TYPES.forEach(function(t){ PAT_FILTER[t] = on; });
-      renderPatPills();
-      if (LAST_DATA) { buildPatterns(LAST_DATA); drawCurrentWheel(); }
-      return;
-    }
-    var pill = e.target.closest('.pat-pill');
-    if (pill) {
-      var t = pill.dataset.pat;
-      PAT_FILTER[t] = !PAT_FILTER[t];
-      renderPatPills();
-      if (LAST_DATA) { buildPatterns(LAST_DATA); drawCurrentWheel(); }
-    }
-  });
-
-  var patToggle = document.getElementById('pat-toggle');
-  patToggle.addEventListener('click', function(e){
-    e.stopPropagation();
-    patPop.classList.toggle('open');
-    if (patPop.classList.contains('open')) renderPatPills();
-  });
-  document.addEventListener('click', function(e){
-    if (!patPop.contains(e.target) && e.target !== patToggle) patPop.classList.remove('open');
-  });
-  renderPatPills();
-
-  // Gear: toggle the extended settings panel.
-  var gear = document.getElementById('gear-btn');
-  var panel = document.getElementById('settings-panel');
-  gear.addEventListener('click', function(){
-    panel.classList.toggle('open');
+  // Gear button: collapse/expand filter panel
+  document.getElementById('gear-btn').addEventListener('click', function(){
+    fp.classList.toggle('closed');
     if (LAST_DATA) requestAnimationFrame(drawCurrentWheel);
   });
 
-  // Display + Aspects-to checkboxes. Unchecking Display unchecks Aspects-to;
-  // checking Aspects-to auto-checks the matching Display item.
-  panel.addEventListener('change', function(e){
+  // All checkbox changes delegated to filter panel
+  fp.addEventListener('change', function(e){
     var cb = e.target;
-    if (!cb || cb.tagName !== 'INPUT' || cb.type !== 'checkbox') return;
-    if (cb.dataset.dispName) {
+    if (!cb || cb.tagName !== 'INPUT') return;
+    if (cb.dataset.asp) {
+      ASP_FILTER[cb.dataset.asp] = cb.checked;
+    } else if (cb.dataset.dispName) {
       BODY_DISPLAY[cb.dataset.dispName] = cb.checked;
-    }
-    if (cb.dataset.disp) {
+    } else if (cb.dataset.disp) {
       var key = cb.dataset.disp;
       BODY_DISPLAY[key] = cb.checked;
       if (!cb.checked) {
         ASPECT_TO[key] = false;
-        var aspCb = panel.querySelector('input[data-aspto="' + key + '"]');
+        var aspCb = fp.querySelector('input[data-aspto="' + key + '"]');
         if (aspCb) aspCb.checked = false;
       }
-    }
-    if (cb.dataset.aspto) {
+    } else if (cb.dataset.aspto) {
       var k = cb.dataset.aspto;
       ASPECT_TO[k] = cb.checked;
       if (cb.checked) {
         BODY_DISPLAY[k] = true;
-        var dispCb = panel.querySelector('input[data-disp="' + k + '"]');
+        var dispCb = fp.querySelector('input[data-disp="' + k + '"]');
         if (dispCb) dispCb.checked = true;
       }
     }
     if (LAST_DATA) drawCurrentWheel();
   });
 
-  // Display / Aspects-to bulk All / None buttons.
-  panel.addEventListener('click', function(e){
-    var b = e.target.closest('button[data-bulk]');
-    if (!b) return;
-    var bulk = b.dataset.bulk, on = b.dataset.bulkState === 'all';
-    if (bulk === 'disp') {
-      panel.querySelectorAll('input[data-disp-name]').forEach(function(cb){
+  // All button clicks delegated to filter panel
+  fp.addEventListener('click', function(e){
+    // Aspect bulk
+    var aspBulk = e.target.closest('button[data-asp-bulk]');
+    if (aspBulk) {
+      var mode = aspBulk.dataset.aspBulk;
+      fp.querySelectorAll('input[data-asp]').forEach(function(cb){
+        var t = ASP_TYPES.find(function(x){ return x.name === cb.dataset.asp; });
+        var on = mode === 'all' || (mode === 'major' && t && t.major) || (mode === 'minor' && t && !t.major);
         cb.checked = on;
-        BODY_DISPLAY[cb.dataset.dispName] = on;
+        ASP_FILTER[cb.dataset.asp] = on;
       });
-      panel.querySelectorAll('input[data-disp]').forEach(function(cb){
-        cb.checked = on;
-        BODY_DISPLAY[cb.dataset.disp] = on;
-        if (!on) {
-          ASPECT_TO[cb.dataset.disp] = false;
-          var aspCb = panel.querySelector('input[data-aspto="' + cb.dataset.disp + '"]');
-          if (aspCb) aspCb.checked = false;
-        }
-      });
-    } else if (bulk === 'aspto') {
-      panel.querySelectorAll('input[data-aspto]').forEach(function(cb){
-        cb.checked = on;
-        ASPECT_TO[cb.dataset.aspto] = on;
-        if (on) {
-          BODY_DISPLAY[cb.dataset.aspto] = true;
-          var dispCb = panel.querySelector('input[data-disp="' + cb.dataset.aspto + '"]');
-          if (dispCb) dispCb.checked = true;
-        }
-      });
+      if (LAST_DATA) drawCurrentWheel();
+      return;
     }
-    if (LAST_DATA) drawCurrentWheel();
+    // Pattern bulk
+    var patBulk = e.target.closest('button[data-pat-bulk]');
+    if (patBulk) {
+      var on2 = patBulk.dataset.patBulk === 'all';
+      PAT_TYPES.forEach(function(t){ PAT_FILTER[t] = on2; });
+      renderPatFilter();
+      if (LAST_DATA) drawCurrentWheel();
+      return;
+    }
+    // Pattern pill toggle
+    var pill = e.target.closest('.pat-pill[data-pat]');
+    if (pill) {
+      PAT_FILTER[pill.dataset.pat] = !PAT_FILTER[pill.dataset.pat];
+      renderPatFilter();
+      if (LAST_DATA) drawCurrentWheel();
+      return;
+    }
+    // Display / Aspects-to bulk
+    var bulk = e.target.closest('button[data-bulk]');
+    if (bulk) {
+      var bk = bulk.dataset.bulk, on3 = bulk.dataset.bulkState === 'all';
+      if (bk === 'disp') {
+        fp.querySelectorAll('input[data-disp-name]').forEach(function(cb){
+          cb.checked = on3; BODY_DISPLAY[cb.dataset.dispName] = on3;
+        });
+        fp.querySelectorAll('input[data-disp]').forEach(function(cb){
+          cb.checked = on3; BODY_DISPLAY[cb.dataset.disp] = on3;
+          if (!on3) {
+            ASPECT_TO[cb.dataset.disp] = false;
+            var a = fp.querySelector('input[data-aspto="' + cb.dataset.disp + '"]');
+            if (a) a.checked = false;
+          }
+        });
+      } else if (bk === 'aspto') {
+        fp.querySelectorAll('input[data-aspto]').forEach(function(cb){
+          cb.checked = on3; ASPECT_TO[cb.dataset.aspto] = on3;
+          if (on3) {
+            BODY_DISPLAY[cb.dataset.aspto] = true;
+            var d = fp.querySelector('input[data-disp="' + cb.dataset.aspto + '"]');
+            if (d) d.checked = true;
+          }
+        });
+      }
+      if (LAST_DATA) drawCurrentWheel();
+      return;
+    }
   });
 
-  // Major / minor orb inputs + type selector.
+  // Orb inputs
   function bindOrb(id, setter, fallback) {
     var el = document.getElementById(id);
-    function update() {
-      var v = parseFloat(el.value);
-      setter(isFinite(v) ? v : fallback);
-      if (LAST_DATA) drawCurrentWheel();
-    }
-    el.addEventListener('input', update);
-    el.addEventListener('change', update);
+    function update() { var v = parseFloat(el.value); setter(isFinite(v) ? v : fallback); if (LAST_DATA) drawCurrentWheel(); }
+    el.addEventListener('input', update); el.addEventListener('change', update);
   }
   bindOrb('major-orb-val', function(v){ MAJOR_ORB_VAL = v; }, 100);
   bindOrb('minor-orb-val', function(v){ MINOR_ORB_VAL = v; }, 50);
 
-  // Switching units adjusts both inputs to mode-appropriate defaults.
   document.getElementById('orb-type').addEventListener('change', function(){
     ORB_TYPE = this.value;
-    var maj = document.getElementById('major-orb-val');
-    var mn  = document.getElementById('minor-orb-val');
+    var maj = document.getElementById('major-orb-val'), mn = document.getElementById('minor-orb-val');
     if (ORB_TYPE === 'deg') {
-      maj.min = '0.5'; maj.max = '15'; maj.step = '0.5'; maj.value = '6';
-      mn.min  = '0.5'; mn.max  = '15'; mn.step  = '0.5'; mn.value  = '3';
+      maj.min='0.5'; maj.max='15'; maj.step='0.5'; maj.value='6'; mn.min='0.5'; mn.max='15'; mn.step='0.5'; mn.value='3';
       MAJOR_ORB_VAL = 6; MINOR_ORB_VAL = 3;
     } else {
-      maj.min = '10'; maj.max = '200'; maj.step = '10'; maj.value = '100';
-      mn.min  = '10'; mn.max  = '200'; mn.step  = '10'; mn.value  = '50';
+      maj.min='10'; maj.max='200'; maj.step='10'; maj.value='100'; mn.min='10'; mn.max='200'; mn.step='10'; mn.value='50';
       MAJOR_ORB_VAL = 100; MINOR_ORB_VAL = 50;
     }
     if (LAST_DATA) drawCurrentWheel();
   });
 
-  // House system: requires a server round-trip — re-submit the form.
   document.getElementById('house-system').addEventListener('change', function(){
     if (LAST_DATA) document.getElementById('chart-form').requestSubmit();
   });
 
-  // Switching to Sidereal forces Whole Sign houses (Vedic convention).
   document.getElementById('zodiac').addEventListener('change', function(){
-    if (this.value === 'Sidereal') {
-      document.getElementById('house-system').value = 'Whole Sign';
-    }
+    if (this.value === 'Sidereal') document.getElementById('house-system').value = 'Whole Sign';
   });
-
-  updateAspToggleLabel();
 
   window.addEventListener('resize', function(){
     if (LAST_DATA) requestAnimationFrame(drawCurrentWheel);
   });
+})();
+
+// ─── Pattern tooltip (hover over highlighted aspects) ────────────────────────
+(function initPatTooltip(){
+  var cvs = document.getElementById('wheel-canvas');
+  var tip = document.getElementById('pat-tooltip');
+  if (!cvs || !tip) return;
+
+  function distSeg(px, py, x1, y1, x2, y2) {
+    var dx = x2-x1, dy = y2-y1, l2 = dx*dx+dy*dy;
+    if (!l2) return Math.sqrt((px-x1)*(px-x1)+(py-y1)*(py-y1));
+    var t = Math.max(0,Math.min(1,((px-x1)*dx+(py-y1)*dy)/l2));
+    return Math.sqrt((px-x1-t*dx)*(px-x1-t*dx)+(py-y1-t*dy)*(py-y1-t*dy));
+  }
+
+  cvs.addEventListener('mousemove', function(e){
+    if (!PAT_SEGMENTS.length){ tip.classList.remove('vis'); return; }
+    var mx = e.offsetX, my = e.offsetY;
+    var best = null, bd = 14;
+    for (var i = 0; i < PAT_SEGMENTS.length; i++){
+      var s = PAT_SEGMENTS[i];
+      var d = distSeg(mx, my, s.x1, s.y1, s.x2, s.y2);
+      if (d < bd){ bd = d; best = s; }
+    }
+    if (!best){ tip.classList.remove('vis'); return; }
+    var pats = best.pats || [];
+    var html = pats.map(function(p){
+      return '<div class="pt-type">' + (PAT_ICONS[p.type]||'◉') + ' ' + p.type + '</div>' +
+             '<div class="pt-bodies">' + p.bodies.join(' · ') + (p.apex ? ' — apex: '+p.apex : '') + '</div>' +
+             '<div class="pt-score">' + Math.round(p.score*100) + '% tight</div>' +
+             '<div class="pt-desc">' + p.description + '</div>';
+    }).join('<div style="border-top:1px solid #f0ece7;margin:5px 0"></div>');
+    if (!html){ tip.classList.remove('vis'); return; }
+    tip.innerHTML = html;
+    var cw = cvs.offsetWidth, ch = cvs.offsetHeight;
+    var tx = mx+14, ty = my-10;
+    if (tx+220 > cw) tx = mx-228;
+    if (ty+130 > ch) ty = ch-130;
+    if (ty < 0) ty = 0;
+    tip.style.left = tx+'px'; tip.style.top = ty+'px';
+    tip.classList.add('vis');
+  });
+  cvs.addEventListener('mouseleave', function(){ tip.classList.remove('vis'); });
 })();
 
 // ─── Form submit ─────────────────────────────────────────────────────────────
@@ -962,7 +902,6 @@ function updateAspToggleLabel() {
         LAST_DATA = d;
         buildMeta(d);
         buildInfoBox(d);
-        buildPatterns(d);
         results.classList.add('active');
         requestAnimationFrame(redrawAll);
       })
