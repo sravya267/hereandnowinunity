@@ -555,6 +555,7 @@ function drawWheel(data) {
     ctx.beginPath();
     ctx.moveTo(ep1[0], ep1[1]); ctx.lineTo(ep2[0], ep2[1]);
     ctx.strokeStyle = aspLineColor(meta);
+    var hasActivePatterns = Object.keys(patternEdges).length > 0;
     if (inPattern) {
       ctx.lineWidth = Math.max(2.5, closeness * 4);
       ctx.globalAlpha = 1;
@@ -564,7 +565,7 @@ function drawWheel(data) {
       ctx.shadowBlur = 0;
     } else {
       ctx.lineWidth = Math.max(0.4, closeness * 2.5);
-      ctx.globalAlpha = 0.25 + closeness * 0.75;
+      ctx.globalAlpha = hasActivePatterns ? 0.08 : 0.25 + closeness * 0.75;
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
@@ -710,6 +711,8 @@ function updateAspToggleLabel() {
       '<div class="asp-pop-hdr-btns">' +
         '<button type="button" data-asp-bulk="all">All</button>' +
         '<button type="button" data-asp-bulk="none">None</button>' +
+        '<button type="button" data-asp-bulk="major">Major</button>' +
+        '<button type="button" data-asp-bulk="minor">Minor</button>' +
       '</div>' +
     '</div>';
   pop.innerHTML = popHdr + ASP_TYPES.map(function(t, i){
@@ -727,13 +730,15 @@ function updateAspToggleLabel() {
     }
   });
 
-  // Asp pop All / None bulk toggles
+  // Asp pop All / None / Major / Minor bulk toggles
   pop.addEventListener('click', function(e){
     var b = e.target.closest('button[data-asp-bulk]');
     if (!b) return;
     e.stopPropagation();
-    var on = b.dataset.aspBulk === 'all';
+    var mode = b.dataset.aspBulk;
     pop.querySelectorAll('input[data-asp]').forEach(function(cb){
+      var t = ASP_TYPES.find(function(x){ return x.name === cb.dataset.asp; });
+      var on = mode === 'all' || (mode === 'major' && t && t.major) || (mode === 'minor' && t && !t.major);
       cb.checked = on;
       ASP_FILTER[cb.dataset.asp] = on;
     });
