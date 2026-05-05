@@ -81,6 +81,7 @@ def create_chart(req: ChartRequest) -> ChartResponse:
         aspects=_df_to_records(chart.aspects),
         ayanamsa=chart.ayanamsa,
         traits=chart.traits,
+        patterns=chart.patterns,
     )
 
 
