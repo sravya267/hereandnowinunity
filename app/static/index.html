@@ -71,10 +71,10 @@ canvas{display:block;width:100%;height:100%}
 .fp-flow{display:flex;flex-wrap:wrap;gap:2px 12px}
 .fp-flow label{flex:0 0 auto}
 .fp-asp-glyph{display:inline-block;width:14px;text-align:center;color:#8b7355;flex-shrink:0}
-.pat-pill{display:flex;align-items:center;gap:6px;padding:3px 6px;margin:2px 0;border-radius:3px;font-size:11px;cursor:pointer;user-select:none;color:#9b9185;border:1px solid transparent;transition:all .1s}
-.pat-pill:hover{background:#faf6ee}
-.pat-pill.on{background:#f0ebe1;color:#5a4e3c;border-color:#ddd8d1;font-weight:600}
-.pat-pill .pat-pill-icon{width:14px;text-align:center;flex-shrink:0}
+.pat-btn-row{display:flex;flex-wrap:wrap;gap:3px;margin:5px 0 8px}
+.pat-btn{font-size:9px;padding:1px 5px;border:1px solid #ddd8d1;background:#fff;color:#8b7355;border-radius:3px;cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:.04em;user-select:none;line-height:1.6}
+.pat-btn:hover{background:#f5efe6;color:#5a4e3c}
+.pat-btn.on{background:#8b7355;color:#fff;border-color:#8b7355;font-weight:600}
 .pat-tooltip{display:none;position:absolute;background:#fff;border:1px solid #ddd8d1;border-radius:4px;box-shadow:0 4px 14px rgba(60,50,30,.15);padding:8px 10px;font-size:11px;max-width:220px;z-index:20;pointer-events:none;line-height:1.5;color:#5a4e3c}
 .pat-tooltip.vis{display:block}
 .pat-tooltip .pt-type{font-weight:600;margin-bottom:2px}
@@ -134,25 +134,30 @@ canvas{display:block;width:100%;height:100%}
             <canvas id="wheel-canvas"></canvas>
             <div id="pat-tooltip" class="pat-tooltip"></div>
           </div>
-          <div class="filter-panel" id="filter-panel">
-            <div class="fp-hdr">
-              <span>Aspects</span>
-              <div class="fp-hdr-btns">
-                <button data-asp-bulk="all">All</button>
-                <button data-asp-bulk="none">None</button>
-                <button data-asp-bulk="major">Major</button>
-                <button data-asp-bulk="minor">Minor</button>
-              </div>
+          <div class="filter-panel closed" id="filter-panel">
+            <div class="fp-hdr"><span>Orbs</span></div>
+            <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
+              <span style="min-width:36px">Major</span>
+              <input type="number" id="major-orb-val" value="100" min="10" max="200" step="10">
+              <select id="orb-type">
+                <option value="pct" selected>% of max</option>
+                <option value="deg">&#176; fixed</option>
+              </select>
             </div>
-            <div id="asp-list"></div>
-            <div class="fp-hdr">
-              <span>Patterns</span>
-              <div class="fp-hdr-btns">
-                <button data-pat-bulk="all">All</button>
-                <button data-pat-bulk="none">None</button>
-              </div>
+            <div style="display:flex;align-items:center;gap:5px">
+              <span style="min-width:36px">Minor</span>
+              <input type="number" id="minor-orb-val" value="50" min="10" max="200" step="10">
             </div>
-            <div id="pat-filter-list"></div>
+            <div class="fp-hdr"><span>House System</span></div>
+            <select id="house-system" title="Tropical only — Sidereal always uses Whole Sign">
+              <option value="Koch" selected>Koch</option>
+              <option value="Placidus">Placidus</option>
+              <option value="Whole Sign">Whole Sign</option>
+              <option value="Equal">Equal</option>
+              <option value="Porphyry">Porphyry</option>
+              <option value="Regiomontanus">Regiomontanus</option>
+              <option value="Campanus">Campanus</option>
+            </select>
             <div class="fp-hdr">
               <span>Display</span>
               <div class="fp-hdr-btns">
@@ -177,39 +182,20 @@ canvas{display:block;width:100%;height:100%}
               <label><input type="checkbox" data-disp="Points"> Vertex &amp; Fortune</label>
             </div>
             <div class="fp-hdr">
-              <span>Aspects To</span>
+              <span>Aspects</span>
               <div class="fp-hdr-btns">
-                <button data-bulk="aspto" data-bulk-state="all">All</button>
-                <button data-bulk="aspto" data-bulk-state="none">None</button>
+                <button data-asp-bulk="all">All</button>
+                <button data-asp-bulk="none">None</button>
+                <button data-asp-bulk="major">Major</button>
+                <button data-asp-bulk="minor">Minor</button>
               </div>
             </div>
-            <label><input type="checkbox" data-aspto="Chiron"> Chiron</label>
-            <label><input type="checkbox" data-aspto="Nodes"> Lunar Nodes</label>
-            <label><input type="checkbox" data-aspto="Angles"> ASC &amp; MC</label>
-            <label><input type="checkbox" data-aspto="Points"> Vertex &amp; Fortune</label>
-            <div class="fp-hdr"><span>Orbs</span></div>
-            <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
-              <span style="min-width:36px">Major</span>
-              <input type="number" id="major-orb-val" value="100" min="10" max="200" step="10">
-              <select id="orb-type">
-                <option value="pct" selected>% of max</option>
-                <option value="deg">&#176; fixed</option>
-              </select>
+            <div class="pat-btn-row">
+              <button class="pat-btn" data-pat-bulk="all" title="Highlight all patterns">All</button>
+              <button class="pat-btn" data-pat-bulk="none" title="Clear pattern highlights">None</button>
+              <span id="pat-filter-list" style="display:contents"></span>
             </div>
-            <div style="display:flex;align-items:center;gap:5px">
-              <span style="min-width:36px">Minor</span>
-              <input type="number" id="minor-orb-val" value="50" min="10" max="200" step="10">
-            </div>
-            <div class="fp-hdr"><span>House System</span></div>
-            <select id="house-system" title="Tropical only — Sidereal always uses Whole Sign">
-              <option value="Koch" selected>Koch</option>
-              <option value="Placidus">Placidus</option>
-              <option value="Whole Sign">Whole Sign</option>
-              <option value="Equal">Equal</option>
-              <option value="Porphyry">Porphyry</option>
-              <option value="Regiomontanus">Regiomontanus</option>
-              <option value="Campanus">Campanus</option>
-            </select>
+            <div id="asp-list"></div>
           </div>
         </div>
       </div>
@@ -683,20 +669,22 @@ function drawCurrentWheel() { redrawAll(); }
            '><span class="fp-asp-glyph">' + t.sym + '</span>' + t.name + '</label>';
   }).join('');
 
-  // Build pattern pills inline
+  // Build pattern toggle buttons inline (rendered next to All/None pattern bulk buttons)
   function renderPatFilter() {
     document.getElementById('pat-filter-list').innerHTML = PAT_TYPES.map(function(t){
-      var cls = PAT_FILTER[t] ? 'pat-pill on' : 'pat-pill';
-      return '<div class="' + cls + '" data-pat="' + t + '">' +
-             '<span class="pat-pill-icon">' + (PAT_ICONS[t] || '◉') + '</span>' + t + '</div>';
+      var cls = PAT_FILTER[t] ? 'pat-btn on' : 'pat-btn';
+      var label = (PAT_ICONS[t] || '') + ' ' + t;
+      return '<button type="button" class="' + cls + '" data-pat="' + t + '" title="' + t + '">' + label + '</button>';
     }).join('');
   }
   renderPatFilter();
 
-  // Gear button: collapse/expand filter panel
+  // Gear button: collapse/expand filter panel. Redraw after the CSS width
+  // transition (.2s) finishes so the canvas matches the final layout, not an
+  // intermediate transitional size.
   document.getElementById('gear-btn').addEventListener('click', function(){
     fp.classList.toggle('closed');
-    if (LAST_DATA) requestAnimationFrame(drawCurrentWheel);
+    if (LAST_DATA) setTimeout(drawCurrentWheel, 220);
   });
 
   // All checkbox changes delegated to filter panel
@@ -708,21 +696,10 @@ function drawCurrentWheel() { redrawAll(); }
     } else if (cb.dataset.dispName) {
       BODY_DISPLAY[cb.dataset.dispName] = cb.checked;
     } else if (cb.dataset.disp) {
+      // Display covers both showing the body and including its aspects.
       var key = cb.dataset.disp;
       BODY_DISPLAY[key] = cb.checked;
-      if (!cb.checked) {
-        ASPECT_TO[key] = false;
-        var aspCb = fp.querySelector('input[data-aspto="' + key + '"]');
-        if (aspCb) aspCb.checked = false;
-      }
-    } else if (cb.dataset.aspto) {
-      var k = cb.dataset.aspto;
-      ASPECT_TO[k] = cb.checked;
-      if (cb.checked) {
-        BODY_DISPLAY[k] = true;
-        var dispCb = fp.querySelector('input[data-disp="' + k + '"]');
-        if (dispCb) dispCb.checked = true;
-      }
+      ASPECT_TO[key] = cb.checked;
     }
     if (LAST_DATA) drawCurrentWheel();
   });
@@ -742,7 +719,7 @@ function drawCurrentWheel() { redrawAll(); }
       if (LAST_DATA) drawCurrentWheel();
       return;
     }
-    // Pattern bulk
+    // Pattern bulk (All / None)
     var patBulk = e.target.closest('button[data-pat-bulk]');
     if (patBulk) {
       var on2 = patBulk.dataset.patBulk === 'all';
@@ -751,40 +728,26 @@ function drawCurrentWheel() { redrawAll(); }
       if (LAST_DATA) drawCurrentWheel();
       return;
     }
-    // Pattern pill toggle
-    var pill = e.target.closest('.pat-pill[data-pat]');
-    if (pill) {
-      PAT_FILTER[pill.dataset.pat] = !PAT_FILTER[pill.dataset.pat];
+    // Pattern button toggle
+    var patBtn = e.target.closest('.pat-btn[data-pat]');
+    if (patBtn) {
+      PAT_FILTER[patBtn.dataset.pat] = !PAT_FILTER[patBtn.dataset.pat];
       renderPatFilter();
       if (LAST_DATA) drawCurrentWheel();
       return;
     }
-    // Display / Aspects-to bulk
-    var bulk = e.target.closest('button[data-bulk]');
+    // Display bulk
+    var bulk = e.target.closest('button[data-bulk="disp"]');
     if (bulk) {
-      var bk = bulk.dataset.bulk, on3 = bulk.dataset.bulkState === 'all';
-      if (bk === 'disp') {
-        fp.querySelectorAll('input[data-disp-name]').forEach(function(cb){
-          cb.checked = on3; BODY_DISPLAY[cb.dataset.dispName] = on3;
-        });
-        fp.querySelectorAll('input[data-disp]').forEach(function(cb){
-          cb.checked = on3; BODY_DISPLAY[cb.dataset.disp] = on3;
-          if (!on3) {
-            ASPECT_TO[cb.dataset.disp] = false;
-            var a = fp.querySelector('input[data-aspto="' + cb.dataset.disp + '"]');
-            if (a) a.checked = false;
-          }
-        });
-      } else if (bk === 'aspto') {
-        fp.querySelectorAll('input[data-aspto]').forEach(function(cb){
-          cb.checked = on3; ASPECT_TO[cb.dataset.aspto] = on3;
-          if (on3) {
-            BODY_DISPLAY[cb.dataset.aspto] = true;
-            var d = fp.querySelector('input[data-disp="' + cb.dataset.aspto + '"]');
-            if (d) d.checked = true;
-          }
-        });
-      }
+      var on3 = bulk.dataset.bulkState === 'all';
+      fp.querySelectorAll('input[data-disp-name]').forEach(function(cb){
+        cb.checked = on3; BODY_DISPLAY[cb.dataset.dispName] = on3;
+      });
+      fp.querySelectorAll('input[data-disp]').forEach(function(cb){
+        cb.checked = on3;
+        BODY_DISPLAY[cb.dataset.disp] = on3;
+        ASPECT_TO[cb.dataset.disp] = on3;
+      });
       if (LAST_DATA) drawCurrentWheel();
       return;
     }
