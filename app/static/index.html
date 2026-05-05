@@ -37,8 +37,8 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .card-wheel{height:600px}
 .card-info{height:380px}
 .harm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px;height:100%;overflow:auto}
-.harm-cell{position:relative;background:#fff;border:1px solid #e8e4df;border-radius:4px;overflow:hidden;aspect-ratio:1}
-.harm-cell canvas{display:block;width:100%;height:100%}
+.harm-cell{position:relative;height:0;padding-bottom:100%;background:#fff;border:1px solid #e8e4df;border-radius:4px;overflow:hidden}
+.harm-cell canvas{position:absolute;top:0;left:0;width:100%;height:100%}
 .harm-cell-label{position:absolute;top:3px;left:5px;font-size:10px;font-weight:700;color:#5a4e3c;background:rgba(255,255,255,.85);padding:0 4px;border-radius:2px;z-index:2;letter-spacing:.04em}
 .pat-list{padding:6px 8px;font-size:11px;line-height:1.6;overflow:auto;height:100%}
 .pat-item{border-bottom:1px solid #f0ece7;padding:5px 0}
