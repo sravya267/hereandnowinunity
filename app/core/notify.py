@@ -1,7 +1,13 @@
 """Owner notification on new chart calculations.
 
-Posts a small "new chart" notice to a configurable webhook (email via
-Resend, Slack/Discord webhook, or any HTTP endpoint that accepts JSON).
+Sends a small "new chart" notice via one of:
+- "gmail":    SMTP via smtp.gmail.com using a Google App Password
+              (no third-party services — sender is your own Gmail account)
+- "resend":   Resend HTTP API
+- "slack" |
+  "discord" |
+  "webhook":  POST {"text": ...} to NOTIFY_WEBHOOK_URL
+
 Silently no-ops when env vars aren't set so local development never
 needs credentials.
 """
@@ -9,8 +15,10 @@ from __future__ import annotations
 
 import json
 import logging
-import urllib.request
+import smtplib
 import urllib.error
+import urllib.request
+from email.message import EmailMessage
 
 from app.config import settings
 
@@ -23,7 +31,9 @@ def notify_new_chart(
     zodiac_system: str | None = None,
     house_system: str | None = None,
 ) -> None:
-    if settings.NOTIFY_PROVIDER == "resend":
+    if settings.NOTIFY_PROVIDER == "gmail":
+        _send_gmail(birth_datetime, location, zodiac_system, house_system)
+    elif settings.NOTIFY_PROVIDER == "resend":
         _send_resend(birth_datetime, location, zodiac_system, house_system)
     elif settings.NOTIFY_PROVIDER in {"slack", "discord", "webhook"}:
         _send_webhook(birth_datetime, location, zodiac_system, house_system)
@@ -37,6 +47,23 @@ def _format_lines(birth_datetime, location, zodiac_system, house_system) -> list
     if house_system:
         lines.append(f"House system: {house_system}")
     return lines
+
+
+def _send_gmail(birth_datetime, location, zodiac_system, house_system) -> None:
+    if not (settings.GMAIL_USER and settings.GMAIL_APP_PASSWORD and settings.OWNER_EMAIL):
+        return
+    msg = EmailMessage()
+    msg["From"] = settings.GMAIL_USER
+    msg["To"] = settings.OWNER_EMAIL
+    msg["Subject"] = "New chart calculated"
+    msg.set_content("\n".join(_format_lines(birth_datetime, location, zodiac_system, house_system)))
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as smtp:
+            smtp.starttls()
+            smtp.login(settings.GMAIL_USER, settings.GMAIL_APP_PASSWORD)
+            smtp.send_message(msg)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("notify_new_chart gmail exception: %s", exc)
 
 
 def _send_resend(birth_datetime, location, zodiac_system, house_system) -> None:
