@@ -45,6 +45,10 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .card{background:#fff;border:1px solid #e8e4df;border-radius:5px;overflow:hidden;display:flex;flex-direction:column}
 .card-wheel{height:600px}
 .card-info{height:380px}
+.card-cloud{height:240px}
+.word-cloud{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;padding:14px 18px;line-height:1.6;text-align:center;height:100%;overflow:auto}
+.word-cloud .wc-word{display:inline-block;margin:3px 7px;color:#5a4e3c;white-space:nowrap}
+.word-cloud .wc-empty{color:#c4bdb4;text-align:center;padding:40px;width:100%}
 .pat-list{padding:6px 8px;font-size:11px;line-height:1.6;overflow:auto;height:100%}
 .pat-item{border-bottom:1px solid #f0ece7;padding:5px 0}
 .pat-item:last-child{border-bottom:none}
@@ -128,8 +132,10 @@ canvas{display:block;width:100%;height:100%}
 .harm-title{font-size:13px;font-weight:600;color:#3d3a36;margin-bottom:4px}
 .harm-meaning{margin-bottom:8px;color:#5a4e3c}
 .harm-asp-label{font-size:10px;color:#9b9185;text-transform:uppercase;letter-spacing:.05em;margin:6px 0 3px}
-.harm-asp-item{padding:2px 0;font-size:11px;color:#5a4e3c;font-variant-numeric:tabular-nums;border-bottom:1px dotted #f0ece7}
+.harm-asp-item{padding:5px 0;font-size:11px;color:#5a4e3c;border-bottom:1px dotted #f0ece7}
 .harm-asp-item:last-child{border-bottom:none}
+.harm-asp-head{font-variant-numeric:tabular-nums;font-weight:500}
+.harm-asp-desc{font-size:10px;color:#7a705e;font-style:italic;line-height:1.45;margin-top:2px;padding-left:18px}
 .harm-asp-item .asp-glyph{display:inline-block;width:14px;text-align:center;color:#8b7355}
 .harm-asp-item .asp-close{color:#b09e82;font-size:10px}
 
@@ -290,6 +296,13 @@ canvas{display:block;width:100%;height:100%}
             </div>
           </div>
         </div>
+      </div>
+    </div>
+    <!-- Personality word cloud -->
+    <div style="margin-bottom:10px">
+      <div class="card card-cloud">
+        <div class="card-hdr"><span class="card-hdr-title">Personality Themes</span></div>
+        <div class="card-body"><div class="word-cloud" id="word-cloud"></div></div>
       </div>
     </div>
     <!-- Bottom row: Positions/Aspects -->
@@ -795,12 +808,35 @@ var PAT_ICONS = {
 };
 var PAT_TYPES = ['Grand Trine', 'T-Square', 'Yod', 'Grand Cross', 'Kite', 'Mystic Rectangle'];
 var PAT_FILTER = {};
-PAT_TYPES.forEach(function(t){ PAT_FILTER[t] = true; });
+PAT_TYPES.forEach(function(t){ PAT_FILTER[t] = false; });
 
 
 function redrawAll() {
   if (!LAST_DATA) return;
   drawWheel(LAST_DATA);
+}
+
+// CSS-based personality word cloud built from chart.traits (word + weight).
+// Larger weight → bigger, darker word. Words are randomly tinted across a
+// warm palette so the cloud feels alive without ever turning illegible.
+function renderWordCloud(d) {
+  var el = document.getElementById('word-cloud');
+  if (!el) return;
+  var traits = (d && d.traits) || [];
+  if (!traits.length) {
+    el.innerHTML = '<div class="wc-empty">No personality themes derived for this chart.</div>';
+    return;
+  }
+  var max = traits.reduce(function(m, t){ return Math.max(m, t.weight || 1); }, 1);
+  var palette = ['#5a4e3c','#7a644a','#8b7355','#3a8a3a','#c0392b','#2e7e9e','#d4a017','#7d3c98'];
+  el.innerHTML = traits.map(function(t, i){
+    var w = (t.weight || 1) / max;
+    var size = (12 + w * 26).toFixed(1);
+    var weight = w > 0.6 ? 700 : (w > 0.3 ? 600 : 500);
+    var color = palette[i % palette.length];
+    return '<span class="wc-word" style="font-size:' + size + 'px;font-weight:' + weight +
+           ';color:' + color + '">' + t.word + '</span>';
+  }).join('');
 }
 
 // ─── Harmonic resonance card ──────────────────────────────────────────────
@@ -827,6 +863,55 @@ var HARM_MEANING = {
   11: "Undecile family. Eccentric, unusual, transcendent — patterns that don't fit conventional molds.",
   12: "Duodecile family (semi-sextile, quincunx). Subtle adjustment, asking for re-orientation between energies."
 };
+
+// Per-body archetypal theme. Used to synthesize a per-pair description in
+// the harmonic detail panel.
+var BODY_THEMES = {
+  Sun:        'core identity & vitality',
+  Moon:       'emotions, instincts & inner needs',
+  Mercury:    'mind, communication & learning',
+  Venus:      'love, values & aesthetics',
+  Mars:       'drive, action & assertion',
+  Jupiter:    'expansion, optimism & belief',
+  Saturn:     'discipline, structure & responsibility',
+  Uranus:     'change, freedom & innovation',
+  Neptune:    'imagination, dreams & dissolution',
+  Pluto:      'transformation, depth & power',
+  Chiron:     'the wound that becomes the healer',
+  Asc:        'self-presentation and persona',
+  Desc:       'partnerships and the other',
+  MC:         'public role and life direction',
+  IC:         'roots, home & inner foundation',
+  Vertex:     'fated encounters',
+  Fortune:    'natural flow of good fortune',
+  'North Node': 'soul direction and growth',
+  'South Node': 'familiar patterns to release',
+  'True Node':  'soul direction and growth',
+  'Mean Node':  'soul direction and growth'
+};
+
+// What it means when two energies meet at this harmonic.
+var HARM_FLAVOR = {
+  1:  'fuse and intensify each other — they act as one combined force',
+  2:  'pull against each other in conscious polarity, asking for balance',
+  3:  'flow harmoniously with grace and ease',
+  4:  'create dynamic tension that drives growth and effort',
+  5:  'spark distinctive creative talent and stylistic mastery',
+  6:  'open opportunity and supportive mental connection',
+  7:  'meet in fated, irrational inspiration — spiritual or karmic resonance',
+  8:  'create persistent friction that asks for refinement of effort',
+  9:  'point toward inner completion and idealism',
+  10: 'refine creative skill through subtle articulation',
+  11: 'produce eccentric, transcendent patterns outside the ordinary',
+  12: 'ask for subtle adjustment between dissimilar energies'
+};
+
+function harmPairDescription(body1, body2, harmonic) {
+  var t1 = BODY_THEMES[body1] || body1.toLowerCase();
+  var t2 = BODY_THEMES[body2] || body2.toLowerCase();
+  var flavor = HARM_FLAVOR[harmonic] || 'interact at this harmonic';
+  return body1 + ' (' + t1 + ') and ' + body2 + ' (' + t2 + ') ' + flavor + '.';
+}
 
 // Aggregate aspects into harmonic-family rows respecting the closeness slider.
 function computeHarmRows(d) {
@@ -928,10 +1013,13 @@ function renderHarmDetail(harmonic) {
         ? Math.abs(a.Angle - a.Degrees).toFixed(2) + '°'
         : '';
       return '<div class="harm-asp-item">' +
-        '<span class="asp-glyph">' + sym + '</span>' +
-        a.Body1 + ' ' + a.Aspect + ' ' + a.Body2 +
-        ' <span class="asp-close">· ' + pct + '%' +
-        (miss ? ' (' + miss + ')' : '') + '</span>' +
+        '<div class="harm-asp-head">' +
+          '<span class="asp-glyph">' + sym + '</span>' +
+          a.Body1 + ' ' + a.Aspect + ' ' + a.Body2 +
+          ' <span class="asp-close">· ' + pct + '%' +
+          (miss ? ' (' + miss + ')' : '') + '</span>' +
+        '</div>' +
+        '<div class="harm-asp-desc">' + harmPairDescription(a.Body1, a.Body2, harmonic) + '</div>' +
       '</div>';
     }).join('');
   } else {
@@ -1303,6 +1391,7 @@ function drawCurrentWheel() { redrawAll(); }
         buildMeta(d);
         buildInfoBox(d);
         renderHarmonics(d);
+        renderWordCloud(d);
         results.classList.add('active');
         requestAnimationFrame(redrawAll);
       })
