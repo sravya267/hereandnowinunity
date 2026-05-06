@@ -8,6 +8,11 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;color:#3d3a36;font-size:13px;line-height:1.5}
 
+.intro{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:18px;padding:10px 20px;background:#faf6ee;border-bottom:1px solid #e8e4df;font-size:11px;line-height:1.5;color:#7a6e65}
+.intro em{font-style:italic;color:#5a4e3c}
+.intro .attr{display:block;margin-top:3px;color:#9b9185;font-size:10px;font-style:normal}
+.intro-note{color:#7a6e65}
+
 .toolbar{display:flex;align-items:center;background:#fff;border-bottom:1px solid #e8e4df;padding:0 16px;height:44px}
 .brand{font-size:15px;font-weight:600;color:#5a4e3c;margin-right:20px;white-space:nowrap}
 .brand span{font-weight:400;color:#a09788}
@@ -149,11 +154,26 @@ canvas{display:block;width:100%;height:100%}
 .loading::before{content:'';display:inline-block;width:16px;height:16px;border:2px solid #e8e4df;border-top-color:#8b7355;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes sp{to{transform:rotate(360deg)}}
 
-@media(max-width:900px){.row{grid-template-columns:1fr}.card-wheel{height:480px}.card-info{height:320px}}
+@media(max-width:900px){.row{grid-template-columns:1fr}.card-wheel{height:480px}.card-info{height:320px}.intro{grid-template-columns:1fr;padding:8px 14px;gap:6px}}
 @media(max-width:650px){.toolbar{height:auto;padding:8px 12px;flex-wrap:wrap;gap:6px}.toolbar form{flex-wrap:wrap}.sep{display:none}.toolbar input[type="date"],.toolbar input[type="time"],.toolbar input[type="text"],.toolbar select{width:100%}}
 </style>
 </head>
 <body>
+
+<div class="intro">
+  <div class="intro-col">
+    <em>&ldquo;The birth chart is a map of consciousness, not a sentence of fate.&rdquo;</em>
+    <span class="attr">— David Cochrane</span>
+  </div>
+  <div class="intro-col">
+    <em>&ldquo;The universe is not merely indifferent; it is deeply mysterious and symbolically resonant.&rdquo;</em>
+    <span class="attr">— Richard Tarnas</span>
+  </div>
+  <div class="intro-col intro-note">
+    This is a free app created for students, researchers, and practitioners of vibrational astrology. Please use it mindfully, as the available cloud resources are limited. My hope is for this to remain a valuable tool for everyone passionate about mathematics, vibrational energy, and cosmic exploration.
+    <span class="attr">— Sravya</span>
+  </div>
+</div>
 
 <div class="toolbar">
   <div class="brand">Astro<span>Chart</span></div>
