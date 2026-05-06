@@ -25,9 +25,17 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .btn-calc:disabled{opacity:.4;cursor:not-allowed}
 
 .error-bar{background:#fdf2f2;border-bottom:1px solid #e8c4c4;color:#9b4d4d;padding:6px 16px;font-size:12px;display:none}
-.meta-bar{display:flex;gap:16px;padding:5px 16px;background:#faf8f5;border-bottom:1px solid #e8e4df;flex-wrap:wrap}
-.meta-item{font-size:11px;color:#9b9185}
-.meta-item b{color:#5a4e3c;font-weight:500}
+.tab-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#faf8f5;border-bottom:1px solid #e8e4df;padding:0 16px;flex-wrap:wrap}
+.tabs{display:flex;gap:0;flex-wrap:wrap}
+.tab{background:none;border:none;border-bottom:2px solid transparent;padding:9px 14px;margin:0;font-family:inherit;font-size:12px;color:#9b9185;cursor:pointer;font-weight:500;line-height:1.3}
+.tab:hover{color:#5a4e3c;background:#f5efe6}
+.tab.active{color:#3d3a36;border-bottom-color:#8b7355;font-weight:600}
+.tab-meta{display:flex;gap:12px;font-size:10px;color:#9b9185;flex-wrap:wrap;padding:6px 0}
+.tab-meta span{white-space:nowrap}
+.tab-meta b{color:#5a4e3c;font-weight:500}
+.tab-page{display:none}
+.tab-page.active{display:block}
+.tab-coming{display:flex;align-items:center;justify-content:center;height:calc(100vh - 180px);color:#c4bdb4;font-size:14px;text-align:center;padding:20px}
 
 .page{display:none;padding:10px 16px}
 .page.active{display:block}
@@ -153,7 +161,16 @@ canvas{display:block;width:100%;height:100%}
 <div id="empty-state" class="empty-page">Enter birth details above to generate your natal chart</div>
 
 <div id="results" class="page">
-  <div id="meta-bar" class="meta-bar"></div>
+  <div class="tab-bar">
+    <div class="tabs">
+      <button type="button" class="tab active" data-tab="natal">Natal</button>
+      <button type="button" class="tab" data-tab="transit">Transit</button>
+      <button type="button" class="tab" data-tab="synastry">Synastry</button>
+      <button type="button" class="tab" data-tab="vibrational">Vibrational Astrology</button>
+    </div>
+    <div class="tab-meta" id="tab-meta"></div>
+  </div>
+  <div id="tab-natal" class="tab-page active">
   <div style="padding:8px 0 0">
     <!-- Top row: H1 natal (left) + harmonics grid (right) -->
     <div class="row" style="margin-bottom:10px">
@@ -267,6 +284,16 @@ canvas{display:block;width:100%;height:100%}
         <div class="card-body"><div class="info-box" id="info-box"></div></div>
       </div>
     </div>
+  </div>
+  </div>
+  <div id="tab-transit" class="tab-page">
+    <div class="tab-coming">Transit charts coming soon</div>
+  </div>
+  <div id="tab-synastry" class="tab-page">
+    <div class="tab-coming">Synastry coming soon</div>
+  </div>
+  <div id="tab-vibrational" class="tab-page">
+    <div class="tab-coming">Vibrational Astrology view coming soon</div>
   </div>
 </div>
 
@@ -697,15 +724,41 @@ function copyInfo() {
   });
 }
 
-// ─── Meta bar ────────────────────────────────────────────────────────────────
+// ─── Tab meta caption ────────────────────────────────────────────────────────
 function buildMeta(d) {
-  var items = [['Location',d.location],['Timezone',d.moment.timezone],['System',d.zodiac_system],
-    ['Coords', d.moment.latitude.toFixed(4)+', '+d.moment.longitude.toFixed(4)]];
-  if (d.ayanamsa != null) items.push(['Ayanamsa', fmtDeg(d.ayanamsa)]);
-  document.getElementById('meta-bar').innerHTML = items.map(function(x){
-    return '<div class="meta-item">'+x[0]+': <b>'+x[1]+'</b></div>';
+  var items = [
+    ['Location', d.location],
+    ['Coords', d.moment.latitude.toFixed(2) + ', ' + d.moment.longitude.toFixed(2)],
+    ['Tz', d.moment.timezone],
+    ['Sys', d.zodiac_system]
+  ];
+  if (d.ayanamsa != null) items.push(['Ayan', fmtDeg(d.ayanamsa)]);
+  document.getElementById('tab-meta').innerHTML = items.map(function(x){
+    return '<span>' + x[0] + ': <b>' + x[1] + '</b></span>';
   }).join('');
 }
+
+// ─── Tab switcher ────────────────────────────────────────────────────────────
+(function initTabs(){
+  var tabs = document.querySelectorAll('.tab');
+  tabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var name = btn.dataset.tab;
+      tabs.forEach(function(b){ b.classList.toggle('active', b === btn); });
+      document.querySelectorAll('.tab-page').forEach(function(p){
+        p.classList.toggle('active', p.id === 'tab-' + name);
+      });
+      // Returning to Natal: redraw the wheel since the canvas may have been
+      // hidden when sized to 0×0.
+      if (name === 'natal' && LAST_DATA) {
+        requestAnimationFrame(function(){
+          drawCurrentWheel();
+          if (SELECTED_HARMONIC != null) renderHarmDetail(SELECTED_HARMONIC);
+        });
+      }
+    });
+  });
+})();
 
 // ─── Patterns display ────────────────────────────────────────────────────────
 var PAT_ICONS = {
