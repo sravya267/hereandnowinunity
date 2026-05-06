@@ -48,5 +48,15 @@ class Settings:
     # CORS (comma-separated list; "*" allows everything for local dev)
     CORS_ORIGINS: list[str] = os.getenv("CORS_ORIGINS", "*").split(",")
 
+    # Owner notifications on new chart calculations.
+    # NOTIFY_PROVIDER: "" (disabled, default), "resend", "slack", "discord", "webhook"
+    NOTIFY_PROVIDER: str = os.getenv("NOTIFY_PROVIDER", "").lower()
+    # For provider=resend
+    RESEND_API_KEY: str = os.getenv("RESEND_API_KEY", "")
+    OWNER_EMAIL: str = os.getenv("OWNER_EMAIL", "")
+    NOTIFY_FROM: str = os.getenv("NOTIFY_FROM", "onboarding@resend.dev")
+    # For provider=slack/discord/webhook
+    NOTIFY_WEBHOOK_URL: str = os.getenv("NOTIFY_WEBHOOK_URL", "")
+
 
 settings = Settings()
