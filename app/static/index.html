@@ -99,10 +99,17 @@ canvas{display:block;width:100%;height:100%}
 .pat-tooltip .pt-desc{color:#7a705e;font-size:10px;margin-top:3px;font-style:italic}
 .gear-btn{padding:2px 7px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#5a4e3c;font-size:13px;cursor:pointer;font-family:inherit;line-height:1}
 .gear-btn:hover{background:#f5efe6}
+.chart-note{font-size:10px;color:#8b7355;background:#faf6ee;border-bottom:1px solid #f0ece7;padding:4px 12px;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.chart-note .nx{margin-left:auto;cursor:pointer;color:#9b9185;padding:0 4px;font-size:13px;line-height:1}
+.chart-note .nx:hover{color:#5a4e3c}
 
 .harm-empty{display:flex;align-items:center;justify-content:center;height:100%;color:#c4bdb4;font-size:13px;text-align:center;padding:20px}
 .harm-content{display:none;height:100%;flex-direction:column;padding:10px 12px}
 .harm-list-hdr{font-size:10px;color:#9b9185;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;flex-shrink:0}
+.harm-filter{display:flex;align-items:center;gap:8px;margin:0 0 6px;flex-shrink:0}
+.harm-filter-label{font-size:10px;color:#9b9185;text-transform:uppercase;letter-spacing:.05em;flex:0 0 auto}
+.harm-filter .orb-slider{flex:1 1 auto;min-width:40px}
+.harm-filter .orb-readout{flex:0 0 40px}
 .harm-list{flex:0 0 auto;max-height:210px;overflow-y:auto;font-size:12px;padding-right:4px}
 .harm-row{display:flex;align-items:center;gap:8px;padding:4px 6px;cursor:pointer;border-radius:3px;user-select:none;border:1px solid transparent}
 .harm-row:hover{background:#faf6ee}
@@ -178,6 +185,10 @@ canvas{display:block;width:100%;height:100%}
         <div class="card-hdr">
           <span class="card-hdr-title">Natal Chart</span>
           <button type="button" class="gear-btn" id="gear-btn" title="Toggle filters">&#9881;</button>
+        </div>
+        <div class="chart-note" id="chart-note">
+          <span>Showing major aspects only — click the &#9881; settings to add more.</span>
+          <span class="nx" id="chart-note-x" title="Dismiss">×</span>
         </div>
         <div class="chart-row">
           <div class="canvas-wrap">
@@ -261,6 +272,11 @@ canvas{display:block;width:100%;height:100%}
           </div>
           <div id="harm-content" class="harm-content">
             <div class="harm-list-hdr">Top humming families · click a row to explore</div>
+            <div class="harm-filter">
+              <span class="harm-filter-label">Min orb closeness</span>
+              <input type="range" class="orb-slider" id="harm-min-close" value="0" min="0" max="95" step="5">
+              <span class="orb-readout" id="harm-min-close-readout">0%</span>
+            </div>
             <div id="harm-list" class="harm-list"></div>
             <div id="harm-detail" class="harm-detail">
               <div class="harm-detail-left">
@@ -316,10 +332,10 @@ var ASP_TYPES = [
   {name:'Trine',        sym:'△',  major:true,  positive:true,  harmonic:3,  defaultOn:true,  inAspPanel:true},
   {name:'Square',       sym:'□',  major:true,  positive:false, harmonic:4,  defaultOn:true,  inAspPanel:true},
   {name:'Sextile',      sym:'✶',  major:true,  positive:true,  harmonic:6,  defaultOn:true,  inAspPanel:true},
-  {name:'Quincunx',     sym:'⚻',  major:false, positive:false, harmonic:12, defaultOn:true,  inAspPanel:true},
-  {name:'Semi-sextile', sym:'⚹',  major:false, positive:true,  harmonic:12, defaultOn:true,  inAspPanel:true},
-  {name:'Semi-square',  sym:'∠',  major:false, positive:false, harmonic:8,  defaultOn:true,  inAspPanel:true},
-  {name:'Sesquisquare', sym:'Sq', major:false, positive:false, harmonic:8,  defaultOn:true,  inAspPanel:true},
+  {name:'Quincunx',     sym:'⚻',  major:false, positive:false, harmonic:12, defaultOn:false, inAspPanel:true},
+  {name:'Semi-sextile', sym:'⚹',  major:false, positive:true,  harmonic:12, defaultOn:false, inAspPanel:true},
+  {name:'Semi-square',  sym:'∠',  major:false, positive:false, harmonic:8,  defaultOn:false, inAspPanel:true},
+  {name:'Sesquisquare', sym:'Sq', major:false, positive:false, harmonic:8,  defaultOn:false, inAspPanel:true},
   // Cochrane harmonic multiples — surfaced only via the Vibrational Resonance card
   {name:'Quintile',     sym:'⚼',  major:false, positive:true,  harmonic:5,  defaultOn:false, inAspPanel:false},
   {name:'Bi-Quintile',  sym:'bQ', major:false, positive:true,  harmonic:5,  defaultOn:false, inAspPanel:false},
@@ -509,17 +525,17 @@ function drawWheel(data) {
     ctx.fillText(String(hi + 1), hp[0], hp[1]);
   }
 
-  // ── Asc / Desc / MC / IC axes — span only inside the second circle (r3).
-  //    Each drawn as a half-diameter from center to r3; ASC/DESC and MC/IC
-  //    pairs together form full diameters. Names sit just inside r3,
-  //    rotated parallel to their line.
+  // ── Asc / Desc / MC / IC axes — drawn only between the first (r1) and
+  //    second (r3) circles, leaving the inner aspect circle clear of axis
+  //    lines. Names sit just inside r3, parallel to each line.
   if (BODY_DISPLAY.Angles) ['Asc','Desc','MC','IC'].forEach(function(name) {
     var b = data.bodies.find(function(x){ return x.Body === name; });
     if (!b) return;
     var aa = lon2a(b['Longitude (°)']);
+    var ip = pt(r1, aa);
     var ap = pt(r3, aa);
     ctx.beginPath();
-    ctx.moveTo(cx, cy); ctx.lineTo(ap[0], ap[1]);
+    ctx.moveTo(ip[0], ip[1]); ctx.lineTo(ap[0], ap[1]);
     ctx.strokeStyle = '#222'; ctx.lineWidth = 2.2; ctx.stroke();
 
     var lp = pt(r3 - R * 0.05, aa);
@@ -790,6 +806,11 @@ function redrawAll() {
 // selected family's aspects on the left, planets-involved + meaning on the right.
 
 var SELECTED_HARMONIC = null;
+var HARM_MIN_CLOSE = 0; // 0..1 threshold from the in-card slider
+var HARM_NAMES = {
+  1:"Unity", 2:"Polarity", 3:"Trine", 4:"Square", 5:"Quintile", 6:"Sextile",
+  7:"Septile", 8:"Octile", 9:"Novile", 10:"Decile", 11:"Undecile", 12:"Duodecile"
+};
 var HARM_MEANING = {
   1:  "Conjunction. Two planets merge into a single intensified expression — they act as one combined force.",
   2:  "Opposition. Awareness through contrast: two planets pulling against each other, asking for conscious balance and integration.",
@@ -805,18 +826,44 @@ var HARM_MEANING = {
   12: "Duodecile family (semi-sextile, quincunx). Subtle adjustment, asking for re-orientation between energies."
 };
 
+// Aggregate aspects into harmonic-family rows respecting the closeness slider.
+function computeHarmRows(d) {
+  if (!d || !d.aspects || !d.aspects.length) return [];
+  var typeMap = {};
+  ASP_TYPES.forEach(function(t){ typeMap[t.name] = t; });
+  var AXIS_DIAM = {'Asc|Desc':1,'Desc|Asc':1,'MC|IC':1,'IC|MC':1};
+  var byHarm = {};
+  d.aspects.forEach(function(a){
+    if (AXIS_DIAM[a.Body1 + '|' + a.Body2]) return;
+    if ((a.Closeness || 0) < HARM_MIN_CLOSE) return;
+    var t = typeMap[a.Aspect];
+    if (!t) return;
+    var h = t.harmonic;
+    if (!byHarm[h]) byHarm[h] = {harmonic:h, name:HARM_NAMES[h] || ('H'+h), score:0, count:0};
+    byHarm[h].score += a.Closeness || 0;
+    byHarm[h].count += 1;
+  });
+  return Object.keys(byHarm).map(function(k){ return byHarm[k]; })
+    .sort(function(a,b){
+      if (b.score !== a.score) return b.score - a.score;
+      return a.harmonic - b.harmonic;
+    });
+}
+
 function renderHarmonics(d) {
   var emptyEl = document.getElementById('harm-empty');
   var contentEl = document.getElementById('harm-content');
   var listEl = document.getElementById('harm-list');
   var detailEl = document.getElementById('harm-detail-right');
-  var rows = (d && d.harmonics) || [];
+  var rows = computeHarmRows(d);
   SELECTED_HARMONIC = null;
 
   if (!rows.length) {
     emptyEl.style.display = 'flex';
     contentEl.style.display = 'none';
-    emptyEl.textContent = 'No harmonic resonances detected.';
+    emptyEl.textContent = HARM_MIN_CLOSE > 0
+      ? 'No aspects meet the minimum-closeness filter.'
+      : 'No harmonic resonances detected.';
     return;
   }
   emptyEl.style.display = 'none';
@@ -859,6 +906,7 @@ function renderHarmDetail(harmonic) {
   var AXIS_DIAM = {'Asc|Desc':1, 'Desc|Asc':1, 'MC|IC':1, 'IC|MC':1};
   var aspects = (LAST_DATA.aspects || []).filter(function(a){
     if (AXIS_DIAM[a.Body1 + '|' + a.Body2]) return false;
+    if ((a.Closeness || 0) < HARM_MIN_CLOSE) return false;
     var t = typeMap[a.Aspect];
     return t && t.harmonic === harmonic;
   }).sort(function(a,b){ return (b.Closeness||0) - (a.Closeness||0); });
@@ -986,6 +1034,29 @@ function drawHarmMini(data, aspects) {
   });
 })();
 
+// Min-closeness slider for the Vibrational Resonance card. Re-aggregates
+// the family bar list from filtered aspects and re-renders any active
+// harmonic detail.
+(function initHarmFilter(){
+  var slider = document.getElementById('harm-min-close');
+  var read = document.getElementById('harm-min-close-readout');
+  if (!slider || !read) return;
+  slider.addEventListener('input', function(){
+    var pct = parseInt(slider.value, 10) || 0;
+    HARM_MIN_CLOSE = pct / 100;
+    read.textContent = pct + '%';
+    if (LAST_DATA) {
+      var prev = SELECTED_HARMONIC;
+      renderHarmonics(LAST_DATA);
+      // Restore selection if it still has aspects passing the filter
+      if (prev != null) {
+        var stillThere = computeHarmRows(LAST_DATA).some(function(r){ return r.harmonic === prev; });
+        if (stillThere) renderHarmDetail(prev);
+      }
+    }
+  });
+})();
+
 // Backwards-compat alias used by older redraw call sites
 function drawCurrentWheel() { redrawAll(); }
 
@@ -1021,12 +1092,22 @@ function drawCurrentWheel() { redrawAll(); }
     if (LAST_DATA) setTimeout(drawCurrentWheel, 220);
   });
 
+  // Dismiss the "showing major aspects only" note (manually or as soon as
+  // the user touches the aspect filter at all).
+  function hideChartNote() {
+    var n = document.getElementById('chart-note');
+    if (n) n.style.display = 'none';
+  }
+  var noteX = document.getElementById('chart-note-x');
+  if (noteX) noteX.addEventListener('click', hideChartNote);
+
   // All checkbox changes delegated to filter panel
   fp.addEventListener('change', function(e){
     var cb = e.target;
     if (!cb || cb.tagName !== 'INPUT') return;
     if (cb.dataset.asp) {
       ASP_FILTER[cb.dataset.asp] = cb.checked;
+      hideChartNote();
     } else if (cb.dataset.dispName) {
       BODY_DISPLAY[cb.dataset.dispName] = cb.checked;
     } else if (cb.dataset.disp) {
@@ -1050,6 +1131,7 @@ function drawCurrentWheel() { redrawAll(); }
         cb.checked = on;
         ASP_FILTER[cb.dataset.asp] = on;
       });
+      hideChartNote();
       if (LAST_DATA) drawCurrentWheel();
       return;
     }
