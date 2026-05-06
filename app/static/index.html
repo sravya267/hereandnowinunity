@@ -68,6 +68,14 @@ canvas{display:block;width:100%;height:100%}
 .filter-panel input[type="checkbox"]{accent-color:#8b7355}
 .filter-panel select{padding:2px 5px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#5a4e3c;font-size:11px;font-family:inherit;width:100%;margin-top:2px}
 .filter-panel input[type="number"]{padding:2px 4px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#5a4e3c;font-size:11px;font-family:inherit;width:52px}
+.orb-row{display:flex;align-items:center;gap:6px;margin:3px 0}
+.orb-label{min-width:36px;font-size:11px;color:#5a4e3c}
+.orb-readout{min-width:36px;text-align:right;font-size:10px;color:#9b9185;font-variant-numeric:tabular-nums}
+.orb-slider{flex:1;-webkit-appearance:none;appearance:none;height:3px;background:#e8e0d5;border-radius:2px;outline:none;cursor:pointer;padding:0}
+.orb-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:13px;height:13px;border-radius:50%;background:#8b7355;border:none;cursor:pointer}
+.orb-slider::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#8b7355;border:none;cursor:pointer}
+.orb-slider:hover::-webkit-slider-thumb{background:#7a644a}
+.orb-slider:hover::-moz-range-thumb{background:#7a644a}
 .fp-flow{display:flex;flex-wrap:wrap;gap:2px 12px}
 .fp-flow label{flex:0 0 auto}
 .fp-asp-glyph{display:inline-block;width:14px;text-align:center;color:#8b7355;flex-shrink:0}
@@ -83,6 +91,31 @@ canvas{display:block;width:100%;height:100%}
 .pat-tooltip .pt-desc{color:#7a705e;font-size:10px;margin-top:3px;font-style:italic}
 .gear-btn{padding:2px 7px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#5a4e3c;font-size:13px;cursor:pointer;font-family:inherit;line-height:1}
 .gear-btn:hover{background:#f5efe6}
+
+.harm-empty{display:flex;align-items:center;justify-content:center;height:100%;color:#c4bdb4;font-size:13px;text-align:center;padding:20px}
+.harm-content{display:none;height:100%;flex-direction:column;padding:10px 12px}
+.harm-list-hdr{font-size:10px;color:#9b9185;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;flex-shrink:0}
+.harm-list{flex:0 0 auto;max-height:210px;overflow-y:auto;font-size:12px;padding-right:4px}
+.harm-row{display:flex;align-items:center;gap:8px;padding:4px 6px;cursor:pointer;border-radius:3px;user-select:none;border:1px solid transparent}
+.harm-row:hover{background:#faf6ee}
+.harm-row.sel{background:#f0ebe1;border-color:#b09e82}
+.harm-row-num{width:14px;text-align:right;color:#b09e82;font-size:10px;flex-shrink:0}
+.harm-row-name{flex:0 0 92px;color:#5a4e3c;font-weight:600}
+.harm-row-bar-bg{flex:1;height:8px;background:#f5efe6;border-radius:3px;overflow:hidden}
+.harm-row-bar{height:100%;background:#8b7355}
+.harm-row-meta{width:78px;text-align:right;color:#9b9185;font-size:10px;flex-shrink:0;font-variant-numeric:tabular-nums}
+.harm-detail{flex:1;display:flex;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid #f0ece7;min-height:0}
+.harm-detail-left{flex:0 0 46%;position:relative;min-height:0}
+.harm-detail-left canvas{display:block;width:100%;height:100%}
+.harm-detail-right{flex:1;overflow-y:auto;font-size:11px;line-height:1.55;color:#5a4e3c}
+.harm-hint{color:#9b9185;font-style:italic;font-size:11px}
+.harm-title{font-size:13px;font-weight:600;color:#3d3a36;margin-bottom:4px}
+.harm-meaning{margin-bottom:8px;color:#5a4e3c}
+.harm-asp-label{font-size:10px;color:#9b9185;text-transform:uppercase;letter-spacing:.05em;margin:6px 0 3px}
+.harm-asp-item{padding:2px 0;font-size:11px;color:#5a4e3c;font-variant-numeric:tabular-nums;border-bottom:1px dotted #f0ece7}
+.harm-asp-item:last-child{border-bottom:none}
+.harm-asp-item .asp-glyph{display:inline-block;width:14px;text-align:center;color:#8b7355}
+.harm-asp-item .asp-close{color:#b09e82;font-size:10px}
 
 .info-box{padding:4px 8px;font-size:10px;line-height:1.6;font-family:'Menlo','Consolas','Courier New',monospace;white-space:pre-wrap;word-break:break-word;user-select:text}
 .s-hdr{color:#b09e82;font-size:9px;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #f0ece7;margin-top:4px;margin-bottom:1px;padding-bottom:1px}
@@ -126,7 +159,7 @@ canvas{display:block;width:100%;height:100%}
     <div class="row" style="margin-bottom:10px">
       <div class="card card-wheel">
         <div class="card-hdr">
-          <span class="card-hdr-title">Chart Wheel — H1 Natal</span>
+          <span class="card-hdr-title">Natal Chart</span>
           <button type="button" class="gear-btn" id="gear-btn" title="Toggle filters">&#9881;</button>
         </div>
         <div class="chart-row">
@@ -135,18 +168,22 @@ canvas{display:block;width:100%;height:100%}
             <div id="pat-tooltip" class="pat-tooltip"></div>
           </div>
           <div class="filter-panel closed" id="filter-panel">
-            <div class="fp-hdr"><span>Orbs</span></div>
-            <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px">
-              <span style="min-width:36px">Major</span>
-              <input type="number" id="major-orb-val" value="100" min="10" max="200" step="10">
-              <select id="orb-type">
+            <div class="fp-hdr">
+              <span>Orbs</span>
+              <select id="orb-type" style="width:auto;font-size:9px;padding:1px 4px;text-transform:uppercase;letter-spacing:.04em">
                 <option value="pct" selected>% of max</option>
                 <option value="deg">&#176; fixed</option>
               </select>
             </div>
-            <div style="display:flex;align-items:center;gap:5px">
-              <span style="min-width:36px">Minor</span>
-              <input type="number" id="minor-orb-val" value="50" min="10" max="200" step="10">
+            <div class="orb-row">
+              <span class="orb-label">Major</span>
+              <input type="range" class="orb-slider" id="major-orb-val" value="100" min="10" max="200" step="5">
+              <span class="orb-readout" id="major-orb-readout">100%</span>
+            </div>
+            <div class="orb-row">
+              <span class="orb-label">Minor</span>
+              <input type="range" class="orb-slider" id="minor-orb-val" value="50" min="10" max="200" step="5">
+              <span class="orb-readout" id="minor-orb-readout">50%</span>
             </div>
             <div class="fp-hdr"><span>House System</span></div>
             <select id="house-system" title="Tropical only — Sidereal always uses Whole Sign">
@@ -202,10 +239,21 @@ canvas{display:block;width:100%;height:100%}
       <div class="card card-wheel">
         <div class="card-hdr"><span class="card-hdr-title">Vibrational Resonance — by Harmonic Family</span></div>
         <div class="card-body" id="harm-body">
-          <div id="harm-empty" style="display:flex;align-items:center;justify-content:center;height:100%;color:#c4bdb4;font-size:13px;text-align:center;padding:20px">
+          <div id="harm-empty" class="harm-empty">
             Calculate a chart to see which harmonic families hum most.
           </div>
-          <div id="harm-list" style="display:none;padding:14px 18px;font-size:12px"></div>
+          <div id="harm-content" class="harm-content">
+            <div class="harm-list-hdr">Top humming families · click a row to explore</div>
+            <div id="harm-list" class="harm-list"></div>
+            <div id="harm-detail" class="harm-detail">
+              <div class="harm-detail-left">
+                <canvas id="harm-mini-canvas"></canvas>
+              </div>
+              <div id="harm-detail-right" class="harm-detail-right">
+                <div class="harm-hint">Select a harmonic family above to see involved planets and meaning.</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -233,21 +281,26 @@ var NAK_NAMES = ['Ashw','Bhar','Krit','Rohi','Mrig','Ardr','Puna','Push','Ashl',
 
 // Aspect catalog. major=true for the 5 major aspects, positive=true for harmonious.
 var ASP_TYPES = [
-  {name:'Conjunction',  sym:'☌',  major:true,  positive:false, defaultOn:true},
-  {name:'Opposition',   sym:'☍',  major:true,  positive:false, defaultOn:true},
-  {name:'Trine',        sym:'△',  major:true,  positive:true,  defaultOn:true},
-  {name:'Square',       sym:'□',  major:true,  positive:false, defaultOn:true},
-  {name:'Sextile',      sym:'✶',  major:true,  positive:true,  defaultOn:true},
-  {name:'Quincunx',     sym:'⚻',  major:false, positive:false, defaultOn:false},
-  {name:'Semi-sextile', sym:'⚹',  major:false, positive:true,  defaultOn:false},
-  {name:'Semi-square',  sym:'∠',  major:false, positive:false, defaultOn:false},
-  {name:'Sesquisquare', sym:'Sq', major:false, positive:false, defaultOn:false},
-  {name:'Quintile',     sym:'⚼',  major:false, positive:true,  defaultOn:false},
-  {name:'Bi-Quintile',  sym:'bQ', major:false, positive:true,  defaultOn:false},
-  {name:'Septile',      sym:'⚤',  major:false, positive:false, defaultOn:false},
-  {name:'Novile',       sym:'⭘',  major:false, positive:true,  defaultOn:false},
-  {name:'Decile',       sym:'⭑',  major:false, positive:true,  defaultOn:false},
-  {name:'Undecile',     sym:'⭒',  major:false, positive:true,  defaultOn:false}
+  {name:'Conjunction',  sym:'☌',  major:true,  positive:false, harmonic:1,  defaultOn:true},
+  {name:'Opposition',   sym:'☍',  major:true,  positive:false, harmonic:2,  defaultOn:true},
+  {name:'Trine',        sym:'△',  major:true,  positive:true,  harmonic:3,  defaultOn:true},
+  {name:'Square',       sym:'□',  major:true,  positive:false, harmonic:4,  defaultOn:true},
+  {name:'Sextile',      sym:'✶',  major:true,  positive:true,  harmonic:6,  defaultOn:true},
+  {name:'Quincunx',     sym:'⚻',  major:false, positive:false, harmonic:12, defaultOn:false},
+  {name:'Semi-sextile', sym:'⚹',  major:false, positive:true,  harmonic:12, defaultOn:false},
+  {name:'Semi-square',  sym:'∠',  major:false, positive:false, harmonic:8,  defaultOn:false},
+  {name:'Sesquisquare', sym:'Sq', major:false, positive:false, harmonic:8,  defaultOn:false},
+  {name:'Quintile',     sym:'⚼',  major:false, positive:true,  harmonic:5,  defaultOn:false},
+  {name:'Bi-Quintile',  sym:'bQ', major:false, positive:true,  harmonic:5,  defaultOn:false},
+  {name:'Septile',      sym:'⚤',  major:false, positive:false, harmonic:7,  defaultOn:false},
+  {name:'Biseptile',    sym:'bS', major:false, positive:false, harmonic:7,  defaultOn:false},
+  {name:'Triseptile',   sym:'tS', major:false, positive:false, harmonic:7,  defaultOn:false},
+  {name:'Novile',       sym:'⭘',  major:false, positive:true,  harmonic:9,  defaultOn:false},
+  {name:'Bi-Novile',    sym:'bN', major:false, positive:true,  harmonic:9,  defaultOn:false},
+  {name:'Quadri-Novile',sym:'qN', major:false, positive:true,  harmonic:9,  defaultOn:false},
+  {name:'Decile',       sym:'⭑',  major:false, positive:true,  harmonic:10, defaultOn:false},
+  {name:'Tri-Decile',   sym:'tD', major:false, positive:true,  harmonic:10, defaultOn:false},
+  {name:'Undecile',     sym:'⭒',  major:false, positive:true,  harmonic:11, defaultOn:false}
 ];
 // major-neg=red, major-pos=green, minor-neg=orange, minor-pos=seagreen
 function aspLineColor(meta) {
@@ -425,21 +478,30 @@ function drawWheel(data) {
     ctx.fillText(String(hi + 1), hp[0], hp[1]);
   }
 
-  // ── Asc / Desc / MC / IC axes (bold black, span r1 to outer rim)
+  // ── Asc / Desc / MC / IC axes — span only inside the inner aspect circle
+  //    (each drawn as a half-diameter from center to r1; ASC/DESC and MC/IC
+  //    pairs together form full diameters). Names sit inside the merged ring
+  //    (between r1 and r3), rotated parallel to their line.
   if (BODY_DISPLAY.Angles) ['Asc','Desc','MC','IC'].forEach(function(name) {
     var b = data.bodies.find(function(x){ return x.Body === name; });
     if (!b) return;
     var aa = lon2a(b['Longitude (°)']);
-    var ap1 = pt(r1, aa), ap2 = pt(rTickOut, aa);
+    var ap = pt(r1, aa);
     ctx.beginPath();
-    ctx.moveTo(ap1[0], ap1[1]); ctx.lineTo(ap2[0], ap2[1]);
-    ctx.strokeStyle = '#222'; ctx.lineWidth = 1.4; ctx.stroke();
+    ctx.moveTo(cx, cy); ctx.lineTo(ap[0], ap[1]);
+    ctx.strokeStyle = '#222'; ctx.lineWidth = 2.2; ctx.stroke();
 
-    var lp = pt(r3 - R*0.025, aa);
+    var lp = pt((r1 + r3) / 2, aa);
+    var rot = aa;
+    if (Math.cos(rot) < 0) rot += Math.PI; // keep text upright
+    ctx.save();
+    ctx.translate(lp[0], lp[1]);
+    ctx.rotate(rot);
     ctx.font = 'bold ' + Math.round(R * 0.04) + 'px sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = '#222';
-    ctx.fillText(name, lp[0], lp[1]);
+    ctx.fillText(name, 0, 0);
+    ctx.restore();
   });
 
   // ── planets in merged ring — bold, radially rotated, stacked inward for clusters
@@ -658,39 +720,190 @@ function redrawAll() {
   drawWheel(LAST_DATA);
 }
 
-// Render the descending harmonic-family list (Cochrane vibrations) into the
-// "Vibrational Resonance" card. Score = sum of Closeness across the family.
+// ─── Harmonic resonance card ──────────────────────────────────────────────
+// Top: ranked clickable list of harmonic families. Bottom: mini-wheel of the
+// selected family's aspects on the left, planets-involved + meaning on the right.
+
+var SELECTED_HARMONIC = null;
+var HARM_MEANING = {
+  1:  "Conjunction. Two planets merge into a single intensified expression — they act as one combined force.",
+  2:  "Opposition. Awareness through contrast: two planets pulling against each other, asking for conscious balance and integration.",
+  3:  "Trine. Natural harmonious flow — energy moves without resistance and supports creative ease.",
+  4:  "Square. Dynamic tension that drives growth; friction creates motivation to act, build, and overcome.",
+  5:  "Quintile family. Cochrane's signature 'creative talent' vibration — stylistic mastery, distinctive voice, the imprint of genius.",
+  6:  "Sextile. Opportunity, mental connection, and beneficial collaboration when effort is applied.",
+  7:  "Septile family. Fated, irrational inspiration — spiritual or karmic forces operating beyond rational understanding.",
+  8:  "Octile family (semi-square, sesquisquare). Friction needing release; refinement of effort through small persistent challenges.",
+  9:  "Novile family. Inner completion, spiritual fulfilment, idealism approaching wholeness.",
+  10: "Decile family. Refined creative skill, echoing the quintile's mastery through subtle articulation.",
+  11: "Undecile family. Eccentric, unusual, transcendent — patterns that don't fit conventional molds.",
+  12: "Duodecile family (semi-sextile, quincunx). Subtle adjustment, asking for re-orientation between energies."
+};
+
 function renderHarmonics(d) {
-  var listEl = document.getElementById('harm-list');
   var emptyEl = document.getElementById('harm-empty');
+  var contentEl = document.getElementById('harm-content');
+  var listEl = document.getElementById('harm-list');
+  var detailEl = document.getElementById('harm-detail-right');
   var rows = (d && d.harmonics) || [];
+  SELECTED_HARMONIC = null;
+
   if (!rows.length) {
-    listEl.style.display = 'none';
     emptyEl.style.display = 'flex';
+    contentEl.style.display = 'none';
     emptyEl.textContent = 'No harmonic resonances detected.';
     return;
   }
   emptyEl.style.display = 'none';
-  listEl.style.display = 'block';
+  contentEl.style.display = 'flex';
+
   var top = rows[0].score || 1;
-  var html = '<div style="font-size:10px;color:#9b9185;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">' +
-             'Top humming families · sorted descending</div>';
-  html += rows.map(function(r, i){
+  listEl.innerHTML = rows.map(function(r, i){
     var pct = Math.max(4, Math.round((r.score / top) * 100));
     return (
-      '<div style="display:flex;align-items:center;gap:8px;margin:4px 0">' +
-        '<div style="width:14px;text-align:right;color:#b09e82;font-size:10px">' + (i+1) + '</div>' +
-        '<div style="width:90px;color:#5a4e3c;font-weight:600">H' + r.harmonic + ' · ' + r.name + '</div>' +
-        '<div style="flex:1;height:8px;background:#f5efe6;border-radius:3px;overflow:hidden">' +
-          '<div style="width:' + pct + '%;height:100%;background:#8b7355"></div>' +
-        '</div>' +
-        '<div style="width:80px;text-align:right;color:#9b9185;font-size:10px">' +
-          r.score.toFixed(2) + ' · ' + r.count + ' asp</div>' +
+      '<div class="harm-row" data-harm="' + r.harmonic + '">' +
+        '<div class="harm-row-num">' + (i+1) + '</div>' +
+        '<div class="harm-row-name">H' + r.harmonic + ' · ' + r.name + '</div>' +
+        '<div class="harm-row-bar-bg"><div class="harm-row-bar" style="width:' + pct + '%"></div></div>' +
+        '<div class="harm-row-meta">' + r.score.toFixed(2) + ' · ' + r.count + ' asp</div>' +
       '</div>'
     );
   }).join('');
-  listEl.innerHTML = html;
+  detailEl.innerHTML = '<div class="harm-hint">Select a harmonic family above to see involved planets and meaning.</div>';
+  // Clear mini canvas
+  var mini = document.getElementById('harm-mini-canvas');
+  if (mini) {
+    var ctx = mini.getContext('2d');
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0, 0, mini.width, mini.height);
+  }
 }
+
+function renderHarmDetail(harmonic) {
+  if (!LAST_DATA) return;
+  SELECTED_HARMONIC = harmonic;
+
+  document.querySelectorAll('.harm-row').forEach(function(r){
+    r.classList.toggle('sel', parseInt(r.dataset.harm, 10) === harmonic);
+  });
+
+  var typeMap = {};
+  ASP_TYPES.forEach(function(t){ typeMap[t.name] = t; });
+  var aspects = (LAST_DATA.aspects || []).filter(function(a){
+    var t = typeMap[a.Aspect];
+    return t && t.harmonic === harmonic;
+  }).sort(function(a,b){ return (b.Closeness||0) - (a.Closeness||0); });
+
+  var fam = (LAST_DATA.harmonics || []).find(function(h){ return h.harmonic === harmonic; });
+  var familyName = fam ? fam.name : 'H' + harmonic;
+
+  var html = '<div class="harm-title">H' + harmonic + ' · ' + familyName + ' family</div>';
+  html += '<div class="harm-meaning">' + (HARM_MEANING[harmonic] || '') + '</div>';
+  if (aspects.length) {
+    html += '<div class="harm-asp-label">' + aspects.length + ' aspect' + (aspects.length===1?'':'s') + ' in this chart</div>';
+    html += aspects.map(function(a){
+      var t = typeMap[a.Aspect];
+      var sym = t ? t.sym : '';
+      var pct = Math.round((a.Closeness || 0) * 100);
+      return '<div class="harm-asp-item">' +
+        '<span class="asp-glyph">' + sym + '</span>' +
+        a.Body1 + ' ' + a.Aspect + ' ' + a.Body2 +
+        ' <span class="asp-close">· ' + pct + '%</span>' +
+      '</div>';
+    }).join('');
+  } else {
+    html += '<div class="harm-hint">No active aspects in this family.</div>';
+  }
+  document.getElementById('harm-detail-right').innerHTML = html;
+
+  drawHarmMini(LAST_DATA, aspects);
+}
+
+function drawHarmMini(data, aspects) {
+  var cvs = document.getElementById('harm-mini-canvas');
+  if (!cvs) return;
+  var parent = cvs.parentElement;
+  var dpr = window.devicePixelRatio || 1;
+  var W = parent.clientWidth, H = parent.clientHeight;
+  if (W < 20 || H < 20) return;
+  cvs.width = W * dpr; cvs.height = H * dpr;
+  cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
+  var ctx = cvs.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr, dpr);
+
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, W, H);
+
+  var cx = W/2, cy = H/2;
+  var R = Math.min(cx, cy) - 14;
+  var rRing = R * 0.92;
+  var rLine = R * 0.78;
+
+  var desc = data.bodies.find(function(b){ return b.Body === 'Desc'; });
+  var rotLon = desc ? desc['Longitude (°)'] : 0;
+  function lon2a(lon){ return -(lon - rotLon) * Math.PI / 180; }
+  function pt(r, a){ return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; }
+
+  ctx.beginPath(); ctx.arc(cx, cy, rRing, 0, 2*Math.PI);
+  ctx.strokeStyle = '#ddd8d1'; ctx.lineWidth = 1; ctx.stroke();
+  for (var i = 0; i < 12; i++) {
+    var a = lon2a(i * 30);
+    var p1 = pt(rRing - 3, a), p2 = pt(rRing + 3, a);
+    ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
+    ctx.strokeStyle = '#c4bdb4'; ctx.lineWidth = 0.6; ctx.stroke();
+  }
+
+  var involved = {};
+  aspects.forEach(function(a){ involved[a.Body1] = true; involved[a.Body2] = true; });
+  var bodyPos = {};
+  data.bodies.forEach(function(b){
+    if (involved[b.Body]) bodyPos[b.Body] = lon2a(b['Longitude (°)']);
+  });
+
+  // Aspect lines
+  aspects.forEach(function(a){
+    var a1 = bodyPos[a.Body1], a2 = bodyPos[a.Body2];
+    if (a1 === undefined || a2 === undefined) return;
+    var p1 = pt(rLine, a1), p2 = pt(rLine, a2);
+    var meta = ASP_TYPES.find(function(t){ return t.name === a.Aspect; });
+    var closeness = a.Closeness || 0.5;
+    ctx.beginPath();
+    ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
+    ctx.strokeStyle = aspLineColor(meta);
+    ctx.lineWidth = Math.max(1, closeness * 2.5);
+    ctx.globalAlpha = 0.5 + closeness * 0.5;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  });
+
+  // Planet symbols around the ring
+  Object.keys(bodyPos).forEach(function(name){
+    var ang = bodyPos[name];
+    var b = data.bodies.find(function(x){ return x.Body === name; });
+    if (!b) return;
+    var p = pt(rRing - R*0.06, ang);
+    var sym = b.Symbol || name.substring(0, 2);
+    ctx.font = 'bold ' + Math.round(R * 0.11) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = 3; ctx.strokeStyle = '#fff';
+    ctx.strokeText(sym, p[0], p[1]);
+    ctx.fillStyle = b.Color || '#5a4e3c';
+    ctx.fillText(sym, p[0], p[1]);
+  });
+}
+
+// Click delegation for harm-list rows
+(function initHarmClick(){
+  var listEl = document.getElementById('harm-list');
+  if (!listEl) return;
+  listEl.addEventListener('click', function(e){
+    var row = e.target.closest('.harm-row');
+    if (!row) return;
+    var h = parseInt(row.dataset.harm, 10);
+    if (!isNaN(h)) renderHarmDetail(h);
+  });
+})();
 
 // Backwards-compat alias used by older redraw call sites
 function drawCurrentWheel() { redrawAll(); }
@@ -790,25 +1003,40 @@ function drawCurrentWheel() { redrawAll(); }
     }
   });
 
-  // Orb inputs
-  function bindOrb(id, setter, fallback) {
-    var el = document.getElementById(id);
-    function update() { var v = parseFloat(el.value); setter(isFinite(v) ? v : fallback); if (LAST_DATA) drawCurrentWheel(); }
-    el.addEventListener('input', update); el.addEventListener('change', update);
+  // Orb sliders
+  function fmtOrb(v) {
+    return ORB_TYPE === 'deg' ? (v.toFixed(1) + '°') : (Math.round(v) + '%');
   }
-  bindOrb('major-orb-val', function(v){ MAJOR_ORB_VAL = v; }, 100);
-  bindOrb('minor-orb-val', function(v){ MINOR_ORB_VAL = v; }, 50);
+  function bindOrb(id, readoutId, setter) {
+    var el = document.getElementById(id);
+    var read = document.getElementById(readoutId);
+    function update() {
+      var v = parseFloat(el.value);
+      if (!isFinite(v)) return;
+      setter(v);
+      read.textContent = fmtOrb(v);
+      if (LAST_DATA) drawCurrentWheel();
+    }
+    el.addEventListener('input', update);
+  }
+  bindOrb('major-orb-val', 'major-orb-readout', function(v){ MAJOR_ORB_VAL = v; });
+  bindOrb('minor-orb-val', 'minor-orb-readout', function(v){ MINOR_ORB_VAL = v; });
 
   document.getElementById('orb-type').addEventListener('change', function(){
     ORB_TYPE = this.value;
     var maj = document.getElementById('major-orb-val'), mn = document.getElementById('minor-orb-val');
+    var majR = document.getElementById('major-orb-readout'), mnR = document.getElementById('minor-orb-readout');
     if (ORB_TYPE === 'deg') {
-      maj.min='0.5'; maj.max='15'; maj.step='0.5'; maj.value='6'; mn.min='0.5'; mn.max='15'; mn.step='0.5'; mn.value='3';
+      maj.min = '0.5'; maj.max = '15'; maj.step = '0.5'; maj.value = '6';
+      mn.min  = '0.5'; mn.max  = '15'; mn.step  = '0.5'; mn.value  = '3';
       MAJOR_ORB_VAL = 6; MINOR_ORB_VAL = 3;
     } else {
-      maj.min='10'; maj.max='200'; maj.step='10'; maj.value='100'; mn.min='10'; mn.max='200'; mn.step='10'; mn.value='50';
+      maj.min = '10'; maj.max = '200'; maj.step = '5'; maj.value = '100';
+      mn.min  = '10'; mn.max  = '200'; mn.step  = '5'; mn.value  = '50';
       MAJOR_ORB_VAL = 100; MINOR_ORB_VAL = 50;
     }
+    majR.textContent = fmtOrb(MAJOR_ORB_VAL);
+    mnR.textContent  = fmtOrb(MINOR_ORB_VAL);
     if (LAST_DATA) drawCurrentWheel();
   });
 
@@ -821,7 +1049,10 @@ function drawCurrentWheel() { redrawAll(); }
   });
 
   window.addEventListener('resize', function(){
-    if (LAST_DATA) requestAnimationFrame(drawCurrentWheel);
+    if (LAST_DATA) {
+      requestAnimationFrame(drawCurrentWheel);
+      if (SELECTED_HARMONIC != null) requestAnimationFrame(function(){ renderHarmDetail(SELECTED_HARMONIC); });
+    }
   });
 })();
 
