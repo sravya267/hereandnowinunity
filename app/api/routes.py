@@ -5,12 +5,13 @@ import logging
 
 import numpy as np
 import pandas as pd
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import HTMLResponse, Response
 
 from app.api.schemas import BirthMomentResponse, ChartRequest, ChartResponse
 from app.core.chart import compute_chart
 from app.core.geocoding import LocationNotFound
+from app.core.notify import notify_new_chart
 from app.core.visualization import generate_wordclouds, generate_zodiac_chart
 
 logger = logging.getLogger(__name__)
@@ -52,7 +53,7 @@ def health() -> dict:
 
 
 @router.post("/chart", response_model=ChartResponse)
-def create_chart(req: ChartRequest) -> ChartResponse:
+def create_chart(req: ChartRequest, background: BackgroundTasks) -> ChartResponse:
     """Compute a full natal chart as JSON."""
     try:
         chart = compute_chart(
@@ -66,6 +67,15 @@ def create_chart(req: ChartRequest) -> ChartResponse:
     except Exception as exc:  # noqa: BLE001
         logger.exception("Chart computation failed")
         raise HTTPException(status_code=500, detail=f"Chart computation failed: {exc}") from exc
+
+    # Owner notification (no-ops if env vars unset)
+    background.add_task(
+        notify_new_chart,
+        birth_datetime=req.birth_datetime.isoformat(),
+        location=req.location,
+        zodiac_system=req.zodiac_system,
+        house_system=req.house_system,
+    )
 
     return ChartResponse(
         birth_datetime=chart.birth_datetime,
