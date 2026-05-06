@@ -49,13 +49,19 @@ class Settings:
     CORS_ORIGINS: list[str] = os.getenv("CORS_ORIGINS", "*").split(",")
 
     # Owner notifications on new chart calculations.
-    # NOTIFY_PROVIDER: "" (disabled, default), "resend", "slack", "discord", "webhook"
+    # NOTIFY_PROVIDER: "" (disabled, default), "gmail", "resend", "slack", "discord", "webhook"
     NOTIFY_PROVIDER: str = os.getenv("NOTIFY_PROVIDER", "").lower()
-    # For provider=resend
-    RESEND_API_KEY: str = os.getenv("RESEND_API_KEY", "")
+    # Recipient (used by gmail and resend providers)
     OWNER_EMAIL: str = os.getenv("OWNER_EMAIL", "sthoomu@gmail.com")
+    # Provider=gmail: send via smtp.gmail.com using a Google App Password.
+    # GMAIL_USER defaults to OWNER_EMAIL so a self-notification only needs
+    # NOTIFY_PROVIDER=gmail + GMAIL_APP_PASSWORD on Cloud Run.
+    GMAIL_USER: str = os.getenv("GMAIL_USER", os.getenv("OWNER_EMAIL", "sthoomu@gmail.com"))
+    GMAIL_APP_PASSWORD: str = os.getenv("GMAIL_APP_PASSWORD", "")
+    # Provider=resend
+    RESEND_API_KEY: str = os.getenv("RESEND_API_KEY", "")
     NOTIFY_FROM: str = os.getenv("NOTIFY_FROM", "onboarding@resend.dev")
-    # For provider=slack/discord/webhook
+    # Provider=slack/discord/webhook
     NOTIFY_WEBHOOK_URL: str = os.getenv("NOTIFY_WEBHOOK_URL", "")
 
 
