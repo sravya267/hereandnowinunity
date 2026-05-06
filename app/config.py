@@ -53,7 +53,7 @@ class Settings:
     NOTIFY_PROVIDER: str = os.getenv("NOTIFY_PROVIDER", "").lower()
     # For provider=resend
     RESEND_API_KEY: str = os.getenv("RESEND_API_KEY", "")
-    OWNER_EMAIL: str = os.getenv("OWNER_EMAIL", "")
+    OWNER_EMAIL: str = os.getenv("OWNER_EMAIL", "sthoomu@gmail.com")
     NOTIFY_FROM: str = os.getenv("NOTIFY_FROM", "onboarding@resend.dev")
     # For provider=slack/discord/webhook
     NOTIFY_WEBHOOK_URL: str = os.getenv("NOTIFY_WEBHOOK_URL", "")
