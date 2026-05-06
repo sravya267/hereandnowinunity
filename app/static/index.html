@@ -25,12 +25,12 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .btn-calc:disabled{opacity:.4;cursor:not-allowed}
 
 .error-bar{background:#fdf2f2;border-bottom:1px solid #e8c4c4;color:#9b4d4d;padding:6px 16px;font-size:12px;display:none}
-.tab-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#faf8f5;border-bottom:1px solid #e8e4df;padding:0 16px;flex-wrap:wrap}
-.tabs{display:flex;gap:0;flex-wrap:wrap}
-.tab{background:none;border:none;border-bottom:2px solid transparent;padding:9px 14px;margin:0;font-family:inherit;font-size:12px;color:#9b9185;cursor:pointer;font-weight:500;line-height:1.3}
-.tab:hover{color:#5a4e3c;background:#f5efe6}
-.tab.active{color:#3d3a36;border-bottom-color:#8b7355;font-weight:600}
-.tab-meta{display:flex;gap:12px;font-size:10px;color:#9b9185;flex-wrap:wrap;padding:6px 0}
+.tab-bar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;background:#f0ebe1;border-bottom:1px solid #c4bdb4;padding:6px 16px 0;flex-wrap:wrap}
+.tabs{display:flex;gap:3px;flex-wrap:wrap}
+.tab{background:#faf6ee;border:1px solid #c4bdb4;border-bottom:none;border-radius:5px 5px 0 0;padding:7px 16px;margin:0;font-family:inherit;font-size:12px;color:#8b7355;cursor:pointer;font-weight:500;line-height:1.3;position:relative;top:1px;transition:background .12s,color .12s}
+.tab:hover{background:#fff8ec;color:#5a4e3c}
+.tab.active{background:#fff;color:#3d3a36;font-weight:600;border-color:#c4bdb4;z-index:1;box-shadow:0 -1px 2px rgba(60,50,30,.04)}
+.tab-meta{display:flex;gap:12px;font-size:10px;color:#9b9185;flex-wrap:wrap;padding:0 0 8px}
 .tab-meta span{white-space:nowrap}
 .tab-meta b{color:#5a4e3c;font-weight:500}
 .tab-page{display:none}
@@ -609,8 +609,14 @@ function drawWheel(data) {
     }
   });
   function edgeKey(a, b) { return a < b ? a + '|' + b : b + '|' + a; }
+  // Asc/Desc and MC/IC are 180° apart by definition; suppress only those
+  // diameter pairs so the chart doesn't double the axis line. Cross pairs
+  // (Asc-MC, Asc-IC, Desc-MC, Desc-IC) remain valid aspects.
+  var AXIS_DIAM_PAIRS = {'Asc|Desc':1, 'Desc|Asc':1, 'MC|IC':1, 'IC|MC':1};
+  function isAxisDiameterPair(a) { return AXIS_DIAM_PAIRS[a.Body1 + '|' + a.Body2]; }
 
   var aspects = (data.aspects || []).filter(function(a) {
+    if (isAxisDiameterPair(a)) return false;
     if (!ASP_FILTER[a.Aspect]) return false;
     // Per-body display: hidden bodies hide their aspect lines
     if (BODY_DISPLAY.hasOwnProperty(a.Body1) && !BODY_DISPLAY[a.Body1]) return false;
@@ -848,7 +854,11 @@ function renderHarmDetail(harmonic) {
 
   var typeMap = {};
   ASP_TYPES.forEach(function(t){ typeMap[t.name] = t; });
+  // Only the diameter pairs (Asc-Desc, MC-IC) are 180° by definition; cross
+  // axis pairs like Asc-MC remain valid aspects.
+  var AXIS_DIAM = {'Asc|Desc':1, 'Desc|Asc':1, 'MC|IC':1, 'IC|MC':1};
   var aspects = (LAST_DATA.aspects || []).filter(function(a){
+    if (AXIS_DIAM[a.Body1 + '|' + a.Body2]) return false;
     var t = typeMap[a.Aspect];
     return t && t.harmonic === harmonic;
   }).sort(function(a,b){ return (b.Closeness||0) - (a.Closeness||0); });
