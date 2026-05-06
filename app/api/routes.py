@@ -55,6 +55,10 @@ def health() -> dict:
 @router.post("/chart", response_model=ChartResponse)
 def create_chart(req: ChartRequest, background: BackgroundTasks) -> ChartResponse:
     """Compute a full natal chart as JSON."""
+    # Honeypot bot check: real users never see/fill this field.
+    if req.website:
+        logger.info("Bot submission rejected (honeypot tripped)")
+        raise HTTPException(status_code=400, detail="Invalid submission")
     try:
         chart = compute_chart(
             birth_datetime=req.birth_datetime,
