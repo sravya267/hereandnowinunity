@@ -69,9 +69,9 @@ canvas{display:block;width:100%;height:100%}
 .filter-panel select{padding:2px 5px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#5a4e3c;font-size:11px;font-family:inherit;width:100%;margin-top:2px}
 .filter-panel input[type="number"]{padding:2px 4px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#5a4e3c;font-size:11px;font-family:inherit;width:52px}
 .orb-row{display:flex;align-items:center;gap:6px;margin:3px 0}
-.orb-label{min-width:36px;font-size:11px;color:#5a4e3c}
-.orb-readout{min-width:36px;text-align:right;font-size:10px;color:#9b9185;font-variant-numeric:tabular-nums}
-.orb-slider{flex:1;-webkit-appearance:none;appearance:none;height:3px;background:#e8e0d5;border-radius:2px;outline:none;cursor:pointer;padding:0}
+.orb-label{flex:0 0 36px;font-size:11px;color:#5a4e3c}
+.orb-readout{flex:0 0 48px;text-align:right;font-size:11px;font-weight:600;color:#5a4e3c;font-variant-numeric:tabular-nums}
+.orb-slider{flex:1 1 auto;min-width:0;-webkit-appearance:none;appearance:none;height:3px;background:#e8e0d5;border-radius:2px;outline:none;cursor:pointer;padding:0}
 .orb-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:13px;height:13px;border-radius:50%;background:#8b7355;border:none;cursor:pointer}
 .orb-slider::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#8b7355;border:none;cursor:pointer}
 .orb-slider:hover::-webkit-slider-thumb{background:#7a644a}
@@ -280,27 +280,31 @@ var SIGN_GLYPH_COLS = ['#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3
 var NAK_NAMES = ['Ashw','Bhar','Krit','Rohi','Mrig','Ardr','Puna','Push','Ashl','Magh','PPha','UPha','Hast','Chit','Swat','Vish','Anur','Jyes','Mool','PAsh','UAsh','Shra','Dhan','Shat','PBha','UBha','Reva'];
 
 // Aspect catalog. major=true for the 5 major aspects, positive=true for harmonious.
+// inAspPanel=false aspects are computed by the backend and used by the
+// Vibrational Resonance card, but they don't appear as checkboxes in the
+// Aspects filter and never render on the main natal wheel.
 var ASP_TYPES = [
-  {name:'Conjunction',  sym:'☌',  major:true,  positive:false, harmonic:1,  defaultOn:true},
-  {name:'Opposition',   sym:'☍',  major:true,  positive:false, harmonic:2,  defaultOn:true},
-  {name:'Trine',        sym:'△',  major:true,  positive:true,  harmonic:3,  defaultOn:true},
-  {name:'Square',       sym:'□',  major:true,  positive:false, harmonic:4,  defaultOn:true},
-  {name:'Sextile',      sym:'✶',  major:true,  positive:true,  harmonic:6,  defaultOn:true},
-  {name:'Quincunx',     sym:'⚻',  major:false, positive:false, harmonic:12, defaultOn:false},
-  {name:'Semi-sextile', sym:'⚹',  major:false, positive:true,  harmonic:12, defaultOn:false},
-  {name:'Semi-square',  sym:'∠',  major:false, positive:false, harmonic:8,  defaultOn:false},
-  {name:'Sesquisquare', sym:'Sq', major:false, positive:false, harmonic:8,  defaultOn:false},
-  {name:'Quintile',     sym:'⚼',  major:false, positive:true,  harmonic:5,  defaultOn:false},
-  {name:'Bi-Quintile',  sym:'bQ', major:false, positive:true,  harmonic:5,  defaultOn:false},
-  {name:'Septile',      sym:'⚤',  major:false, positive:false, harmonic:7,  defaultOn:false},
-  {name:'Biseptile',    sym:'bS', major:false, positive:false, harmonic:7,  defaultOn:false},
-  {name:'Triseptile',   sym:'tS', major:false, positive:false, harmonic:7,  defaultOn:false},
-  {name:'Novile',       sym:'⭘',  major:false, positive:true,  harmonic:9,  defaultOn:false},
-  {name:'Bi-Novile',    sym:'bN', major:false, positive:true,  harmonic:9,  defaultOn:false},
-  {name:'Quadri-Novile',sym:'qN', major:false, positive:true,  harmonic:9,  defaultOn:false},
-  {name:'Decile',       sym:'⭑',  major:false, positive:true,  harmonic:10, defaultOn:false},
-  {name:'Tri-Decile',   sym:'tD', major:false, positive:true,  harmonic:10, defaultOn:false},
-  {name:'Undecile',     sym:'⭒',  major:false, positive:true,  harmonic:11, defaultOn:false}
+  {name:'Conjunction',  sym:'☌',  major:true,  positive:false, harmonic:1,  defaultOn:true,  inAspPanel:true},
+  {name:'Opposition',   sym:'☍',  major:true,  positive:false, harmonic:2,  defaultOn:true,  inAspPanel:true},
+  {name:'Trine',        sym:'△',  major:true,  positive:true,  harmonic:3,  defaultOn:true,  inAspPanel:true},
+  {name:'Square',       sym:'□',  major:true,  positive:false, harmonic:4,  defaultOn:true,  inAspPanel:true},
+  {name:'Sextile',      sym:'✶',  major:true,  positive:true,  harmonic:6,  defaultOn:true,  inAspPanel:true},
+  {name:'Quincunx',     sym:'⚻',  major:false, positive:false, harmonic:12, defaultOn:true,  inAspPanel:true},
+  {name:'Semi-sextile', sym:'⚹',  major:false, positive:true,  harmonic:12, defaultOn:true,  inAspPanel:true},
+  {name:'Semi-square',  sym:'∠',  major:false, positive:false, harmonic:8,  defaultOn:true,  inAspPanel:true},
+  {name:'Sesquisquare', sym:'Sq', major:false, positive:false, harmonic:8,  defaultOn:true,  inAspPanel:true},
+  // Cochrane harmonic multiples — surfaced only via the Vibrational Resonance card
+  {name:'Quintile',     sym:'⚼',  major:false, positive:true,  harmonic:5,  defaultOn:false, inAspPanel:false},
+  {name:'Bi-Quintile',  sym:'bQ', major:false, positive:true,  harmonic:5,  defaultOn:false, inAspPanel:false},
+  {name:'Septile',      sym:'⚤',  major:false, positive:false, harmonic:7,  defaultOn:false, inAspPanel:false},
+  {name:'Biseptile',    sym:'bS', major:false, positive:false, harmonic:7,  defaultOn:false, inAspPanel:false},
+  {name:'Triseptile',   sym:'tS', major:false, positive:false, harmonic:7,  defaultOn:false, inAspPanel:false},
+  {name:'Novile',       sym:'⭘',  major:false, positive:true,  harmonic:9,  defaultOn:false, inAspPanel:false},
+  {name:'Bi-Novile',    sym:'bN', major:false, positive:true,  harmonic:9,  defaultOn:false, inAspPanel:false},
+  {name:'Quadri-Novile',sym:'qN', major:false, positive:true,  harmonic:9,  defaultOn:false, inAspPanel:false},
+  {name:'Decile',       sym:'⭑',  major:false, positive:true,  harmonic:10, defaultOn:false, inAspPanel:false},
+  {name:'Tri-Decile',   sym:'tD', major:false, positive:true,  harmonic:10, defaultOn:false, inAspPanel:false},
+  {name:'Undecile',     sym:'⭒',  major:false, positive:true,  harmonic:11, defaultOn:false, inAspPanel:false}
 ];
 // major-neg=red, major-pos=green, minor-neg=orange, minor-pos=seagreen
 function aspLineColor(meta) {
@@ -478,20 +482,20 @@ function drawWheel(data) {
     ctx.fillText(String(hi + 1), hp[0], hp[1]);
   }
 
-  // ── Asc / Desc / MC / IC axes — span only inside the inner aspect circle
-  //    (each drawn as a half-diameter from center to r1; ASC/DESC and MC/IC
-  //    pairs together form full diameters). Names sit inside the merged ring
-  //    (between r1 and r3), rotated parallel to their line.
+  // ── Asc / Desc / MC / IC axes — span only inside the second circle (r3).
+  //    Each drawn as a half-diameter from center to r3; ASC/DESC and MC/IC
+  //    pairs together form full diameters. Names sit just inside r3,
+  //    rotated parallel to their line.
   if (BODY_DISPLAY.Angles) ['Asc','Desc','MC','IC'].forEach(function(name) {
     var b = data.bodies.find(function(x){ return x.Body === name; });
     if (!b) return;
     var aa = lon2a(b['Longitude (°)']);
-    var ap = pt(r1, aa);
+    var ap = pt(r3, aa);
     ctx.beginPath();
     ctx.moveTo(cx, cy); ctx.lineTo(ap[0], ap[1]);
     ctx.strokeStyle = '#222'; ctx.lineWidth = 2.2; ctx.stroke();
 
-    var lp = pt((r1 + r3) / 2, aa);
+    var lp = pt(r3 - R * 0.05, aa);
     var rot = aa;
     if (Math.cos(rot) < 0) rot += Math.PI; // keep text upright
     ctx.save();
@@ -499,6 +503,9 @@ function drawWheel(data) {
     ctx.rotate(rot);
     ctx.font = 'bold ' + Math.round(R * 0.04) + 'px sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    // White halo for legibility over the merged ring contents
+    ctx.lineWidth = 4; ctx.strokeStyle = '#fff';
+    ctx.strokeText(name, 0, 0);
     ctx.fillStyle = '#222';
     ctx.fillText(name, 0, 0);
     ctx.restore();
@@ -533,10 +540,9 @@ function drawWheel(data) {
     ctx.save();
     ctx.translate(ssp[0], ssp[1]);
     ctx.rotate(a + Math.PI / 2);
-    var isAccent = (p.Body === 'Venus' || p.Body === 'Mars');
-    ctx.font = 'bold ' + Math.round(R * (isAccent ? 0.102 : 0.088)) + 'px serif';
+    ctx.font = 'bold ' + Math.round(R * 0.088) + 'px serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = isAccent ? (p.Color || '#000') : '#000';
+    ctx.fillStyle = '#000';
     ctx.fillText(p.Symbol, 0, 0);
     ctx.restore();
     var dd = p['Longitude (°)'] % 30;
@@ -805,10 +811,14 @@ function renderHarmDetail(harmonic) {
       var t = typeMap[a.Aspect];
       var sym = t ? t.sym : '';
       var pct = Math.round((a.Closeness || 0) * 100);
+      var miss = (a.Angle != null && a.Degrees != null)
+        ? Math.abs(a.Angle - a.Degrees).toFixed(2) + '°'
+        : '';
       return '<div class="harm-asp-item">' +
         '<span class="asp-glyph">' + sym + '</span>' +
         a.Body1 + ' ' + a.Aspect + ' ' + a.Body2 +
-        ' <span class="asp-close">· ' + pct + '%</span>' +
+        ' <span class="asp-close">· ' + pct + '%' +
+        (miss ? ' (' + miss + ')' : '') + '</span>' +
       '</div>';
     }).join('');
   } else {
@@ -837,21 +847,29 @@ function drawHarmMini(data, aspects) {
 
   var cx = W/2, cy = H/2;
   var R = Math.min(cx, cy) - 14;
-  var rRing = R * 0.92;
-  var rLine = R * 0.78;
+  // Two visible rings; planets sit in the band between them. Aspect lines
+  // are drawn inside the inner ring.
+  var rOuter = R * 0.95;
+  var rInner = R * 0.78;
+  var rPlanet = (rOuter + rInner) / 2;
+  var rLine = rInner;
 
   var desc = data.bodies.find(function(b){ return b.Body === 'Desc'; });
   var rotLon = desc ? desc['Longitude (°)'] : 0;
   function lon2a(lon){ return -(lon - rotLon) * Math.PI / 180; }
   function pt(r, a){ return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; }
 
-  ctx.beginPath(); ctx.arc(cx, cy, rRing, 0, 2*Math.PI);
-  ctx.strokeStyle = '#ddd8d1'; ctx.lineWidth = 1; ctx.stroke();
+  // Outer + inner ring
+  ctx.strokeStyle = '#bbb'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(cx, cy, rOuter, 0, 2*Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rInner, 0, 2*Math.PI); ctx.stroke();
+
+  // 12 sign tick marks across the planet band
   for (var i = 0; i < 12; i++) {
     var a = lon2a(i * 30);
-    var p1 = pt(rRing - 3, a), p2 = pt(rRing + 3, a);
+    var p1 = pt(rInner, a), p2 = pt(rOuter, a);
     ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
-    ctx.strokeStyle = '#c4bdb4'; ctx.lineWidth = 0.6; ctx.stroke();
+    ctx.strokeStyle = '#e0d8cc'; ctx.lineWidth = 0.6; ctx.stroke();
   }
 
   var involved = {};
@@ -861,7 +879,7 @@ function drawHarmMini(data, aspects) {
     if (involved[b.Body]) bodyPos[b.Body] = lon2a(b['Longitude (°)']);
   });
 
-  // Aspect lines
+  // Aspect lines inside the inner ring
   aspects.forEach(function(a){
     var a1 = bodyPos[a.Body1], a2 = bodyPos[a.Body2];
     if (a1 === undefined || a2 === undefined) return;
@@ -871,24 +889,24 @@ function drawHarmMini(data, aspects) {
     ctx.beginPath();
     ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
     ctx.strokeStyle = aspLineColor(meta);
-    ctx.lineWidth = Math.max(1, closeness * 2.5);
-    ctx.globalAlpha = 0.5 + closeness * 0.5;
+    ctx.lineWidth = Math.max(1.2, closeness * 2.8);
+    ctx.globalAlpha = 0.55 + closeness * 0.45;
     ctx.stroke();
     ctx.globalAlpha = 1;
   });
 
-  // Planet symbols around the ring
+  // Planet symbols inside the band, bold black with white halo
   Object.keys(bodyPos).forEach(function(name){
     var ang = bodyPos[name];
     var b = data.bodies.find(function(x){ return x.Body === name; });
     if (!b) return;
-    var p = pt(rRing - R*0.06, ang);
+    var p = pt(rPlanet, ang);
     var sym = b.Symbol || name.substring(0, 2);
-    ctx.font = 'bold ' + Math.round(R * 0.11) + 'px sans-serif';
+    ctx.font = 'bold ' + Math.round(R * 0.11) + 'px serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.lineWidth = 3; ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 3.5; ctx.strokeStyle = '#fff';
     ctx.strokeText(sym, p[0], p[1]);
-    ctx.fillStyle = b.Color || '#5a4e3c';
+    ctx.fillStyle = '#000';
     ctx.fillText(sym, p[0], p[1]);
   });
 }
@@ -912,12 +930,15 @@ function drawCurrentWheel() { redrawAll(); }
 (function initFilters(){
   var fp = document.getElementById('filter-panel');
 
-  // Build aspect checkboxes inline
-  document.getElementById('asp-list').innerHTML = ASP_TYPES.map(function(t){
-    var checked = ASP_FILTER[t.name] ? 'checked' : '';
-    return '<label><input type="checkbox" data-asp="' + t.name + '" ' + checked +
-           '><span class="fp-asp-glyph">' + t.sym + '</span>' + t.name + '</label>';
-  }).join('');
+  // Build aspect checkboxes inline (Cochrane harmonic-multiple entries are
+  // hidden — they live in the Vibrational Resonance card)
+  document.getElementById('asp-list').innerHTML = ASP_TYPES
+    .filter(function(t){ return t.inAspPanel; })
+    .map(function(t){
+      var checked = ASP_FILTER[t.name] ? 'checked' : '';
+      return '<label><input type="checkbox" data-asp="' + t.name + '" ' + checked +
+             '><span class="fp-asp-glyph">' + t.sym + '</span>' + t.name + '</label>';
+    }).join('');
 
   // Build pattern toggle buttons inline (rendered next to All/None pattern bulk buttons)
   function renderPatFilter() {
