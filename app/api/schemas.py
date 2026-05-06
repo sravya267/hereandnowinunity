@@ -33,6 +33,10 @@ class ChartRequest(BaseModel):
         default="Koch",
         description="House system (tropical only). Sidereal charts always use Whole Sign.",
     )
+    # Honeypot: a hidden form field that real users never see/fill. Bots
+    # crawling forms tend to fill every input, so a non-empty value here
+    # is a strong "this is a bot" signal.
+    website: str | None = Field(default=None, exclude=True)
 
 
 class BirthMomentResponse(BaseModel):
