@@ -609,13 +609,14 @@ function drawWheel(data) {
     }
   });
   function edgeKey(a, b) { return a < b ? a + '|' + b : b + '|' + a; }
-  // Axis pairs (Asc/Desc, MC/IC) are 180° by definition; suppress any
-  // aspect line between them so the chart doesn't double the axis line.
-  var AXIS_NAMES = {Asc:1, Desc:1, MC:1, IC:1};
-  function isAxisPair(a) { return AXIS_NAMES[a.Body1] && AXIS_NAMES[a.Body2]; }
+  // Asc/Desc and MC/IC are 180° apart by definition; suppress only those
+  // diameter pairs so the chart doesn't double the axis line. Cross pairs
+  // (Asc-MC, Asc-IC, Desc-MC, Desc-IC) remain valid aspects.
+  var AXIS_DIAM_PAIRS = {'Asc|Desc':1, 'Desc|Asc':1, 'MC|IC':1, 'IC|MC':1};
+  function isAxisDiameterPair(a) { return AXIS_DIAM_PAIRS[a.Body1 + '|' + a.Body2]; }
 
   var aspects = (data.aspects || []).filter(function(a) {
-    if (isAxisPair(a)) return false;
+    if (isAxisDiameterPair(a)) return false;
     if (!ASP_FILTER[a.Aspect]) return false;
     // Per-body display: hidden bodies hide their aspect lines
     if (BODY_DISPLAY.hasOwnProperty(a.Body1) && !BODY_DISPLAY[a.Body1]) return false;
@@ -853,9 +854,11 @@ function renderHarmDetail(harmonic) {
 
   var typeMap = {};
   ASP_TYPES.forEach(function(t){ typeMap[t.name] = t; });
-  var AX = {Asc:1, Desc:1, MC:1, IC:1};
+  // Only the diameter pairs (Asc-Desc, MC-IC) are 180° by definition; cross
+  // axis pairs like Asc-MC remain valid aspects.
+  var AXIS_DIAM = {'Asc|Desc':1, 'Desc|Asc':1, 'MC|IC':1, 'IC|MC':1};
   var aspects = (LAST_DATA.aspects || []).filter(function(a){
-    if (AX[a.Body1] && AX[a.Body2]) return false; // skip axis-axis pairs
+    if (AXIS_DIAM[a.Body1 + '|' + a.Body2]) return false;
     var t = typeMap[a.Aspect];
     return t && t.harmonic === harmonic;
   }).sort(function(a,b){ return (b.Closeness||0) - (a.Closeness||0); });
