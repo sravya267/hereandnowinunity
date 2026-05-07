@@ -50,8 +50,7 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .card{background:#fff;border:1px solid #e8e4df;border-radius:5px;overflow:hidden;display:flex;flex-direction:column}
 .card-wheel{height:600px}
 .card-info{height:380px}
-.card-cloud{height:240px}
-.word-cloud{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;padding:14px 18px;line-height:1.6;text-align:center;height:100%;overflow:auto}
+.word-cloud{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;padding:8px 12px;line-height:1.6;text-align:center;flex:1;overflow:auto}
 .word-cloud .wc-word{display:inline-block;margin:3px 7px;color:#5a4e3c;white-space:nowrap}
 .word-cloud .wc-empty{color:#c4bdb4;text-align:center;padding:40px;width:100%}
 .pat-list{padding:6px 8px;font-size:11px;line-height:1.6;overflow:auto;height:100%}
@@ -129,7 +128,13 @@ canvas{display:block;width:100%;height:100%}
 .harm-row-bar-bg{flex:1;height:8px;background:#f5efe6;border-radius:3px;overflow:hidden}
 .harm-row-bar{height:100%;background:#8b7355}
 .harm-row-meta{width:78px;text-align:right;color:#9b9185;font-size:10px;flex-shrink:0;font-variant-numeric:tabular-nums}
-.harm-detail{flex:1;display:flex;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid #f0ece7;min-height:0}
+.harm-right-col{display:flex;flex-direction:column;gap:10px}
+.card-harm-families{height:240px}
+.card-harm-detail-comb{flex:1;min-height:0}
+.harm-detail-comb-inner{display:flex;flex-direction:column;height:100%;padding:10px 12px}
+.harm-detail{flex:0 0 150px;display:flex;gap:12px;min-height:0}
+.harm-traits-section{flex:1;display:flex;flex-direction:column;border-top:1px solid #f0ece7;margin-top:8px;padding-top:8px;min-height:0}
+.harm-traits-hdr{font-size:10px;color:#9b9185;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;flex-shrink:0}
 .harm-detail-left{flex:0 0 46%;position:relative;min-height:0}
 .harm-detail-left canvas{display:block;width:100%;height:100%}
 .harm-detail-right{flex:1;overflow-y:auto;font-size:11px;line-height:1.55;color:#5a4e3c}
@@ -154,7 +159,7 @@ canvas{display:block;width:100%;height:100%}
 .loading::before{content:'';display:inline-block;width:16px;height:16px;border:2px solid #e8e4df;border-top-color:#8b7355;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes sp{to{transform:rotate(360deg)}}
 
-@media(max-width:900px){.row{grid-template-columns:1fr}.card-wheel{height:480px}.card-info{height:320px}.intro{grid-template-columns:1fr;padding:8px 14px;gap:6px}}
+@media(max-width:900px){.row{grid-template-columns:1fr}.card-wheel{height:480px}.card-harm-families{height:220px}.card-info{height:320px}.intro{grid-template-columns:1fr;padding:8px 14px;gap:6px}}
 @media(max-width:650px){.toolbar{height:auto;padding:8px 12px;flex-wrap:wrap;gap:6px}.toolbar form{flex-wrap:wrap}.sep{display:none}.toolbar input[type="date"],.toolbar input[type="time"],.toolbar input[type="text"],.toolbar select{width:100%}}
 </style>
 </head>
@@ -292,37 +297,45 @@ canvas{display:block;width:100%;height:100%}
           </div>
         </div>
       </div>
-      <div class="card card-wheel">
-        <div class="card-hdr"><span class="card-hdr-title">Vibrational Resonance — by Harmonic Family</span></div>
-        <div class="card-body" id="harm-body">
-          <div id="harm-empty" class="harm-empty">
-            Calculate a chart to see which harmonic families hum most.
-          </div>
-          <div id="harm-content" class="harm-content">
-            <div class="harm-list-hdr">Top humming families · click a row to explore</div>
-            <div class="harm-filter">
-              <span class="harm-filter-label">Min orb closeness</span>
-              <input type="range" class="orb-slider" id="harm-min-close" value="0" min="0" max="95" step="5">
-              <span class="orb-readout" id="harm-min-close-readout">0%</span>
+      <div class="harm-right-col">
+        <!-- Part 1: Harmonic Families List -->
+        <div class="card card-harm-families">
+          <div class="card-hdr"><span class="card-hdr-title">Vibrational Resonance — by Harmonic Family</span></div>
+          <div class="card-body" id="harm-body">
+            <div id="harm-empty" class="harm-empty">
+              Calculate a chart to see which harmonic families hum most.
             </div>
-            <div id="harm-list" class="harm-list"></div>
-            <div id="harm-detail" class="harm-detail">
-              <div class="harm-detail-left">
-                <canvas id="harm-mini-canvas"></canvas>
+            <div id="harm-content" class="harm-content">
+              <div class="harm-list-hdr">Top humming families · click a row to explore</div>
+              <div class="harm-filter">
+                <span class="harm-filter-label">Min orb closeness</span>
+                <input type="range" class="orb-slider" id="harm-min-close" value="0" min="0" max="95" step="5">
+                <span class="orb-readout" id="harm-min-close-readout">0%</span>
               </div>
-              <div id="harm-detail-right" class="harm-detail-right">
-                <div class="harm-hint">Select a harmonic family above to see involved planets and meaning.</div>
+              <div id="harm-list" class="harm-list"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Part 2: Harmonic Detail + Personality Traits -->
+        <div class="card card-harm-detail-comb">
+          <div class="card-hdr"><span class="card-hdr-title">Harmonic Detail &amp; Personality Themes</span></div>
+          <div class="card-body">
+            <div class="harm-detail-comb-inner">
+              <div id="harm-detail" class="harm-detail">
+                <div class="harm-detail-left">
+                  <canvas id="harm-mini-canvas"></canvas>
+                </div>
+                <div id="harm-detail-right" class="harm-detail-right">
+                  <div class="harm-hint">Select a harmonic family above to see involved planets and meaning.</div>
+                </div>
+              </div>
+              <div class="harm-traits-section">
+                <div class="harm-traits-hdr">Personality Themes</div>
+                <div class="word-cloud" id="word-cloud"></div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-    <!-- Personality word cloud -->
-    <div style="margin-bottom:10px">
-      <div class="card card-cloud">
-        <div class="card-hdr"><span class="card-hdr-title">Personality Themes</span></div>
-        <div class="card-body"><div class="word-cloud" id="word-cloud"></div></div>
       </div>
     </div>
     <!-- Bottom row: Positions/Aspects -->
