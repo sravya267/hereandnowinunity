@@ -46,16 +46,17 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .page{display:none;padding:10px 16px}
 .page.active{display:block}
 
-.row{display:grid;grid-template-columns:1fr 0.55fr 1fr;gap:18px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.right-2x2{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;height:600px;min-width:0}
 .card{background:#fff;border:1px solid #e8e4df;border-radius:5px;overflow:hidden;display:flex;flex-direction:column}
 .card-wheel{height:600px}
 .card-info{height:380px}
-.card-personality-bubbles{height:600px}
-.card-harm-families-top{height:600px}
-.card-harm-detail-full{height:300px}
-.bubbles-wrap{flex:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;align-content:center;gap:6px;padding:10px;overflow:auto}
-.bubble{display:flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-weight:600;text-align:center;line-height:1.1;padding:4px;word-break:break-word;overflow:hidden;flex-shrink:0;box-shadow:0 1px 2px rgba(60,50,30,.08)}
-.bubbles-empty{color:#c4bdb4;font-size:12px;padding:30px;text-align:center;width:100%}
+.card-quad{min-height:0;min-width:0;height:100%}
+.harm-mini-body{flex:1;position:relative;min-height:0;padding:6px}
+.harm-mini-body canvas{display:block;width:100%;height:100%}
+.word-cloud{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;align-content:center;padding:8px 10px;line-height:1.5;text-align:center;flex:1;overflow:auto}
+.word-cloud .wc-word{display:inline-block;margin:2px 5px;color:#5a4e3c;white-space:nowrap}
+.word-cloud .wc-empty{color:#c4bdb4;text-align:center;padding:30px;width:100%;font-size:12px}
 .pat-list{padding:6px 8px;font-size:11px;line-height:1.6;overflow:auto;height:100%}
 .pat-item{border-bottom:1px solid #f0ece7;padding:5px 0}
 .pat-item:last-child{border-bottom:none}
@@ -131,11 +132,7 @@ canvas{display:block;width:100%;height:100%}
 .harm-row-bar-bg{flex:1;height:8px;background:#f5efe6;border-radius:3px;overflow:hidden}
 .harm-row-bar{height:100%;background:#8b7355}
 .harm-row-meta{width:64px;text-align:right;color:#9b9185;font-size:9px;flex-shrink:0;font-variant-numeric:tabular-nums}
-.harm-detail-comb-inner{display:flex;flex-direction:column;height:100%;padding:10px 12px}
-.harm-detail{flex:1;display:flex;gap:12px;min-height:0}
-.harm-detail-left{flex:0 0 46%;position:relative;min-height:0}
-.harm-detail-left canvas{display:block;width:100%;height:100%}
-.harm-detail-right{flex:1;overflow-y:auto;font-size:11px;line-height:1.55;color:#5a4e3c}
+.harm-detail-right{padding:8px 12px;font-size:11px;line-height:1.55;color:#5a4e3c}
 .harm-hint{color:#9b9185;font-style:italic;font-size:11px}
 .harm-title{font-size:13px;font-weight:600;color:#3d3a36;margin-bottom:4px}
 .harm-meaning{margin-bottom:8px;color:#5a4e3c}
@@ -157,7 +154,7 @@ canvas{display:block;width:100%;height:100%}
 .loading::before{content:'';display:inline-block;width:16px;height:16px;border:2px solid #e8e4df;border-top-color:#8b7355;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes sp{to{transform:rotate(360deg)}}
 
-@media(max-width:900px){.row{grid-template-columns:1fr}.card-wheel{height:480px}.card-harm-families-top{height:300px}.card-harm-detail-full{height:280px}.card-personality-bubbles{height:340px}.card-info{height:320px}.intro{grid-template-columns:1fr;padding:8px 14px;gap:6px}}
+@media(max-width:900px){.row{grid-template-columns:1fr}.right-2x2{grid-template-columns:1fr;grid-template-rows:repeat(4,260px);height:auto}.card-wheel{height:480px}.card-info{height:320px}.intro{grid-template-columns:1fr;padding:8px 14px;gap:6px}}
 @media(max-width:650px){.toolbar{height:auto;padding:8px 12px;flex-wrap:wrap;gap:6px}.toolbar form{flex-wrap:wrap}.sep{display:none}.toolbar input[type="date"],.toolbar input[type="time"],.toolbar input[type="text"],.toolbar select{width:100%}}
 </style>
 </head>
@@ -295,43 +292,44 @@ canvas{display:block;width:100%;height:100%}
           </div>
         </div>
       </div>
-      <!-- Middle column: Personality bubbles -->
-      <div class="card card-personality-bubbles">
-        <div class="card-hdr"><span class="card-hdr-title">Personality Themes</span></div>
-        <div id="bubbles" class="bubbles-wrap"></div>
-      </div>
-      <!-- Right column: Harmonic Families List -->
-      <div class="card card-harm-families-top">
-        <div class="card-hdr"><span class="card-hdr-title">Vibrational Resonance — by Harmonic Family</span></div>
-        <div class="card-body" id="harm-body">
-          <div id="harm-empty" class="harm-empty">
-            Calculate a chart to see which harmonic families hum most.
-          </div>
-          <div id="harm-content" class="harm-content">
-            <div class="harm-list-hdr">Top humming families · click a row to explore</div>
-            <div class="harm-filter">
-              <span class="harm-filter-label">Min orb closeness</span>
-              <input type="range" class="orb-slider" id="harm-min-close" value="0" min="0" max="95" step="5">
-              <span class="orb-readout" id="harm-min-close-readout">0%</span>
+      <!-- Right column: 2x2 grid -->
+      <div class="right-2x2">
+        <!-- (0,0) Word cloud -->
+        <div class="card card-quad">
+          <div class="card-hdr"><span class="card-hdr-title">Personality Themes</span></div>
+          <div class="card-body"><div class="word-cloud" id="word-cloud"></div></div>
+        </div>
+        <!-- (0,1) Harmonics bar graph -->
+        <div class="card card-quad">
+          <div class="card-hdr"><span class="card-hdr-title">Vibrational Resonance — by Harmonic Family</span></div>
+          <div class="card-body" id="harm-body">
+            <div id="harm-empty" class="harm-empty">
+              Calculate a chart to see which harmonic families hum most.
             </div>
-            <div id="harm-list" class="harm-list"></div>
+            <div id="harm-content" class="harm-content">
+              <div class="harm-list-hdr">Top humming families · click a row to explore</div>
+              <div class="harm-filter">
+                <span class="harm-filter-label">Min orb closeness</span>
+                <input type="range" class="orb-slider" id="harm-min-close" value="0" min="0" max="95" step="5">
+                <span class="orb-readout" id="harm-min-close-readout">0%</span>
+              </div>
+              <div id="harm-list" class="harm-list"></div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-    <!-- Second row: harmonic detail full-width -->
-    <div style="margin-bottom:10px">
-      <div class="card card-harm-detail-full">
-        <div class="card-hdr"><span class="card-hdr-title">Harmonic Detail</span></div>
-        <div class="card-body">
-          <div class="harm-detail-comb-inner">
-            <div id="harm-detail" class="harm-detail">
-              <div class="harm-detail-left">
-                <canvas id="harm-mini-canvas"></canvas>
-              </div>
-              <div id="harm-detail-right" class="harm-detail-right">
-                <div class="harm-hint">Select a harmonic family above to see involved planets and meaning.</div>
-              </div>
+        <!-- (1,0) Harmonic wheel (mini) -->
+        <div class="card card-quad">
+          <div class="card-hdr"><span class="card-hdr-title">Harmonic Wheel</span></div>
+          <div class="harm-mini-body">
+            <canvas id="harm-mini-canvas"></canvas>
+          </div>
+        </div>
+        <!-- (1,1) Harmonic descriptions -->
+        <div class="card card-quad">
+          <div class="card-hdr"><span class="card-hdr-title">Harmonic Description</span></div>
+          <div class="card-body">
+            <div id="harm-detail-right" class="harm-detail-right">
+              <div class="harm-hint">Select a harmonic family above to see involved planets and meaning.</div>
             </div>
           </div>
         </div>
@@ -846,35 +844,29 @@ PAT_TYPES.forEach(function(t){ PAT_FILTER[t] = false; });
 function redrawAll() {
   if (!LAST_DATA) return;
   drawWheel(LAST_DATA);
-  renderPersonalityBubbles(LAST_DATA);
+  renderWordCloud(LAST_DATA);
 }
 
-// HTML-based personality bubbles. Each trait becomes a circle whose
-// diameter scales with its weight. The heaviest traits are darker and
-// rendered first, so the eye lands on the strongest themes immediately.
-function renderPersonalityBubbles(d) {
-  var el = document.getElementById('bubbles');
+// CSS word cloud built from chart.traits (word + weight). Larger weight →
+// bigger, bolder word, tinted across a warm palette so the cloud reads as
+// a single composition rather than a list.
+function renderWordCloud(d) {
+  var el = document.getElementById('word-cloud');
   if (!el) return;
   var traits = (d && d.traits) || [];
   if (!traits.length) {
-    el.innerHTML = '<div class="bubbles-empty">No personality themes derived for this chart.</div>';
+    el.innerHTML = '<div class="wc-empty">No personality themes derived for this chart.</div>';
     return;
   }
-  var sorted = traits.slice().sort(function(a,b){ return (b.weight||1) - (a.weight||1); });
-  // Cap how many bubbles we render so the layout stays readable.
-  sorted = sorted.slice(0, 22);
-  var maxW = sorted.reduce(function(m,t){ return Math.max(m, t.weight||1); }, 1);
-  var palette = ['#5a4e3c','#7a644a','#8b7355','#a07a52','#b09e82','#9c7d54','#7d6b54','#856a4e'];
-  el.innerHTML = sorted.map(function(t, i){
-    var w = (t.weight || 1) / maxW;
-    // Diameter range tuned so even small bubbles still hold a short label.
-    var size = Math.round(34 + w * 70);
-    var fontSize = Math.max(9, Math.round(size * 0.18));
-    var bg = palette[i % palette.length];
-    var opacity = (0.55 + w * 0.45).toFixed(2);
-    return '<span class="bubble" style="width:' + size + 'px;height:' + size +
-           'px;font-size:' + fontSize + 'px;background:' + bg + ';opacity:' + opacity +
-           '" title="' + t.word + '">' + t.word + '</span>';
+  var max = traits.reduce(function(m, t){ return Math.max(m, t.weight || 1); }, 1);
+  var palette = ['#5a4e3c','#7a644a','#8b7355','#3a8a3a','#c0392b','#2e7e9e','#d4a017','#7d3c98'];
+  el.innerHTML = traits.map(function(t, i){
+    var w = (t.weight || 1) / max;
+    var size = (11 + w * 18).toFixed(1);
+    var weight = w > 0.6 ? 700 : (w > 0.3 ? 600 : 500);
+    var color = palette[i % palette.length];
+    return '<span class="wc-word" style="font-size:' + size + 'px;font-weight:' + weight +
+           ';color:' + color + '">' + t.word + '</span>';
   }).join('');
 }
 
@@ -1430,7 +1422,7 @@ function drawCurrentWheel() { redrawAll(); }
         buildMeta(d);
         buildInfoBox(d);
         renderHarmonics(d);
-        renderPersonalityBubbles(d);
+        renderWordCloud(d);
         results.classList.add('active');
         requestAnimationFrame(redrawAll);
       })
