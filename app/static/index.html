@@ -46,11 +46,14 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .page{display:none;padding:10px 16px}
 .page.active{display:block}
 
-.row{display:grid;grid-template-columns:minmax(0,1fr) 240px minmax(0,1fr);gap:18px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.row-harm{display:grid;grid-template-columns:0.62fr 1fr;gap:18px}
 .card{background:#fff;border:1px solid #e8e4df;border-radius:5px;overflow:hidden;display:flex;flex-direction:column}
 .card-wheel{height:600px}
 .card-info{height:380px}
 .card-personality-net{height:600px}
+.card-harm-families-wide{height:360px}
+.card-harm-detail-wide{height:360px}
 .personality-net-wrap{flex:1;position:relative;min-height:0}
 .personality-net-wrap canvas{display:block;width:100%;height:100%}
 .personality-net-legend{display:flex;justify-content:space-around;font-size:9px;color:#9b9185;text-transform:uppercase;letter-spacing:.05em;padding:4px 8px;border-top:1px solid #f0ece7;background:#fcfbf9}
@@ -122,18 +125,15 @@ canvas{display:block;width:100%;height:100%}
 .harm-filter-label{font-size:10px;color:#9b9185;text-transform:uppercase;letter-spacing:.05em;flex:0 0 auto}
 .harm-filter .orb-slider{flex:1 1 auto;min-width:40px}
 .harm-filter .orb-readout{flex:0 0 40px}
-.harm-list{flex:0 0 auto;max-height:210px;overflow-y:auto;font-size:12px;padding-right:4px}
-.harm-row{display:flex;align-items:center;gap:8px;padding:4px 6px;cursor:pointer;border-radius:3px;user-select:none;border:1px solid transparent}
+.harm-list{flex:1 1 auto;overflow-y:auto;font-size:11px;padding-right:4px}
+.harm-row{display:flex;align-items:center;gap:6px;padding:3px 5px;cursor:pointer;border-radius:3px;user-select:none;border:1px solid transparent}
 .harm-row:hover{background:#faf6ee}
 .harm-row.sel{background:#f0ebe1;border-color:#b09e82}
-.harm-row-num{width:14px;text-align:right;color:#b09e82;font-size:10px;flex-shrink:0}
-.harm-row-name{flex:0 0 92px;color:#5a4e3c;font-weight:600}
+.harm-row-num{width:12px;text-align:right;color:#b09e82;font-size:9px;flex-shrink:0}
+.harm-row-name{flex:0 0 78px;color:#5a4e3c;font-weight:600;font-size:10.5px;white-space:normal;word-break:break-word;line-height:1.2}
 .harm-row-bar-bg{flex:1;height:8px;background:#f5efe6;border-radius:3px;overflow:hidden}
 .harm-row-bar{height:100%;background:#8b7355}
-.harm-row-meta{width:78px;text-align:right;color:#9b9185;font-size:10px;flex-shrink:0;font-variant-numeric:tabular-nums}
-.harm-right-col{display:flex;flex-direction:column;gap:10px}
-.card-harm-families{height:240px}
-.card-harm-detail-comb{flex:1;min-height:0}
+.harm-row-meta{width:64px;text-align:right;color:#9b9185;font-size:9px;flex-shrink:0;font-variant-numeric:tabular-nums}
 .harm-detail-comb-inner{display:flex;flex-direction:column;height:100%;padding:10px 12px}
 .harm-detail{flex:1;display:flex;gap:12px;min-height:0}
 .harm-detail-left{flex:0 0 46%;position:relative;min-height:0}
@@ -160,7 +160,7 @@ canvas{display:block;width:100%;height:100%}
 .loading::before{content:'';display:inline-block;width:16px;height:16px;border:2px solid #e8e4df;border-top-color:#8b7355;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes sp{to{transform:rotate(360deg)}}
 
-@media(max-width:900px){.row{grid-template-columns:1fr}.card-wheel{height:480px}.card-harm-families{height:220px}.card-personality-net{height:360px}.card-info{height:320px}.intro{grid-template-columns:1fr;padding:8px 14px;gap:6px}}
+@media(max-width:900px){.row,.row-harm{grid-template-columns:1fr}.card-wheel{height:480px}.card-harm-families-wide{height:300px}.card-harm-detail-wide{height:320px}.card-personality-net{height:360px}.card-info{height:320px}.intro{grid-template-columns:1fr;padding:8px 14px;gap:6px}}
 @media(max-width:650px){.toolbar{height:auto;padding:8px 12px;flex-wrap:wrap;gap:6px}.toolbar form{flex-wrap:wrap}.sep{display:none}.toolbar input[type="date"],.toolbar input[type="time"],.toolbar input[type="text"],.toolbar select{width:100%}}
 </style>
 </head>
@@ -309,37 +309,38 @@ canvas{display:block;width:100%;height:100%}
           <span><i style="background:#b09e82"></i>Additional</span>
         </div>
       </div>
-      <div class="harm-right-col">
-        <!-- Part 1: Harmonic Families List -->
-        <div class="card card-harm-families">
-          <div class="card-hdr"><span class="card-hdr-title">Vibrational Resonance — by Harmonic Family</span></div>
-          <div class="card-body" id="harm-body">
-            <div id="harm-empty" class="harm-empty">
-              Calculate a chart to see which harmonic families hum most.
+    </div>
+    <!-- Second row: harmonics bar graph (compact) + harmonic detail side-by-side -->
+    <div class="row-harm" style="margin-bottom:10px">
+      <!-- Part 1: Harmonic Families List -->
+      <div class="card card-harm-families-wide">
+        <div class="card-hdr"><span class="card-hdr-title">Vibrational Resonance — by Harmonic Family</span></div>
+        <div class="card-body" id="harm-body">
+          <div id="harm-empty" class="harm-empty">
+            Calculate a chart to see which harmonic families hum most.
+          </div>
+          <div id="harm-content" class="harm-content">
+            <div class="harm-list-hdr">Top humming families · click a row to explore</div>
+            <div class="harm-filter">
+              <span class="harm-filter-label">Min orb closeness</span>
+              <input type="range" class="orb-slider" id="harm-min-close" value="0" min="0" max="95" step="5">
+              <span class="orb-readout" id="harm-min-close-readout">0%</span>
             </div>
-            <div id="harm-content" class="harm-content">
-              <div class="harm-list-hdr">Top humming families · click a row to explore</div>
-              <div class="harm-filter">
-                <span class="harm-filter-label">Min orb closeness</span>
-                <input type="range" class="orb-slider" id="harm-min-close" value="0" min="0" max="95" step="5">
-                <span class="orb-readout" id="harm-min-close-readout">0%</span>
-              </div>
-              <div id="harm-list" class="harm-list"></div>
-            </div>
+            <div id="harm-list" class="harm-list"></div>
           </div>
         </div>
-        <!-- Part 2: Harmonic Detail + Personality Traits -->
-        <div class="card card-harm-detail-comb">
-          <div class="card-hdr"><span class="card-hdr-title">Harmonic Detail &amp; Personality Themes</span></div>
-          <div class="card-body">
-            <div class="harm-detail-comb-inner">
-              <div id="harm-detail" class="harm-detail">
-                <div class="harm-detail-left">
-                  <canvas id="harm-mini-canvas"></canvas>
-                </div>
-                <div id="harm-detail-right" class="harm-detail-right">
-                  <div class="harm-hint">Select a harmonic family above to see involved planets and meaning.</div>
-                </div>
+      </div>
+      <!-- Part 2: Harmonic Detail -->
+      <div class="card card-harm-detail-wide">
+        <div class="card-hdr"><span class="card-hdr-title">Harmonic Detail</span></div>
+        <div class="card-body">
+          <div class="harm-detail-comb-inner">
+            <div id="harm-detail" class="harm-detail">
+              <div class="harm-detail-left">
+                <canvas id="harm-mini-canvas"></canvas>
+              </div>
+              <div id="harm-detail-right" class="harm-detail-right">
+                <div class="harm-hint">Select a harmonic family above to see involved planets and meaning.</div>
               </div>
             </div>
           </div>
@@ -886,15 +887,50 @@ function renderPersonalityNetwork(d) {
   }
 
   var sorted = traits.slice().sort(function(a,b){ return (b.weight||1) - (a.weight||1); });
-  var nCore = Math.min(5, sorted.length);
+  var nCore = Math.min(7, sorted.length);
   var core = sorted.slice(0, nCore);
-  var addl = sorted.slice(nCore, nCore + 12);
+  var addl = sorted.slice(nCore, nCore + 18);
 
   var cx = W/2, cy = H/2;
-  var pad = 22;
+  var pad = 28;
   var rxMax = W/2 - pad, ryMax = H/2 - pad;
-  var rxCore = rxMax * 0.28, ryCore = ryMax * 0.28;
-  var rxAddl = rxMax * 0.82, ryAddl = ryMax * 0.82;
+  var rxCore = rxMax * 0.30, ryCore = ryMax * 0.30;
+  var rxAddl = rxMax * 0.85, ryAddl = ryMax * 0.85;
+
+  // Wrap label text to fit within maxWidth, breaking on spaces (and on
+  // hyphens as a fallback). Returns up to 2 lines.
+  function wrapLabel(text, maxWidth, font) {
+    ctx.font = font;
+    if (ctx.measureText(text).width <= maxWidth) return [text];
+    var parts = text.split(/(\s|-)/);
+    var lines = [''], li = 0;
+    for (var i = 0; i < parts.length; i++) {
+      var trial = lines[li] + parts[i];
+      if (ctx.measureText(trial).width <= maxWidth || !lines[li]) {
+        lines[li] = trial;
+      } else if (li === 0) {
+        li = 1;
+        lines.push(parts[i].replace(/^\s+/, ''));
+      } else {
+        // Already on the second line; keep appending and accept overflow.
+        lines[li] = lines[li] + parts[i];
+      }
+    }
+    return lines.map(function(s){ return s.trim(); }).filter(Boolean);
+  }
+  function drawWrapped(lines, x, y, font, fillColor, haloColor, lineH) {
+    ctx.font = font;
+    var startY = y - ((lines.length - 1) * lineH) / 2;
+    lines.forEach(function(line, i){
+      var yy = startY + i * lineH;
+      if (haloColor) {
+        ctx.lineWidth = 3.5; ctx.strokeStyle = haloColor;
+        ctx.strokeText(line, x, yy);
+      }
+      ctx.fillStyle = fillColor;
+      ctx.fillText(line, x, yy);
+    });
+  }
 
   var corePos = core.map(function(t,i){
     var ang = (i/nCore)*2*Math.PI - Math.PI/2;
@@ -938,6 +974,8 @@ function renderPersonalityNetwork(d) {
   // Additional nodes
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
+  var addlFont = '500 10px Helvetica, Arial, sans-serif';
+  var addlMaxW = Math.max(56, Math.min(110, rxAddl * 0.55));
   addlPos.forEach(function(ap){
     ctx.beginPath();
     ctx.arc(ap.x, ap.y, 2.5, 0, 2*Math.PI);
@@ -945,13 +983,10 @@ function renderPersonalityNetwork(d) {
     ctx.fill();
     var dx = ap.x - cx, dy = ap.y - cy;
     var len = Math.max(0.001, Math.sqrt(dx*dx + dy*dy));
-    var lx = ap.x + (dx/len)*9;
-    var ly = ap.y + (dy/len)*9;
-    ctx.font = '500 9.5px Helvetica, Arial, sans-serif';
-    ctx.lineWidth = 3; ctx.strokeStyle = '#fff';
-    ctx.strokeText(ap.t.word, lx, ly);
-    ctx.fillStyle = '#7a6e65';
-    ctx.fillText(ap.t.word, lx, ly);
+    var lx = ap.x + (dx/len)*10;
+    var ly = ap.y + (dy/len)*10;
+    var lines = wrapLabel(ap.t.word, addlMaxW, addlFont);
+    drawWrapped(lines, lx, ly, addlFont, '#7a6e65', '#fff', 11);
   });
 
   // Core nodes (drawn last so they sit on top)
@@ -960,12 +995,11 @@ function renderPersonalityNetwork(d) {
     ctx.arc(cp.x, cp.y, 5, 0, 2*Math.PI);
     ctx.fillStyle = '#5a4e3c';
     ctx.fill();
-    ctx.font = '600 11px Helvetica, Arial, sans-serif';
-    ctx.lineWidth = 4; ctx.strokeStyle = '#fff';
-    var ly = cp.y - 11;
-    ctx.strokeText(cp.t.word, cp.x, ly);
-    ctx.fillStyle = '#3d3a36';
-    ctx.fillText(cp.t.word, cp.x, ly);
+    var coreFont = '600 12px Helvetica, Arial, sans-serif';
+    var coreMaxW = Math.max(70, Math.min(140, rxCore * 1.4));
+    var lines = wrapLabel(cp.t.word, coreMaxW, coreFont);
+    var anchorY = cp.y - 12 - ((lines.length - 1) * 13) / 2;
+    drawWrapped(lines, cp.x, anchorY, coreFont, '#3d3a36', '#fff', 13);
   });
 }
 
