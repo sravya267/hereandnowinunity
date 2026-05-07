@@ -46,13 +46,16 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .page{display:none;padding:10px 16px}
 .page.active{display:block}
 
-.row{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 240px minmax(0,1fr);gap:18px}
 .card{background:#fff;border:1px solid #e8e4df;border-radius:5px;overflow:hidden;display:flex;flex-direction:column}
 .card-wheel{height:600px}
 .card-info{height:380px}
-.word-cloud{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;padding:8px 12px;line-height:1.6;text-align:center;flex:1;overflow:auto}
-.word-cloud .wc-word{display:inline-block;margin:3px 7px;color:#5a4e3c;white-space:nowrap}
-.word-cloud .wc-empty{color:#c4bdb4;text-align:center;padding:40px;width:100%}
+.card-personality-net{height:600px}
+.personality-net-wrap{flex:1;position:relative;min-height:0}
+.personality-net-wrap canvas{display:block;width:100%;height:100%}
+.personality-net-legend{display:flex;justify-content:space-around;font-size:9px;color:#9b9185;text-transform:uppercase;letter-spacing:.05em;padding:4px 8px;border-top:1px solid #f0ece7;background:#fcfbf9}
+.personality-net-legend span{display:flex;align-items:center;gap:4px}
+.personality-net-legend i{display:inline-block;width:8px;height:8px;border-radius:50%}
 .pat-list{padding:6px 8px;font-size:11px;line-height:1.6;overflow:auto;height:100%}
 .pat-item{border-bottom:1px solid #f0ece7;padding:5px 0}
 .pat-item:last-child{border-bottom:none}
@@ -132,9 +135,7 @@ canvas{display:block;width:100%;height:100%}
 .card-harm-families{height:240px}
 .card-harm-detail-comb{flex:1;min-height:0}
 .harm-detail-comb-inner{display:flex;flex-direction:column;height:100%;padding:10px 12px}
-.harm-detail{flex:0 0 150px;display:flex;gap:12px;min-height:0}
-.harm-traits-section{flex:1;display:flex;flex-direction:column;border-top:1px solid #f0ece7;margin-top:8px;padding-top:8px;min-height:0}
-.harm-traits-hdr{font-size:10px;color:#9b9185;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;flex-shrink:0}
+.harm-detail{flex:1;display:flex;gap:12px;min-height:0}
 .harm-detail-left{flex:0 0 46%;position:relative;min-height:0}
 .harm-detail-left canvas{display:block;width:100%;height:100%}
 .harm-detail-right{flex:1;overflow-y:auto;font-size:11px;line-height:1.55;color:#5a4e3c}
@@ -159,7 +160,7 @@ canvas{display:block;width:100%;height:100%}
 .loading::before{content:'';display:inline-block;width:16px;height:16px;border:2px solid #e8e4df;border-top-color:#8b7355;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes sp{to{transform:rotate(360deg)}}
 
-@media(max-width:900px){.row{grid-template-columns:1fr}.card-wheel{height:480px}.card-harm-families{height:220px}.card-info{height:320px}.intro{grid-template-columns:1fr;padding:8px 14px;gap:6px}}
+@media(max-width:900px){.row{grid-template-columns:1fr}.card-wheel{height:480px}.card-harm-families{height:220px}.card-personality-net{height:360px}.card-info{height:320px}.intro{grid-template-columns:1fr;padding:8px 14px;gap:6px}}
 @media(max-width:650px){.toolbar{height:auto;padding:8px 12px;flex-wrap:wrap;gap:6px}.toolbar form{flex-wrap:wrap}.sep{display:none}.toolbar input[type="date"],.toolbar input[type="time"],.toolbar input[type="text"],.toolbar select{width:100%}}
 </style>
 </head>
@@ -297,6 +298,17 @@ canvas{display:block;width:100%;height:100%}
           </div>
         </div>
       </div>
+      <!-- Middle column: Personality network chart -->
+      <div class="card card-personality-net">
+        <div class="card-hdr"><span class="card-hdr-title">Personality Themes</span></div>
+        <div class="personality-net-wrap">
+          <canvas id="personality-net-canvas"></canvas>
+        </div>
+        <div class="personality-net-legend">
+          <span><i style="background:#5a4e3c"></i>Core</span>
+          <span><i style="background:#b09e82"></i>Additional</span>
+        </div>
+      </div>
       <div class="harm-right-col">
         <!-- Part 1: Harmonic Families List -->
         <div class="card card-harm-families">
@@ -328,10 +340,6 @@ canvas{display:block;width:100%;height:100%}
                 <div id="harm-detail-right" class="harm-detail-right">
                   <div class="harm-hint">Select a harmonic family above to see involved planets and meaning.</div>
                 </div>
-              </div>
-              <div class="harm-traits-section">
-                <div class="harm-traits-hdr">Personality Themes</div>
-                <div class="word-cloud" id="word-cloud"></div>
               </div>
             </div>
           </div>
@@ -847,29 +855,118 @@ PAT_TYPES.forEach(function(t){ PAT_FILTER[t] = false; });
 function redrawAll() {
   if (!LAST_DATA) return;
   drawWheel(LAST_DATA);
+  renderPersonalityNetwork(LAST_DATA);
 }
 
-// CSS-based personality word cloud built from chart.traits (word + weight).
-// Larger weight → bigger, darker word. Words are randomly tinted across a
-// warm palette so the cloud feels alive without ever turning illegible.
-function renderWordCloud(d) {
-  var el = document.getElementById('word-cloud');
-  if (!el) return;
+// Canvas-based personality network. Top traits by weight become "core"
+// nodes on an inner ellipse; the next-strongest become "additional" nodes
+// on an outer ellipse and connect to their angularly closest core node.
+function renderPersonalityNetwork(d) {
+  var cvs = document.getElementById('personality-net-canvas');
+  if (!cvs) return;
+  var parent = cvs.parentElement;
+  var dpr = window.devicePixelRatio || 1;
+  var W = parent.clientWidth, H = parent.clientHeight;
+  if (W < 20 || H < 20) return;
+  cvs.width = W * dpr; cvs.height = H * dpr;
+  cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
+  var ctx = cvs.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr, dpr);
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, W, H);
+
   var traits = (d && d.traits) || [];
   if (!traits.length) {
-    el.innerHTML = '<div class="wc-empty">No personality themes derived for this chart.</div>';
+    ctx.fillStyle = '#c4bdb4';
+    ctx.font = '12px Helvetica, Arial, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('No personality themes', W/2, H/2);
     return;
   }
-  var max = traits.reduce(function(m, t){ return Math.max(m, t.weight || 1); }, 1);
-  var palette = ['#5a4e3c','#7a644a','#8b7355','#3a8a3a','#c0392b','#2e7e9e','#d4a017','#7d3c98'];
-  el.innerHTML = traits.map(function(t, i){
-    var w = (t.weight || 1) / max;
-    var size = (12 + w * 26).toFixed(1);
-    var weight = w > 0.6 ? 700 : (w > 0.3 ? 600 : 500);
-    var color = palette[i % palette.length];
-    return '<span class="wc-word" style="font-size:' + size + 'px;font-weight:' + weight +
-           ';color:' + color + '">' + t.word + '</span>';
-  }).join('');
+
+  var sorted = traits.slice().sort(function(a,b){ return (b.weight||1) - (a.weight||1); });
+  var nCore = Math.min(5, sorted.length);
+  var core = sorted.slice(0, nCore);
+  var addl = sorted.slice(nCore, nCore + 12);
+
+  var cx = W/2, cy = H/2;
+  var pad = 22;
+  var rxMax = W/2 - pad, ryMax = H/2 - pad;
+  var rxCore = rxMax * 0.28, ryCore = ryMax * 0.28;
+  var rxAddl = rxMax * 0.82, ryAddl = ryMax * 0.82;
+
+  var corePos = core.map(function(t,i){
+    var ang = (i/nCore)*2*Math.PI - Math.PI/2;
+    return {t:t, x:cx + rxCore*Math.cos(ang), y:cy + ryCore*Math.sin(ang), ang:ang};
+  });
+  var addlPos = addl.map(function(t,i){
+    var ang = (i/Math.max(1,addl.length))*2*Math.PI - Math.PI/2 + Math.PI/Math.max(1,addl.length);
+    return {t:t, x:cx + rxAddl*Math.cos(ang), y:cy + ryAddl*Math.sin(ang), ang:ang};
+  });
+
+  // Connecting lines: each additional → angularly nearest core
+  ctx.strokeStyle = '#d8cfbf';
+  ctx.lineWidth = 0.8;
+  addlPos.forEach(function(ap){
+    if (!corePos.length) return;
+    var nearest = corePos.reduce(function(best, cp){
+      var dAng = Math.abs(((ap.ang - cp.ang + Math.PI) % (2*Math.PI)) - Math.PI);
+      return dAng < best.d ? {cp:cp, d:dAng} : best;
+    }, {cp:corePos[0], d:Infinity});
+    ctx.beginPath();
+    ctx.moveTo(ap.x, ap.y);
+    ctx.lineTo(nearest.cp.x, nearest.cp.y);
+    ctx.stroke();
+  });
+
+  // Faint links between adjacent core nodes (the "core" cluster outline)
+  if (corePos.length > 1) {
+    ctx.strokeStyle = '#c9b896';
+    ctx.lineWidth = 0.7;
+    ctx.setLineDash([2, 3]);
+    ctx.beginPath();
+    corePos.forEach(function(cp, i){
+      if (i === 0) ctx.moveTo(cp.x, cp.y);
+      else ctx.lineTo(cp.x, cp.y);
+    });
+    ctx.lineTo(corePos[0].x, corePos[0].y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Additional nodes
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  addlPos.forEach(function(ap){
+    ctx.beginPath();
+    ctx.arc(ap.x, ap.y, 2.5, 0, 2*Math.PI);
+    ctx.fillStyle = '#b09e82';
+    ctx.fill();
+    var dx = ap.x - cx, dy = ap.y - cy;
+    var len = Math.max(0.001, Math.sqrt(dx*dx + dy*dy));
+    var lx = ap.x + (dx/len)*9;
+    var ly = ap.y + (dy/len)*9;
+    ctx.font = '500 9.5px Helvetica, Arial, sans-serif';
+    ctx.lineWidth = 3; ctx.strokeStyle = '#fff';
+    ctx.strokeText(ap.t.word, lx, ly);
+    ctx.fillStyle = '#7a6e65';
+    ctx.fillText(ap.t.word, lx, ly);
+  });
+
+  // Core nodes (drawn last so they sit on top)
+  corePos.forEach(function(cp){
+    ctx.beginPath();
+    ctx.arc(cp.x, cp.y, 5, 0, 2*Math.PI);
+    ctx.fillStyle = '#5a4e3c';
+    ctx.fill();
+    ctx.font = '600 11px Helvetica, Arial, sans-serif';
+    ctx.lineWidth = 4; ctx.strokeStyle = '#fff';
+    var ly = cp.y - 11;
+    ctx.strokeText(cp.t.word, cp.x, ly);
+    ctx.fillStyle = '#3d3a36';
+    ctx.fillText(cp.t.word, cp.x, ly);
+  });
 }
 
 // ─── Harmonic resonance card ──────────────────────────────────────────────
@@ -1424,7 +1521,7 @@ function drawCurrentWheel() { redrawAll(); }
         buildMeta(d);
         buildInfoBox(d);
         renderHarmonics(d);
-        renderWordCloud(d);
+        renderPersonalityNetwork(d);
         results.classList.add('active');
         requestAnimationFrame(redrawAll);
       })
