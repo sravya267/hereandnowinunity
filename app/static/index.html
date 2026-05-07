@@ -46,19 +46,16 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .page{display:none;padding:10px 16px}
 .page.active{display:block}
 
-.row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.row-harm{display:grid;grid-template-columns:0.62fr 1fr;gap:18px}
+.row{display:grid;grid-template-columns:1fr 0.55fr 1fr;gap:18px}
 .card{background:#fff;border:1px solid #e8e4df;border-radius:5px;overflow:hidden;display:flex;flex-direction:column}
 .card-wheel{height:600px}
 .card-info{height:380px}
-.card-personality-net{height:600px}
-.card-harm-families-wide{height:360px}
-.card-harm-detail-wide{height:360px}
-.personality-net-wrap{flex:1;position:relative;min-height:0}
-.personality-net-wrap canvas{display:block;width:100%;height:100%}
-.personality-net-legend{display:flex;justify-content:space-around;font-size:9px;color:#9b9185;text-transform:uppercase;letter-spacing:.05em;padding:4px 8px;border-top:1px solid #f0ece7;background:#fcfbf9}
-.personality-net-legend span{display:flex;align-items:center;gap:4px}
-.personality-net-legend i{display:inline-block;width:8px;height:8px;border-radius:50%}
+.card-personality-bubbles{height:600px}
+.card-harm-families-top{height:600px}
+.card-harm-detail-full{height:300px}
+.bubbles-wrap{flex:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;align-content:center;gap:6px;padding:10px;overflow:auto}
+.bubble{display:flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-weight:600;text-align:center;line-height:1.1;padding:4px;word-break:break-word;overflow:hidden;flex-shrink:0;box-shadow:0 1px 2px rgba(60,50,30,.08)}
+.bubbles-empty{color:#c4bdb4;font-size:12px;padding:30px;text-align:center;width:100%}
 .pat-list{padding:6px 8px;font-size:11px;line-height:1.6;overflow:auto;height:100%}
 .pat-item{border-bottom:1px solid #f0ece7;padding:5px 0}
 .pat-item:last-child{border-bottom:none}
@@ -160,7 +157,7 @@ canvas{display:block;width:100%;height:100%}
 .loading::before{content:'';display:inline-block;width:16px;height:16px;border:2px solid #e8e4df;border-top-color:#8b7355;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes sp{to{transform:rotate(360deg)}}
 
-@media(max-width:900px){.row,.row-harm{grid-template-columns:1fr}.card-wheel{height:480px}.card-harm-families-wide{height:300px}.card-harm-detail-wide{height:320px}.card-personality-net{height:360px}.card-info{height:320px}.intro{grid-template-columns:1fr;padding:8px 14px;gap:6px}}
+@media(max-width:900px){.row{grid-template-columns:1fr}.card-wheel{height:480px}.card-harm-families-top{height:300px}.card-harm-detail-full{height:280px}.card-personality-bubbles{height:340px}.card-info{height:320px}.intro{grid-template-columns:1fr;padding:8px 14px;gap:6px}}
 @media(max-width:650px){.toolbar{height:auto;padding:8px 12px;flex-wrap:wrap;gap:6px}.toolbar form{flex-wrap:wrap}.sep{display:none}.toolbar input[type="date"],.toolbar input[type="time"],.toolbar input[type="text"],.toolbar select{width:100%}}
 </style>
 </head>
@@ -298,22 +295,13 @@ canvas{display:block;width:100%;height:100%}
           </div>
         </div>
       </div>
-      <!-- Middle column: Personality network chart -->
-      <div class="card card-personality-net">
+      <!-- Middle column: Personality bubbles -->
+      <div class="card card-personality-bubbles">
         <div class="card-hdr"><span class="card-hdr-title">Personality Themes</span></div>
-        <div class="personality-net-wrap">
-          <canvas id="personality-net-canvas"></canvas>
-        </div>
-        <div class="personality-net-legend">
-          <span><i style="background:#5a4e3c"></i>Core</span>
-          <span><i style="background:#b09e82"></i>Additional</span>
-        </div>
+        <div id="bubbles" class="bubbles-wrap"></div>
       </div>
-    </div>
-    <!-- Second row: harmonics bar graph (compact) + harmonic detail side-by-side -->
-    <div class="row-harm" style="margin-bottom:10px">
-      <!-- Part 1: Harmonic Families List -->
-      <div class="card card-harm-families-wide">
+      <!-- Right column: Harmonic Families List -->
+      <div class="card card-harm-families-top">
         <div class="card-hdr"><span class="card-hdr-title">Vibrational Resonance — by Harmonic Family</span></div>
         <div class="card-body" id="harm-body">
           <div id="harm-empty" class="harm-empty">
@@ -330,8 +318,10 @@ canvas{display:block;width:100%;height:100%}
           </div>
         </div>
       </div>
-      <!-- Part 2: Harmonic Detail -->
-      <div class="card card-harm-detail-wide">
+    </div>
+    <!-- Second row: harmonic detail full-width -->
+    <div style="margin-bottom:10px">
+      <div class="card card-harm-detail-full">
         <div class="card-hdr"><span class="card-hdr-title">Harmonic Detail</span></div>
         <div class="card-body">
           <div class="harm-detail-comb-inner">
@@ -856,151 +846,36 @@ PAT_TYPES.forEach(function(t){ PAT_FILTER[t] = false; });
 function redrawAll() {
   if (!LAST_DATA) return;
   drawWheel(LAST_DATA);
-  renderPersonalityNetwork(LAST_DATA);
+  renderPersonalityBubbles(LAST_DATA);
 }
 
-// Canvas-based personality network. Top traits by weight become "core"
-// nodes on an inner ellipse; the next-strongest become "additional" nodes
-// on an outer ellipse and connect to their angularly closest core node.
-function renderPersonalityNetwork(d) {
-  var cvs = document.getElementById('personality-net-canvas');
-  if (!cvs) return;
-  var parent = cvs.parentElement;
-  var dpr = window.devicePixelRatio || 1;
-  var W = parent.clientWidth, H = parent.clientHeight;
-  if (W < 20 || H < 20) return;
-  cvs.width = W * dpr; cvs.height = H * dpr;
-  cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
-  var ctx = cvs.getContext('2d');
-  ctx.setTransform(1,0,0,1,0,0);
-  ctx.scale(dpr, dpr);
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, W, H);
-
+// HTML-based personality bubbles. Each trait becomes a circle whose
+// diameter scales with its weight. The heaviest traits are darker and
+// rendered first, so the eye lands on the strongest themes immediately.
+function renderPersonalityBubbles(d) {
+  var el = document.getElementById('bubbles');
+  if (!el) return;
   var traits = (d && d.traits) || [];
   if (!traits.length) {
-    ctx.fillStyle = '#c4bdb4';
-    ctx.font = '12px Helvetica, Arial, sans-serif';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('No personality themes', W/2, H/2);
+    el.innerHTML = '<div class="bubbles-empty">No personality themes derived for this chart.</div>';
     return;
   }
-
   var sorted = traits.slice().sort(function(a,b){ return (b.weight||1) - (a.weight||1); });
-  var nCore = Math.min(7, sorted.length);
-  var core = sorted.slice(0, nCore);
-  var addl = sorted.slice(nCore, nCore + 18);
-
-  var cx = W/2, cy = H/2;
-  var pad = 28;
-  var rxMax = W/2 - pad, ryMax = H/2 - pad;
-  var rxCore = rxMax * 0.30, ryCore = ryMax * 0.30;
-  var rxAddl = rxMax * 0.85, ryAddl = ryMax * 0.85;
-
-  // Wrap label text to fit within maxWidth, breaking on spaces (and on
-  // hyphens as a fallback). Returns up to 2 lines.
-  function wrapLabel(text, maxWidth, font) {
-    ctx.font = font;
-    if (ctx.measureText(text).width <= maxWidth) return [text];
-    var parts = text.split(/(\s|-)/);
-    var lines = [''], li = 0;
-    for (var i = 0; i < parts.length; i++) {
-      var trial = lines[li] + parts[i];
-      if (ctx.measureText(trial).width <= maxWidth || !lines[li]) {
-        lines[li] = trial;
-      } else if (li === 0) {
-        li = 1;
-        lines.push(parts[i].replace(/^\s+/, ''));
-      } else {
-        // Already on the second line; keep appending and accept overflow.
-        lines[li] = lines[li] + parts[i];
-      }
-    }
-    return lines.map(function(s){ return s.trim(); }).filter(Boolean);
-  }
-  function drawWrapped(lines, x, y, font, fillColor, haloColor, lineH) {
-    ctx.font = font;
-    var startY = y - ((lines.length - 1) * lineH) / 2;
-    lines.forEach(function(line, i){
-      var yy = startY + i * lineH;
-      if (haloColor) {
-        ctx.lineWidth = 3.5; ctx.strokeStyle = haloColor;
-        ctx.strokeText(line, x, yy);
-      }
-      ctx.fillStyle = fillColor;
-      ctx.fillText(line, x, yy);
-    });
-  }
-
-  var corePos = core.map(function(t,i){
-    var ang = (i/nCore)*2*Math.PI - Math.PI/2;
-    return {t:t, x:cx + rxCore*Math.cos(ang), y:cy + ryCore*Math.sin(ang), ang:ang};
-  });
-  var addlPos = addl.map(function(t,i){
-    var ang = (i/Math.max(1,addl.length))*2*Math.PI - Math.PI/2 + Math.PI/Math.max(1,addl.length);
-    return {t:t, x:cx + rxAddl*Math.cos(ang), y:cy + ryAddl*Math.sin(ang), ang:ang};
-  });
-
-  // Connecting lines: each additional → angularly nearest core
-  ctx.strokeStyle = '#d8cfbf';
-  ctx.lineWidth = 0.8;
-  addlPos.forEach(function(ap){
-    if (!corePos.length) return;
-    var nearest = corePos.reduce(function(best, cp){
-      var dAng = Math.abs(((ap.ang - cp.ang + Math.PI) % (2*Math.PI)) - Math.PI);
-      return dAng < best.d ? {cp:cp, d:dAng} : best;
-    }, {cp:corePos[0], d:Infinity});
-    ctx.beginPath();
-    ctx.moveTo(ap.x, ap.y);
-    ctx.lineTo(nearest.cp.x, nearest.cp.y);
-    ctx.stroke();
-  });
-
-  // Faint links between adjacent core nodes (the "core" cluster outline)
-  if (corePos.length > 1) {
-    ctx.strokeStyle = '#c9b896';
-    ctx.lineWidth = 0.7;
-    ctx.setLineDash([2, 3]);
-    ctx.beginPath();
-    corePos.forEach(function(cp, i){
-      if (i === 0) ctx.moveTo(cp.x, cp.y);
-      else ctx.lineTo(cp.x, cp.y);
-    });
-    ctx.lineTo(corePos[0].x, corePos[0].y);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  // Additional nodes
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  var addlFont = '500 10px Helvetica, Arial, sans-serif';
-  var addlMaxW = Math.max(56, Math.min(110, rxAddl * 0.55));
-  addlPos.forEach(function(ap){
-    ctx.beginPath();
-    ctx.arc(ap.x, ap.y, 2.5, 0, 2*Math.PI);
-    ctx.fillStyle = '#b09e82';
-    ctx.fill();
-    var dx = ap.x - cx, dy = ap.y - cy;
-    var len = Math.max(0.001, Math.sqrt(dx*dx + dy*dy));
-    var lx = ap.x + (dx/len)*10;
-    var ly = ap.y + (dy/len)*10;
-    var lines = wrapLabel(ap.t.word, addlMaxW, addlFont);
-    drawWrapped(lines, lx, ly, addlFont, '#7a6e65', '#fff', 11);
-  });
-
-  // Core nodes (drawn last so they sit on top)
-  corePos.forEach(function(cp){
-    ctx.beginPath();
-    ctx.arc(cp.x, cp.y, 5, 0, 2*Math.PI);
-    ctx.fillStyle = '#5a4e3c';
-    ctx.fill();
-    var coreFont = '600 12px Helvetica, Arial, sans-serif';
-    var coreMaxW = Math.max(70, Math.min(140, rxCore * 1.4));
-    var lines = wrapLabel(cp.t.word, coreMaxW, coreFont);
-    var anchorY = cp.y - 12 - ((lines.length - 1) * 13) / 2;
-    drawWrapped(lines, cp.x, anchorY, coreFont, '#3d3a36', '#fff', 13);
-  });
+  // Cap how many bubbles we render so the layout stays readable.
+  sorted = sorted.slice(0, 22);
+  var maxW = sorted.reduce(function(m,t){ return Math.max(m, t.weight||1); }, 1);
+  var palette = ['#5a4e3c','#7a644a','#8b7355','#a07a52','#b09e82','#9c7d54','#7d6b54','#856a4e'];
+  el.innerHTML = sorted.map(function(t, i){
+    var w = (t.weight || 1) / maxW;
+    // Diameter range tuned so even small bubbles still hold a short label.
+    var size = Math.round(34 + w * 70);
+    var fontSize = Math.max(9, Math.round(size * 0.18));
+    var bg = palette[i % palette.length];
+    var opacity = (0.55 + w * 0.45).toFixed(2);
+    return '<span class="bubble" style="width:' + size + 'px;height:' + size +
+           'px;font-size:' + fontSize + 'px;background:' + bg + ';opacity:' + opacity +
+           '" title="' + t.word + '">' + t.word + '</span>';
+  }).join('');
 }
 
 // ─── Harmonic resonance card ──────────────────────────────────────────────
@@ -1555,7 +1430,7 @@ function drawCurrentWheel() { redrawAll(); }
         buildMeta(d);
         buildInfoBox(d);
         renderHarmonics(d);
-        renderPersonalityNetwork(d);
+        renderPersonalityBubbles(d);
         results.classList.add('active');
         requestAnimationFrame(redrawAll);
       })
