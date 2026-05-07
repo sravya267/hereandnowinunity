@@ -54,8 +54,8 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .card-quad{min-height:0;min-width:0;height:100%}
 .harm-mini-body{flex:1;position:relative;min-height:0;padding:6px}
 .harm-mini-body canvas{display:block;width:100%;height:100%}
-.word-cloud{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;align-content:center;padding:8px 10px;line-height:1.5;text-align:center;flex:1;overflow:auto}
-.word-cloud .wc-word{display:inline-block;margin:2px 5px;color:#5a4e3c;white-space:nowrap}
+.word-cloud{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;align-content:center;padding:6px 8px;line-height:1.35;text-align:center;flex:1;overflow:auto}
+.word-cloud .wc-word{display:inline-block;margin:1px 4px;color:#5a4e3c;white-space:nowrap}
 .word-cloud .wc-empty{color:#c4bdb4;text-align:center;padding:30px;width:100%;font-size:12px}
 .pat-list{padding:6px 8px;font-size:11px;line-height:1.6;overflow:auto;height:100%}
 .pat-item{border-bottom:1px solid #f0ece7;padding:5px 0}
@@ -847,9 +847,9 @@ function redrawAll() {
   renderWordCloud(LAST_DATA);
 }
 
-// CSS word cloud built from chart.traits (word + weight). Larger weight →
-// bigger, bolder word, tinted across a warm palette so the cloud reads as
-// a single composition rather than a list.
+// CSS word cloud built from chart.traits (word + weight). Top-weighted
+// "core" traits are rendered slightly larger and bolder; the rest sit at a
+// compact size so a long list still fits the quadrant.
 function renderWordCloud(d) {
   var el = document.getElementById('word-cloud');
   if (!el) return;
@@ -858,12 +858,13 @@ function renderWordCloud(d) {
     el.innerHTML = '<div class="wc-empty">No personality themes derived for this chart.</div>';
     return;
   }
-  var max = traits.reduce(function(m, t){ return Math.max(m, t.weight || 1); }, 1);
+  var sorted = traits.slice().sort(function(a,b){ return (b.weight||1) - (a.weight||1); });
+  var nCore = Math.min(6, sorted.length);
   var palette = ['#5a4e3c','#7a644a','#8b7355','#3a8a3a','#c0392b','#2e7e9e','#d4a017','#7d3c98'];
-  el.innerHTML = traits.map(function(t, i){
-    var w = (t.weight || 1) / max;
-    var size = (11 + w * 18).toFixed(1);
-    var weight = w > 0.6 ? 700 : (w > 0.3 ? 600 : 500);
+  el.innerHTML = sorted.map(function(t, i){
+    var isCore = i < nCore;
+    var size = isCore ? 12.5 : 9.5;
+    var weight = isCore ? 700 : 500;
     var color = palette[i % palette.length];
     return '<span class="wc-word" style="font-size:' + size + 'px;font-weight:' + weight +
            ';color:' + color + '">' + t.word + '</span>';
