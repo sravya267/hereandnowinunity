@@ -160,19 +160,24 @@ def compute_harmonic_long(
 
 
 def rank_harmonics_from_matrix(matrix: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate a heatmap matrix into per-harmonic resonance scores.
+    """Aggregate a heatmap matrix into per-harmonic resonance metrics.
 
-    Returns one row per harmonic with the total closeness summed across
-    all body pairs, plus the number of pairs that hit it.
+    Returns one row per harmonic with two separate columns:
+      - PairCount: how many body pairs resonate at that harmonic
+      - BestCloseness: the tightest hit (max closeness, 0..1)
+
+    Sorted by PairCount desc, then BestCloseness desc.
     """
     if matrix.empty:
-        return pd.DataFrame(columns=["Harmonic", "Score", "PairCount"])
+        return pd.DataFrame(columns=["Harmonic", "PairCount", "BestCloseness"])
 
-    score = matrix.sum(axis=0)
     count = (matrix > 0).sum(axis=0)
+    best = matrix.max(axis=0)
     out = pd.DataFrame({
         "Harmonic": [int(c[1:]) for c in matrix.columns],
-        "Score": score.values,
         "PairCount": count.values,
+        "BestCloseness": best.values.round(4),
     })
-    return out.sort_values("Score", ascending=False).reset_index(drop=True)
+    return out.sort_values(
+        ["PairCount", "BestCloseness"], ascending=[False, False]
+    ).reset_index(drop=True)
