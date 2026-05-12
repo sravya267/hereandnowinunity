@@ -116,6 +116,29 @@ canvas{display:block;width:100%;height:100%}
 .chart-note .nx{margin-left:auto;cursor:pointer;color:#9b9185;padding:0 4px;font-size:13px;line-height:1}
 .chart-note .nx:hover{color:#5a4e3c}
 
+/* ── Vibrational tab ──────────────────────────────────────── */
+.vib-layout{display:flex;height:calc(100vh - 120px);overflow:hidden}
+.vib-sidebar{width:180px;flex-shrink:0;border-right:1px solid #f0ece7;background:#fcfbf9;overflow-y:auto;padding:10px 12px;font-size:11px;color:#5a4e3c}
+.vib-main{flex:1;min-width:0;overflow:hidden;display:flex;flex-direction:column}
+.vib-checks{display:flex;flex-direction:column;gap:0;margin-bottom:4px}
+.vib-checks label{display:flex;align-items:center;gap:5px;cursor:pointer;padding:2px 0;font-size:11px;color:#5a4e3c;line-height:1.4}
+.vib-checks label:hover{color:#3d3a36}
+.vib-checks input[type="checkbox"]{accent-color:#8b7355}
+.vib-compute-btn{width:100%;padding:6px 0;background:#8b7355;color:#fff;border:none;border-radius:4px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.04em;margin-top:4px}
+.vib-compute-btn:hover{background:#7a644a}
+.vib-compute-btn:disabled{background:#c4bdb4;cursor:default}
+.vib-table{width:100%;border-collapse:collapse;font-size:11px;color:#5a4e3c}
+.vib-table thead{position:sticky;top:0;background:#faf8f5;z-index:1}
+.vib-table th{text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9b9185;padding:6px 10px;border-bottom:1px solid #e8e4df;white-space:nowrap}
+.vib-table th.num{text-align:right}
+.vib-table td{padding:5px 10px;border-bottom:1px solid #f5f0eb;vertical-align:top}
+.vib-table td.num{text-align:right;font-variant-numeric:tabular-nums;color:#8b7355;font-weight:600}
+.vib-table tr:hover td{background:#faf6ee}
+.vib-h{font-weight:700;color:#3d3a36}
+.vib-factors{color:#9b9185;font-size:10px}
+.vib-pairs{color:#7a705e;font-size:10px;line-height:1.6}
+.vib-pairs b{color:#5a4e3c;font-weight:600}
+
 .harm-empty{display:flex;align-items:center;justify-content:center;height:100%;color:#c4bdb4;font-size:13px;text-align:center;padding:20px}
 .harm-content{display:none;height:100%;flex-direction:column;padding:10px 12px}
 .harm-list-hdr{font-size:10px;color:#9b9185;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;flex-shrink:0}
@@ -362,11 +385,185 @@ canvas{display:block;width:100%;height:100%}
     <div class="tab-coming">Synastry coming soon</div>
   </div>
   <div id="tab-vibrational" class="tab-page">
-    <div class="tab-coming">Vibrational Astrology view coming soon</div>
+    <div class="vib-layout">
+
+      <!-- ── Left: controls ─────────────────────────────── -->
+      <div class="vib-sidebar">
+
+        <div class="fp-hdr" style="margin-top:0">Orb settings</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <span style="font-size:11px;color:#5a4e3c;flex:0 0 36px">Base</span>
+          <input type="number" id="vib-base-orb" value="8" min="0.5" max="30" step="0.5" style="width:52px;padding:2px 4px;border:1px solid #ddd8d1;border-radius:3px;font-family:inherit;font-size:11px">
+          <span style="font-size:10px;color:#9b9185">°</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <span style="font-size:11px;color:#5a4e3c;flex:0 0 36px">Formula</span>
+          <select id="vib-orb-formula" style="flex:1;padding:2px 4px;border:1px solid #ddd8d1;border-radius:3px;font-family:inherit;font-size:11px;background:#fff;color:#5a4e3c">
+            <option value="sqrt">/ √h  (default)</option>
+            <option value="linear">/ h  (strict)</option>
+            <option value="fixed">fixed</option>
+          </select>
+        </div>
+
+        <div class="fp-hdr">
+          <span>Planets</span>
+          <div class="fp-hdr-btns">
+            <button onclick="vibSetAll(true)">All</button>
+            <button onclick="vibSetAll(false)">None</button>
+          </div>
+        </div>
+        <div class="vib-checks" id="vib-planet-checks">
+          <label><input type="checkbox" class="vib-body" value="Sun" checked> Sun</label>
+          <label><input type="checkbox" class="vib-body" value="Moon" checked> Moon</label>
+          <label><input type="checkbox" class="vib-body" value="Mercury" checked> Mercury</label>
+          <label><input type="checkbox" class="vib-body" value="Venus" checked> Venus</label>
+          <label><input type="checkbox" class="vib-body" value="Mars" checked> Mars</label>
+          <label><input type="checkbox" class="vib-body" value="Jupiter" checked> Jupiter</label>
+          <label><input type="checkbox" class="vib-body" value="Saturn" checked> Saturn</label>
+          <label><input type="checkbox" class="vib-body" value="Uranus" checked> Uranus</label>
+          <label><input type="checkbox" class="vib-body" value="Neptune" checked> Neptune</label>
+          <label><input type="checkbox" class="vib-body" value="Pluto" checked> Pluto</label>
+        </div>
+
+        <div class="fp-hdr">Points &amp; Angles</div>
+        <div class="vib-checks">
+          <label><input type="checkbox" class="vib-body" value="Chiron"> Chiron</label>
+          <label><input type="checkbox" class="vib-body" value="North Node"> North Node</label>
+          <label><input type="checkbox" class="vib-body" value="South Node"> South Node</label>
+          <label><input type="checkbox" class="vib-body" value="Vertex"> Vertex</label>
+          <label><input type="checkbox" class="vib-body" value="Fortune"> Fortune</label>
+          <label><input type="checkbox" class="vib-body" value="Asc"> Asc</label>
+          <label><input type="checkbox" class="vib-body" value="MC"> MC</label>
+        </div>
+
+        <div class="fp-hdr">Min tightness</div>
+        <div class="orb-row" style="margin-bottom:12px">
+          <input type="range" class="orb-slider" id="vib-min-tight" value="0" min="0" max="95" step="5">
+          <span class="orb-readout" id="vib-min-tight-readout">0%</span>
+        </div>
+
+        <button class="vib-compute-btn" id="vib-compute-btn" onclick="vibCompute()">Compute harmonics</button>
+      </div>
+
+      <!-- ── Right: results ────────────────────────────── -->
+      <div class="vib-main">
+        <div id="vib-empty" class="harm-empty">Select planets and click Compute to run the harmonic matrix.</div>
+        <div id="vib-spinner" style="display:none" class="harm-empty">Computing…</div>
+        <div id="vib-results" style="display:none;height:100%;overflow-y:auto">
+          <table class="vib-table" id="vib-table">
+            <thead>
+              <tr>
+                <th>H</th>
+                <th>Factors</th>
+                <th class="num">Pairs</th>
+                <th class="num">Tightest</th>
+                <th>Planet pairs  <span style="font-weight:400;color:#9b9185">(natal orb°)</span></th>
+              </tr>
+            </thead>
+            <tbody id="vib-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
+
+// ─── Vibrational tab ─────────────────────────────────────────────────────────
+
+(function(){
+  var slider = document.getElementById('vib-min-tight');
+  var readout = document.getElementById('vib-min-tight-readout');
+  slider.addEventListener('input', function(){ readout.textContent = slider.value + '%'; });
+})();
+
+function vibSetAll(on) {
+  document.querySelectorAll('.vib-body').forEach(function(cb){ cb.checked = on; });
+}
+
+function vibCompute() {
+  if (!LAST_DATA) { alert('Calculate a chart first.'); return; }
+
+  var active = [];
+  document.querySelectorAll('.vib-body:checked').forEach(function(cb){ active.push(cb.value); });
+  if (active.length < 2) { alert('Select at least two bodies.'); return; }
+
+  var btn = document.getElementById('vib-compute-btn');
+  btn.disabled = true;
+  document.getElementById('vib-empty').style.display = 'none';
+  document.getElementById('vib-results').style.display = 'none';
+  document.getElementById('vib-spinner').style.display = 'flex';
+
+  var d = LAST_DATA;
+  var payload = {
+    birth_datetime: d.birth_datetime,
+    location: d.location,
+    zodiac_system: d.zodiac_system,
+    house_system: d.moment ? (d.house_system || 'Koch') : 'Koch',
+    base_orb: parseFloat(document.getElementById('vib-base-orb').value) || 8.0,
+    orb_formula: document.getElementById('vib-orb-formula').value,
+    active_bodies: active,
+    max_harmonic: 360,
+    min_tightness_pct: parseInt(document.getElementById('vib-min-tight').value, 10) || 0,
+    personal_only: true,
+  };
+
+  fetch('/harmonics', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) })
+    .then(function(r){
+      if (!r.ok) return r.json().then(function(e){ throw new Error(e.detail || 'Failed'); });
+      return r.json();
+    })
+    .then(function(data){ vibRender(data); })
+    .catch(function(err){
+      document.getElementById('vib-spinner').style.display = 'none';
+      document.getElementById('vib-empty').textContent = 'Error: ' + err.message;
+      document.getElementById('vib-empty').style.display = 'flex';
+    })
+    .finally(function(){ btn.disabled = false; });
+}
+
+function vibRender(data) {
+  document.getElementById('vib-spinner').style.display = 'none';
+  var ranked = data.ranked || [];
+  if (!ranked.length) {
+    document.getElementById('vib-empty').textContent = 'No harmonic resonances found with current settings.';
+    document.getElementById('vib-empty').style.display = 'flex';
+    return;
+  }
+
+  var maxPairs = ranked[0].PairCount || 1;
+  var tbody = document.getElementById('vib-tbody');
+  tbody.innerHTML = '';
+
+  ranked.forEach(function(row, i) {
+    var barW = Math.round((row.PairCount / maxPairs) * 100);
+    var pairHtml = (row.Pairs || '').split(',  ').map(function(p) {
+      p = p.trim();
+      // bold the planet names (everything before the first digit)
+      var m = p.match(/^(.*?)(\s[\d.]+°.*)$/);
+      return m ? '<b>' + m[1] + '</b>' + m[2] : p;
+    }).join('<br>');
+
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="vib-h">H' + row.Harmonic + '</td>' +
+      '<td class="vib-factors">' + (row.Factors || '') + '</td>' +
+      '<td class="num">' +
+        '<div style="display:flex;align-items:center;gap:4px;justify-content:flex-end">' +
+          '<div style="width:40px;height:6px;background:#f5efe6;border-radius:3px;overflow:hidden">' +
+            '<div style="width:' + barW + '%;height:100%;background:#8b7355"></div>' +
+          '</div>' +
+          row.PairCount +
+        '</div>' +
+      '</td>' +
+      '<td class="num">' + (row.Tightest || 0).toFixed(3) + '°</td>' +
+      '<td class="vib-pairs">' + pairHtml + '</td>';
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('vib-results').style.display = 'block';
+}
 
 // ─── Wheel drawing ────────────────────────────────────────────────────────────
 var SIGN_SYMBOLS = ['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
