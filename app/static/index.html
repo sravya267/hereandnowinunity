@@ -195,11 +195,11 @@ canvas{display:block;width:100%;height:100%}
 <div class="intro">
   <div class="intro-col">
     <em>&ldquo;The birth chart is a map of consciousness, not a sentence of fate.&rdquo;</em>
-    <span class="attr">— David Cochrane</span>
+    <span class="attr">&mdash; David Cochrane</span>
   </div>
   <div class="intro-col">
     <em>&ldquo;The universe is not merely indifferent; it is deeply mysterious and symbolically resonant.&rdquo;</em>
-    <span class="attr">— Richard Tarnas</span>
+    <span class="attr">&mdash; Richard Tarnas</span>
   </div>
   <div class="intro-col intro-note">
     This is a free app for anyone curious about vibrational astrology; students, researchers, and practitioners. Cloud resources are shared, so please keep usage reasonable so it stays available for everyone. Happy exploring!
@@ -222,7 +222,7 @@ canvas{display:block;width:100%;height:100%}
     <label title="Orb at H1 in degrees. All other harmonics derived from this via the formula.">Orb</label>
     <input type="number" id="base-orb" value="8" min="0.5" max="30" step="0.5" style="width:60px">
     <select id="orb-formula" title="How orb tightens with harmonic h">
-      <option value="sqrt">/ √h</option>
+      <option value="sqrt">/ &radic;h</option>
       <option value="linear">/ h</option>
       <option value="fixed">fixed</option>
     </select>
@@ -255,8 +255,8 @@ canvas{display:block;width:100%;height:100%}
           <button type="button" class="gear-btn" id="gear-btn" title="Toggle filters">&#9881;</button>
         </div>
         <div class="chart-note" id="chart-note">
-          <span>Showing major aspects only — click the &#9881; settings to add more.</span>
-          <span class="nx" id="chart-note-x" title="Dismiss">×</span>
+          <span>Showing major aspects only &mdash; click the &#9881; settings to add more.</span>
+          <span class="nx" id="chart-note-x" title="Dismiss">&times;</span>
         </div>
         <div class="chart-row">
           <div class="canvas-wrap">
@@ -264,25 +264,19 @@ canvas{display:block;width:100%;height:100%}
             <div id="pat-tooltip" class="pat-tooltip"></div>
           </div>
           <div class="filter-panel closed" id="filter-panel">
-            <div class="fp-hdr">
-              <span>Orbs</span>
-              <select id="orb-type" style="width:auto;font-size:9px;padding:1px 4px;text-transform:uppercase;letter-spacing:.04em">
-                <option value="pct" selected>% of max</option>
-                <option value="deg">&#176; fixed</option>
-              </select>
-            </div>
+            <div class="fp-hdr"><span>Orbs</span></div>
             <div class="orb-row">
               <span class="orb-label">Major</span>
-              <input type="range" class="orb-slider" id="major-orb-val" value="100" min="10" max="200" step="5">
-              <span class="orb-readout" id="major-orb-readout">100%</span>
+              <input type="range" class="orb-slider" id="major-orb-val" value="6" min="0.5" max="15" step="0.5">
+              <span class="orb-readout" id="major-orb-readout">6.0&deg;</span>
             </div>
             <div class="orb-row">
               <span class="orb-label">Minor</span>
-              <input type="range" class="orb-slider" id="minor-orb-val" value="50" min="10" max="200" step="5">
-              <span class="orb-readout" id="minor-orb-readout">50%</span>
+              <input type="range" class="orb-slider" id="minor-orb-val" value="3" min="0.5" max="15" step="0.5">
+              <span class="orb-readout" id="minor-orb-readout">3.0&deg;</span>
             </div>
             <div class="fp-hdr"><span>House System</span></div>
-            <select id="house-system" title="Tropical only — Sidereal always uses Whole Sign">
+            <select id="house-system" title="Tropical only &mdash; Sidereal always uses Whole Sign">
               <option value="Koch" selected>Koch</option>
               <option value="Placidus">Placidus</option>
               <option value="Whole Sign">Whole Sign</option>
@@ -343,12 +337,12 @@ canvas{display:block;width:100%;height:100%}
         <div class="card card-quad">
           <div class="card-hdr">
             <span class="card-hdr-title">Harmonic Resonance</span>
-            <span id="harm-loading" style="font-size:10px;color:#b09e82;display:none">computing…</span>
+            <span id="harm-loading" style="font-size:10px;color:#b09e82;display:none">computing&hellip;</span>
           </div>
           <div class="card-body" id="harm-body">
             <div id="harm-empty" class="harm-empty">Calculate a chart to see resonant harmonics.</div>
             <div id="harm-content" class="harm-content" style="display:none">
-              <div class="harm-list-hdr">Ranked by pair count · click a row for meaning</div>
+              <div class="harm-list-hdr">Ranked by pair count &middot; click a row for meaning</div>
               <div id="harm-list" class="harm-list"></div>
             </div>
           </div>
@@ -399,12 +393,12 @@ canvas{display:block;width:100%;height:100%}
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
           <span style="font-size:11px;color:#5a4e3c;flex:0 0 36px">Base</span>
           <input type="number" id="vib-base-orb" value="8" min="0.5" max="30" step="0.5" style="width:52px;padding:2px 4px;border:1px solid #ddd8d1;border-radius:3px;font-family:inherit;font-size:11px">
-          <span style="font-size:10px;color:#9b9185">°</span>
+          <span style="font-size:10px;color:#9b9185">&deg;</span>
         </div>
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
           <span style="font-size:11px;color:#5a4e3c;flex:0 0 36px">Formula</span>
           <select id="vib-orb-formula" style="flex:1;padding:2px 4px;border:1px solid #ddd8d1;border-radius:3px;font-family:inherit;font-size:11px;background:#fff;color:#5a4e3c">
-            <option value="sqrt">/ √h  (default)</option>
+            <option value="sqrt">/ &radic;h  (default)</option>
             <option value="linear">/ h  (strict)</option>
             <option value="fixed">fixed</option>
           </select>
@@ -441,28 +435,22 @@ canvas{display:block;width:100%;height:100%}
           <label><input type="checkbox" class="vib-body" value="MC"> MC</label>
         </div>
 
-        <div class="fp-hdr">Min tightness</div>
-        <div class="orb-row" style="margin-bottom:12px">
-          <input type="range" class="orb-slider" id="vib-min-tight" value="0" min="0" max="95" step="5">
-          <span class="orb-readout" id="vib-min-tight-readout">0%</span>
-        </div>
-
         <button class="vib-compute-btn" id="vib-compute-btn" onclick="vibCompute()">Compute harmonics</button>
       </div>
 
       <!-- ── Right: results ────────────────────────────── -->
       <div class="vib-main">
         <div id="vib-empty" class="harm-empty">Select planets and click Compute to run the harmonic matrix.</div>
-        <div id="vib-spinner" style="display:none" class="harm-empty">Computing…</div>
+        <div id="vib-spinner" style="display:none" class="harm-empty">Computing&hellip;</div>
         <div id="vib-results" style="display:none;height:100%;overflow-y:auto">
           <table class="vib-table" id="vib-table">
             <thead>
               <tr>
                 <th>H</th>
-                <th>Name · Factors</th>
+                <th>Name &middot; Factors</th>
                 <th class="num">Pairs</th>
                 <th class="num">Tightest</th>
-                <th>Planet pairs  <span style="font-weight:400;color:#9b9185">(natal orb°)</span></th>
+                <th>Planet pairs  <span style="font-weight:400;color:#9b9185">(natal orb&deg;)</span></th>
               </tr>
             </thead>
             <tbody id="vib-tbody"></tbody>
@@ -478,10 +466,6 @@ canvas{display:block;width:100%;height:100%}
 // ─── Vibrational tab ─────────────────────────────────────────────────────────
 
 (function(){
-  var slider = document.getElementById('vib-min-tight');
-  var readout = document.getElementById('vib-min-tight-readout');
-  slider.addEventListener('input', function(){ readout.textContent = slider.value + '%'; });
-
   // Keep vib orb fields in sync with the main form defaults
   var mainOrb = document.getElementById('base-orb');
   var mainFormula = document.getElementById('orb-formula');
@@ -520,7 +504,7 @@ function vibCompute() {
     orb_formula: document.getElementById('vib-orb-formula').value,
     active_bodies: active,
     max_harmonic: 360,
-    min_tightness_pct: parseInt(document.getElementById('vib-min-tight').value, 10) || 0,
+    min_tightness_pct: 0,
     personal_only: true,
   };
 
@@ -569,9 +553,9 @@ function vibRender(data) {
     tr.innerHTML =
       '<td class="vib-h">' +
         'H' + row.Harmonic +
-        (hasMeaning ? '<span class="vib-expand-icon" id="icon-' + i + '">▸</span>' : '') +
+        (hasMeaning ? '<span class="vib-expand-icon" id="icon-' + i + '">&#9656;</span>' : '') +
       '</td>' +
-      '<td><span class="vib-name">' + (row.Name || '—') + '</span><br>' +
+      '<td><span class="vib-name">' + (row.Name || '&mdash;') + '</span><br>' +
         '<span class="vib-factors">' + (row.Factors || '') + '</span></td>' +
       '<td class="num">' +
         '<div style="display:flex;align-items:center;gap:4px;justify-content:flex-end">' +
@@ -581,7 +565,7 @@ function vibRender(data) {
           row.PairCount +
         '</div>' +
       '</td>' +
-      '<td class="num">' + (row.Tightest || 0).toFixed(3) + '°</td>' +
+      '<td class="num">' + (row.Tightest || 0).toFixed(3) + '&deg;</td>' +
       '<td class="vib-pairs">' + pairHtml + '</td>';
 
     // Meaning detail row (hidden by default)
@@ -666,9 +650,8 @@ var BODY_DISPLAY = {
   Chiron:false, Nodes:false, Angles:false, Points:false
 };
 var ASPECT_TO    = {Chiron:false, Nodes:false, Angles:false, Points:false};
-var ORB_TYPE = 'pct';
-var MAJOR_ORB_VAL = 100;
-var MINOR_ORB_VAL = 50;
+var MAJOR_ORB_VAL = 6;
+var MINOR_ORB_VAL = 3;
 var NODE_NAMES  = ['North Node','South Node','True Node','Mean Node','Rahu','Ketu'];
 var ANGLE_NAMES = ['Asc','Desc','MC','IC'];
 var POINT_NAMES = ['Vertex','Fortune'];
@@ -944,7 +927,6 @@ function drawWheel(data) {
     var orbDelta = (a.OrbLimit != null && a.Closeness != null)
       ? (1 - a.Closeness) * a.OrbLimit
       : Math.abs((a.Angle || 0) - (a.Degrees || 0));
-    if (ORB_TYPE === 'pct') return a.OrbLimit != null ? (orbDelta / a.OrbLimit * 100 <= val) : (orbDelta <= 6);
     return orbDelta <= val;
   });
 
@@ -1003,8 +985,8 @@ function buildInfoBox(d) {
   planets.forEach(function(p) {
     var sym    = p.Symbol || '';
     var motion = p.Motion === 'R' ? '<span class="retro"> (R)</span>' : ' (D)';
-    var house  = p.House ? ' • H' + p.House : '';
-    var nak    = (isSid && p.Nakshatra) ? ' • ' + p.Nakshatra + ' P' + p.Pada : '';
+    var house  = p.House ? ' &bull; H' + p.House : '';
+    var nak    = (isSid && p.Nakshatra) ? ' &bull; ' + p.Nakshatra + ' P' + p.Pada : '';
     html += sym + ' ' + p.Body + motion + '  ' + p.Sign + ' ' + signDeg(p['Longitude (°)']) + house + nak + '\n';
   });
 
@@ -1016,7 +998,7 @@ function buildInfoBox(d) {
     html += '<div class="s-hdr">Points</div>';
     points.forEach(function(p){
       var sym = p.Symbol ? p.Symbol + ' ' : '';
-      var house = p.House ? ' • H' + p.House : '';
+      var house = p.House ? ' &bull; H' + p.House : '';
       html += sym + p.Body + '  ' + p.Sign + ' ' + signDeg(p['Longitude (°)']) + house + '\n';
     });
   }
@@ -1233,7 +1215,7 @@ function renderHarmDetail(harmonic) {
       var orb = m ? m[2] + '°' : '';
       return '<div class="harm-asp-item">' +
         '<div class="harm-asp-head">' + pairName +
-          (orb ? ' <span class="asp-close">· ' + orb + ' off exact</span>' : '') +
+          (orb ? ' <span class="asp-close">&middot; ' + orb + ' off exact</span>' : '') +
         '</div>' +
       '</div>';
     }).join('');
@@ -1486,7 +1468,7 @@ function drawCurrentWheel() { redrawAll(); }
 
   // Orb sliders
   function fmtOrb(v) {
-    return ORB_TYPE === 'deg' ? (v.toFixed(1) + '°') : (Math.round(v) + '%');
+    return v.toFixed(1) + '°';
   }
   function bindOrb(id, readoutId, setter) {
     var el = document.getElementById(id);
@@ -1502,24 +1484,6 @@ function drawCurrentWheel() { redrawAll(); }
   }
   bindOrb('major-orb-val', 'major-orb-readout', function(v){ MAJOR_ORB_VAL = v; });
   bindOrb('minor-orb-val', 'minor-orb-readout', function(v){ MINOR_ORB_VAL = v; });
-
-  document.getElementById('orb-type').addEventListener('change', function(){
-    ORB_TYPE = this.value;
-    var maj = document.getElementById('major-orb-val'), mn = document.getElementById('minor-orb-val');
-    var majR = document.getElementById('major-orb-readout'), mnR = document.getElementById('minor-orb-readout');
-    if (ORB_TYPE === 'deg') {
-      maj.min = '0.5'; maj.max = '15'; maj.step = '0.5'; maj.value = '6';
-      mn.min  = '0.5'; mn.max  = '15'; mn.step  = '0.5'; mn.value  = '3';
-      MAJOR_ORB_VAL = 6; MINOR_ORB_VAL = 3;
-    } else {
-      maj.min = '10'; maj.max = '200'; maj.step = '5'; maj.value = '100';
-      mn.min  = '10'; mn.max  = '200'; mn.step  = '5'; mn.value  = '50';
-      MAJOR_ORB_VAL = 100; MINOR_ORB_VAL = 50;
-    }
-    majR.textContent = fmtOrb(MAJOR_ORB_VAL);
-    mnR.textContent  = fmtOrb(MINOR_ORB_VAL);
-    if (LAST_DATA) drawCurrentWheel();
-  });
 
   document.getElementById('house-system').addEventListener('change', function(){
     if (LAST_DATA) document.getElementById('chart-form').requestSubmit();
@@ -1596,7 +1560,7 @@ function fetchNatalHarmonics(d, chartParams) {
     base_orb: chartParams.base_orb,
     orb_formula: chartParams.orb_formula,
     active_bodies: ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'],
-    max_harmonic: 36,
+    max_harmonic: 360,
     min_tightness_pct: 0,
     personal_only: true,
   };
