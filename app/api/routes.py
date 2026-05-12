@@ -8,7 +8,7 @@ import pandas as pd
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import HTMLResponse, Response
 
-from app.api.schemas import BirthMomentResponse, ChartRequest, ChartResponse
+from app.api.schemas import BirthMomentResponse, ChartRequest, ChartResponse, HarmonicsRequest
 from app.core.chart import compute_chart
 from app.core.geocoding import LocationNotFound
 from app.core.notify import notify_new_chart
@@ -65,6 +65,8 @@ def create_chart(req: ChartRequest, background: BackgroundTasks) -> ChartRespons
             location_name=req.location,
             zodiac_system=req.zodiac_system,
             house_system=req.house_system,
+            base_orb=req.base_orb,
+            orb_formula=req.orb_formula,
         )
     except LocationNotFound as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -100,6 +102,49 @@ def create_chart(req: ChartRequest, background: BackgroundTasks) -> ChartRespons
     )
 
 
+@router.post("/harmonics")
+def compute_harmonics_endpoint(req: HarmonicsRequest) -> dict:
+    """Compute harmonic matrix resonance for a chart.
+
+    Returns ranked harmonics (one row per harmonic) and the top long-form
+    hits (one row per pair × harmonic), filtered to the requested active
+    bodies and tightness threshold.
+    """
+    try:
+        chart = compute_chart(
+            birth_datetime=req.birth_datetime,
+            location_name=req.location,
+            zodiac_system=req.zodiac_system,
+            house_system=req.house_system,
+            base_orb=req.base_orb,
+            orb_formula=req.orb_formula,
+        )
+    except LocationNotFound as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("Harmonics computation failed")
+        raise HTTPException(status_code=500, detail=f"Computation failed: {exc}") from exc
+
+    from app.core.harmonic_matrix import compute_harmonic_long, rank_harmonics
+
+    active = set(req.active_bodies)
+    bodies_df = chart.bodies[chart.bodies["Body"].isin(active)].copy()
+
+    long_df = compute_harmonic_long(
+        bodies_df,
+        max_harmonic=req.max_harmonic,
+        base_orb=req.base_orb,
+        orb_formula=req.orb_formula,
+        min_tightness_pct=req.min_tightness_pct,
+    )
+    ranked = rank_harmonics(long_df, personal_only=req.personal_only)
+
+    return {
+        "ranked": _df_to_records(ranked),
+        "hits": _df_to_records(long_df.head(200)),
+    }
+
+
 @router.post("/chart/wheel", response_class=HTMLResponse)
 def chart_wheel(req: ChartRequest) -> HTMLResponse:
     """Render the zodiac wheel as standalone HTML."""
@@ -109,6 +154,8 @@ def chart_wheel(req: ChartRequest) -> HTMLResponse:
             location_name=req.location,
             zodiac_system=req.zodiac_system,
             house_system=req.house_system,
+            base_orb=req.base_orb,
+            orb_formula=req.orb_formula,
         )
     except LocationNotFound as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -131,6 +178,8 @@ def chart_wordcloud(req: ChartRequest) -> Response:
             location_name=req.location,
             zodiac_system=req.zodiac_system,
             house_system=req.house_system,
+            base_orb=req.base_orb,
+            orb_formula=req.orb_formula,
         )
         png_bytes = generate_wordclouds(chart.bodies)
     except FileNotFoundError as exc:

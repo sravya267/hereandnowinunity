@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 
 from app.core.constants import ASPECTS
+from app.core.orbs import DEFAULT_BASE_ORB, DEFAULT_FORMULA, OrbFormula, orb_limit
 
 
 # Bodies that should never aspect each other:
@@ -22,6 +23,8 @@ _NODES: frozenset[str] = frozenset({"North Node", "South Node"})
 def calculate_aspects(
     df: pd.DataFrame,
     aspects_table: pd.DataFrame = ASPECTS,
+    base_orb: float = DEFAULT_BASE_ORB,
+    orb_formula: OrbFormula = DEFAULT_FORMULA,
 ) -> pd.DataFrame:
     """Return a DataFrame of aspects between the bodies in ``df``.
 
@@ -31,9 +34,16 @@ def calculate_aspects(
         DataFrame with at least ``Body`` and ``Longitude (°)`` columns.
         Rows whose ``Body`` contains ``"House Cusp"`` are skipped.
     aspects_table
-        Reference table of aspect types, their exact degrees, orbs,
-        colors, symbols, and descriptions. Defaults to
-        :data:`app.core.constants.ASPECTS`.
+        Reference table of aspect types, their exact degrees, harmonic
+        family, colors, symbols, and descriptions. Defaults to
+        :data:`app.core.constants.ASPECTS`. The ``Orb`` column is no
+        longer used — orbs are derived from ``base_orb`` and
+        ``orb_formula``.
+    base_orb
+        Orb in natal-chart degrees at H1. Default 8°.
+    orb_formula
+        ``"sqrt"`` (default), ``"linear"``, or ``"fixed"``. See
+        :mod:`app.core.orbs`.
 
     Returns
     -------
@@ -51,9 +61,12 @@ def calculate_aspects(
     if n < 2:
         return _empty_result()
 
-    # Pre-extract the aspect table as numpy arrays for tight inner loop
+    # Pre-extract the aspect table as numpy arrays for tight inner loop.
+    # Orbs are derived from base_orb and orb_formula using each aspect's
+    # Harmonic, so all aspects/harmonics use the same rule.
     asp_degrees = aspects_table["Degrees"].to_numpy()
-    asp_orbs = aspects_table["Orb"].to_numpy()
+    asp_harmonics = aspects_table["Harmonic"].to_numpy()
+    asp_orbs = orb_limit(asp_harmonics, base_orb=base_orb, formula=orb_formula)
 
     # Build pairwise angle matrix: angle[i, j] = separation between bodies i and j
     diff = np.abs(longitudes[:, None] - longitudes[None, :])
@@ -87,7 +100,7 @@ def calculate_aspects(
                 "Aspect": row["Aspect"],
                 "Angle": float(angle),
                 "Degrees": row["Degrees"],
-                "Orb": float(asp_orbs[k]),
+                "OrbLimit": float(asp_orbs[k]),
                 "Color": row["Color"],
                 "aspect_symbol": row["aspect_symbol"],
                 "Description": row["Description"],
@@ -102,7 +115,7 @@ def calculate_aspects(
 def _empty_result() -> pd.DataFrame:
     """Return an empty DataFrame with the expected schema."""
     return pd.DataFrame(columns=[
-        "Body1", "Body2", "Aspect", "Angle", "Degrees", "Orb",
+        "Body1", "Body2", "Aspect", "Angle", "Degrees", "OrbLimit",
         "Color", "aspect_symbol", "Description", "Closeness",
     ])
 
