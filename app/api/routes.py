@@ -65,6 +65,8 @@ def create_chart(req: ChartRequest, background: BackgroundTasks) -> ChartRespons
             location_name=req.location,
             zodiac_system=req.zodiac_system,
             house_system=req.house_system,
+            base_orb=req.base_orb,
+            orb_formula=req.orb_formula,
         )
     except LocationNotFound as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -109,6 +111,8 @@ def chart_wheel(req: ChartRequest) -> HTMLResponse:
             location_name=req.location,
             zodiac_system=req.zodiac_system,
             house_system=req.house_system,
+            base_orb=req.base_orb,
+            orb_formula=req.orb_formula,
         )
     except LocationNotFound as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -131,6 +135,8 @@ def chart_wordcloud(req: ChartRequest) -> Response:
             location_name=req.location,
             zodiac_system=req.zodiac_system,
             house_system=req.house_system,
+            base_orb=req.base_orb,
+            orb_formula=req.orb_formula,
         )
         png_bytes = generate_wordclouds(chart.bodies)
     except FileNotFoundError as exc:

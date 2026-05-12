@@ -33,6 +33,20 @@ class ChartRequest(BaseModel):
         default="Koch",
         description="House system (tropical only). Sidereal charts always use Whole Sign.",
     )
+    base_orb: float = Field(
+        default=8.0,
+        ge=0.1,
+        le=30.0,
+        description="Orb at H1 in natal-chart degrees. Drives the orb for "
+                    "every aspect via orb_formula.",
+    )
+    orb_formula: Literal["sqrt", "linear", "fixed"] = Field(
+        default="sqrt",
+        description="How orb tightens with harmonic h. "
+                    "'sqrt' = base_orb/√h (default), "
+                    "'linear' = base_orb/h (strict), "
+                    "'fixed' = base_orb (same for all h).",
+    )
     # Honeypot: a hidden form field that real users never see/fill. Bots
     # crawling forms tend to fill every input, so a non-empty value here
     # is a strong "this is a bot" signal.
