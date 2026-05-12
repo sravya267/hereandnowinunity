@@ -140,6 +140,7 @@ def compute_harmonic_long(
                 "Body2": b2,
                 "Harmonic": int(harmonics[k]),
                 "NatalAngle": round(float(angle), 4),
+                "Mod": round(float(hc_angle[k]), 4),
                 "HCOrb": round(float(hc_orb[k]), 4),
                 "OrbLimit": round(float(orbs[k]), 4),
                 "Closeness": round(float(closeness), 4),
@@ -148,7 +149,7 @@ def compute_harmonic_long(
     if not records:
         return pd.DataFrame(columns=[
             "Body1", "Body2", "Harmonic", "NatalAngle",
-            "HCOrb", "OrbLimit", "Closeness",
+            "Mod", "HCOrb", "OrbLimit", "Closeness",
         ])
     out = pd.DataFrame(records)
     return out.sort_values(["Closeness", "Harmonic"], ascending=[False, True]).reset_index(drop=True)
