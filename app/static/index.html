@@ -441,12 +441,6 @@ canvas{display:block;width:100%;height:100%}
           <label><input type="checkbox" class="vib-body" value="MC"> MC</label>
         </div>
 
-        <div class="fp-hdr">Min tightness</div>
-        <div class="orb-row" style="margin-bottom:12px">
-          <input type="range" class="orb-slider" id="vib-min-tight" value="0" min="0" max="95" step="5">
-          <span class="orb-readout" id="vib-min-tight-readout">0%</span>
-        </div>
-
         <button class="vib-compute-btn" id="vib-compute-btn" onclick="vibCompute()">Compute harmonics</button>
       </div>
 
@@ -478,10 +472,6 @@ canvas{display:block;width:100%;height:100%}
 // ─── Vibrational tab ─────────────────────────────────────────────────────────
 
 (function(){
-  var slider = document.getElementById('vib-min-tight');
-  var readout = document.getElementById('vib-min-tight-readout');
-  slider.addEventListener('input', function(){ readout.textContent = slider.value + '%'; });
-
   // Keep vib orb fields in sync with the main form defaults
   var mainOrb = document.getElementById('base-orb');
   var mainFormula = document.getElementById('orb-formula');
@@ -520,7 +510,7 @@ function vibCompute() {
     orb_formula: document.getElementById('vib-orb-formula').value,
     active_bodies: active,
     max_harmonic: 360,
-    min_tightness_pct: parseInt(document.getElementById('vib-min-tight').value, 10) || 0,
+    min_tightness_pct: 0,
     personal_only: true,
   };
 
