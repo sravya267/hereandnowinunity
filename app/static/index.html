@@ -339,20 +339,16 @@ canvas{display:block;width:100%;height:100%}
           <div class="card-hdr"><span class="card-hdr-title">Personality Themes</span></div>
           <div class="card-body"><div class="word-cloud" id="word-cloud"></div></div>
         </div>
-        <!-- (0,1) Harmonics bar graph -->
+        <!-- (0,1) Harmonics ranked list -->
         <div class="card card-quad">
-          <div class="card-hdr"><span class="card-hdr-title">Vibrational Resonance — by Harmonic Family</span></div>
+          <div class="card-hdr">
+            <span class="card-hdr-title">Harmonic Resonance</span>
+            <span id="harm-loading" style="font-size:10px;color:#b09e82;display:none">computing…</span>
+          </div>
           <div class="card-body" id="harm-body">
-            <div id="harm-empty" class="harm-empty">
-              Calculate a chart to see which harmonic families hum most.
-            </div>
-            <div id="harm-content" class="harm-content">
-              <div class="harm-list-hdr">Top humming families · click a row to explore</div>
-              <div class="harm-filter">
-                <span class="harm-filter-label">Min orb closeness</span>
-                <input type="range" class="orb-slider" id="harm-min-close" value="0" min="0" max="95" step="5">
-                <span class="orb-readout" id="harm-min-close-readout">0%</span>
-              </div>
+            <div id="harm-empty" class="harm-empty">Calculate a chart to see resonant harmonics.</div>
+            <div id="harm-content" class="harm-content" style="display:none">
+              <div class="harm-list-hdr">Ranked by pair count · click a row for meaning</div>
               <div id="harm-list" class="harm-list"></div>
             </div>
           </div>
@@ -364,12 +360,12 @@ canvas{display:block;width:100%;height:100%}
             <canvas id="harm-mini-canvas"></canvas>
           </div>
         </div>
-        <!-- (1,1) Harmonic descriptions -->
+        <!-- (1,1) Harmonic meaning panel -->
         <div class="card card-quad">
-          <div class="card-hdr"><span class="card-hdr-title">Harmonic Description</span></div>
+          <div class="card-hdr"><span class="card-hdr-title">Meaning</span></div>
           <div class="card-body">
             <div id="harm-detail-right" class="harm-detail-right">
-              <div class="harm-hint">Select a harmonic family above to see involved planets and meaning.</div>
+              <div class="harm-hint">Select a harmonic above to see its natal meaning.</div>
             </div>
           </div>
         </div>
@@ -485,6 +481,16 @@ canvas{display:block;width:100%;height:100%}
   var slider = document.getElementById('vib-min-tight');
   var readout = document.getElementById('vib-min-tight-readout');
   slider.addEventListener('input', function(){ readout.textContent = slider.value + '%'; });
+
+  // Keep vib orb fields in sync with the main form defaults
+  var mainOrb = document.getElementById('base-orb');
+  var mainFormula = document.getElementById('orb-formula');
+  function syncVibOrb() {
+    document.getElementById('vib-base-orb').value = mainOrb.value;
+    document.getElementById('vib-orb-formula').value = mainFormula.value;
+  }
+  mainOrb.addEventListener('change', syncVibOrb);
+  mainFormula.addEventListener('change', syncVibOrb);
 })();
 
 function vibSetAll(on) {
@@ -1068,7 +1074,7 @@ function buildMeta(d) {
       if (name === 'natal' && LAST_DATA) {
         requestAnimationFrame(function(){
           drawCurrentWheel();
-          if (SELECTED_HARMONIC != null) renderHarmDetail(SELECTED_HARMONIC);
+          if (SELECTED_HARMONIC != null && LAST_HARMONICS) renderHarmDetail(SELECTED_HARMONIC);
         });
       }
     });
@@ -1120,32 +1126,11 @@ function renderWordCloud(d) {
 }
 
 // ─── Harmonic resonance card ──────────────────────────────────────────────
-// Top: ranked clickable list of harmonic families. Bottom: mini-wheel of the
-// selected family's aspects on the left, planets-involved + meaning on the right.
 
 var SELECTED_HARMONIC = null;
-var HARM_MIN_CLOSE = 0; // 0..1 threshold from the in-card slider
-var HARM_NAMES = {
-  1:"Unity", 2:"Polarity", 3:"Trine", 4:"Square", 5:"Quintile", 6:"Sextile",
-  7:"Septile", 8:"Octile", 9:"Novile", 10:"Decile", 11:"Undecile", 12:"Duodecile"
-};
-var HARM_MEANING = {
-  1:  "Conjunction. Two planets merge into a single intensified expression — they act as one combined force.",
-  2:  "Opposition. Awareness through contrast: two planets pulling against each other, asking for conscious balance and integration.",
-  3:  "Trine. Natural harmonious flow — energy moves without resistance and supports creative ease.",
-  4:  "Square. Dynamic tension that drives growth; friction creates motivation to act, build, and overcome.",
-  5:  "Quintile family. Cochrane's signature 'creative talent' vibration — stylistic mastery, distinctive voice, the imprint of genius.",
-  6:  "Sextile. Opportunity, mental connection, and beneficial collaboration when effort is applied.",
-  7:  "Septile family. Fated, irrational inspiration — spiritual or karmic forces operating beyond rational understanding.",
-  8:  "Octile family (semi-square, sesquisquare). Friction needing release; refinement of effort through small persistent challenges.",
-  9:  "Novile family. Inner completion, spiritual fulfilment, idealism approaching wholeness.",
-  10: "Decile family. Refined creative skill, echoing the quintile's mastery through subtle articulation.",
-  11: "Undecile family. Eccentric, unusual, transcendent — patterns that don't fit conventional molds.",
-  12: "Duodecile family (semi-sextile, quincunx). Subtle adjustment, asking for re-orientation between energies."
-};
+var LAST_HARMONICS = null;   // ranked[] from /harmonics response
 
-// Per-body archetypal theme. Used to synthesize a per-pair description in
-// the harmonic detail panel.
+// Per-body archetypal theme — used in the mini-wheel detail panel.
 var BODY_THEMES = {
   Sun:        'core identity & vitality',
   Moon:       'emotions, instincts & inner needs',
@@ -1170,86 +1155,46 @@ var BODY_THEMES = {
   'Mean Node':  'soul direction and growth'
 };
 
-// What it means when two energies meet at this harmonic.
-var HARM_FLAVOR = {
-  1:  'fuse and intensify each other — they act as one combined force',
-  2:  'pull against each other in conscious polarity, asking for balance',
-  3:  'flow harmoniously with grace and ease',
-  4:  'create dynamic tension that drives growth and effort',
-  5:  'spark distinctive creative talent and stylistic mastery',
-  6:  'open opportunity and supportive mental connection',
-  7:  'meet in fated, irrational inspiration — spiritual or karmic resonance',
-  8:  'create persistent friction that asks for refinement of effort',
-  9:  'point toward inner completion and idealism',
-  10: 'refine creative skill through subtle articulation',
-  11: 'produce eccentric, transcendent patterns outside the ordinary',
-  12: 'ask for subtle adjustment between dissimilar energies'
-};
-
-function harmPairDescription(body1, body2, harmonic) {
-  var t1 = BODY_THEMES[body1] || body1.toLowerCase();
-  var t2 = BODY_THEMES[body2] || body2.toLowerCase();
-  var flavor = HARM_FLAVOR[harmonic] || 'interact at this harmonic';
-  return body1 + ' (' + t1 + ') and ' + body2 + ' (' + t2 + ') ' + flavor + '.';
-}
-
-// Aggregate aspects into harmonic-family rows respecting the closeness slider.
-function computeHarmRows(d) {
-  if (!d || !d.aspects || !d.aspects.length) return [];
-  var typeMap = {};
-  ASP_TYPES.forEach(function(t){ typeMap[t.name] = t; });
-  var AXIS_DIAM = {'Asc|Desc':1,'Desc|Asc':1,'MC|IC':1,'IC|MC':1};
-  var byHarm = {};
-  d.aspects.forEach(function(a){
-    if (AXIS_DIAM[a.Body1 + '|' + a.Body2]) return;
-    if ((a.Closeness || 0) < HARM_MIN_CLOSE) return;
-    var t = typeMap[a.Aspect];
-    if (!t) return;
-    var h = t.harmonic;
-    if (!byHarm[h]) byHarm[h] = {harmonic:h, name:HARM_NAMES[h] || ('H'+h), score:0, count:0};
-    byHarm[h].score += a.Closeness || 0;
-    byHarm[h].count += 1;
-  });
-  return Object.keys(byHarm).map(function(k){ return byHarm[k]; })
-    .sort(function(a,b){
-      if (b.score !== a.score) return b.score - a.score;
-      return a.harmonic - b.harmonic;
-    });
-}
-
-function renderHarmonics(d) {
-  var emptyEl = document.getElementById('harm-empty');
+function renderHarmonics(ranked) {
+  var emptyEl  = document.getElementById('harm-empty');
   var contentEl = document.getElementById('harm-content');
-  var listEl = document.getElementById('harm-list');
+  var listEl   = document.getElementById('harm-list');
   var detailEl = document.getElementById('harm-detail-right');
-  var rows = computeHarmRows(d);
   SELECTED_HARMONIC = null;
+  LAST_HARMONICS = ranked;
 
-  if (!rows.length) {
+  if (!ranked || !ranked.length) {
     emptyEl.style.display = 'flex';
     contentEl.style.display = 'none';
-    emptyEl.textContent = HARM_MIN_CLOSE > 0
-      ? 'No aspects meet the minimum-closeness filter.'
-      : 'No harmonic resonances detected.';
     return;
   }
   emptyEl.style.display = 'none';
   contentEl.style.display = 'flex';
 
-  var top = rows[0].score || 1;
-  listEl.innerHTML = rows.map(function(r, i){
-    var pct = Math.max(4, Math.round((r.score / top) * 100));
+  var maxPairs = ranked[0].PairCount || 1;
+  listEl.innerHTML = ranked.map(function(r, i) {
+    var barW = Math.max(4, Math.round((r.PairCount / maxPairs) * 100));
+    var label = 'H' + r.Harmonic + (r.Name && r.Name !== '—' ? ' · ' + r.Name : '');
+    var hasMeaning = r.NatalMeaning && r.NatalMeaning !== 'nan' && r.NatalMeaning !== '';
     return (
-      '<div class="harm-row" data-harm="' + r.harmonic + '">' +
+      '<div class="harm-row" data-harm="' + r.Harmonic + '" ' +
+           (hasMeaning ? 'style="cursor:pointer"' : '') + '>' +
         '<div class="harm-row-num">' + (i+1) + '</div>' +
-        '<div class="harm-row-name">H' + r.harmonic + ' · ' + r.name + '</div>' +
-        '<div class="harm-row-bar-bg"><div class="harm-row-bar" style="width:' + pct + '%"></div></div>' +
-        '<div class="harm-row-meta">' + r.score.toFixed(2) + ' · ' + r.count + ' asp</div>' +
+        '<div class="harm-row-name">' + label + '</div>' +
+        '<div class="harm-row-bar-bg"><div class="harm-row-bar" style="width:' + barW + '%"></div></div>' +
+        '<div class="harm-row-meta">' + r.PairCount + ' pairs · ' + (r.Tightest||0).toFixed(3) + '°</div>' +
       '</div>'
     );
   }).join('');
-  detailEl.innerHTML = '<div class="harm-hint">Select a harmonic family above to see involved planets and meaning.</div>';
-  // Clear mini canvas
+
+  detailEl.innerHTML = '<div class="harm-hint">Select a harmonic above to see its natal meaning.</div>';
+
+  listEl.querySelectorAll('.harm-row').forEach(function(row) {
+    row.addEventListener('click', function() {
+      renderHarmDetail(parseInt(row.dataset.harm, 10));
+    });
+  });
+
   var mini = document.getElementById('harm-mini-canvas');
   if (mini) {
     var ctx = mini.getContext('2d');
@@ -1259,54 +1204,54 @@ function renderHarmonics(d) {
 }
 
 function renderHarmDetail(harmonic) {
-  if (!LAST_DATA) return;
+  if (!LAST_HARMONICS) return;
   SELECTED_HARMONIC = harmonic;
 
-  document.querySelectorAll('.harm-row').forEach(function(r){
+  document.querySelectorAll('.harm-row').forEach(function(r) {
     r.classList.toggle('sel', parseInt(r.dataset.harm, 10) === harmonic);
   });
 
+  var row = LAST_HARMONICS.find(function(r) { return r.Harmonic === harmonic; });
+  if (!row) return;
+
+  var name = row.Name && row.Name !== '—' ? row.Name : 'H' + harmonic;
+  var factors = row.Factors ? ' <span style="font-size:10px;color:#9b9185;font-weight:400">(' + row.Factors + ')</span>' : '';
+
+  var html = '<div class="harm-title">H' + harmonic + ' · ' + name + factors + '</div>';
+
+  var meaning = row.NatalMeaning && row.NatalMeaning !== 'nan' ? row.NatalMeaning : '';
+  if (meaning) {
+    html += '<div class="harm-meaning">' + meaning + '</div>';
+  }
+
+  if (row.Pairs) {
+    var pairs = row.Pairs.split(',  ').map(function(p) { return p.trim(); }).filter(Boolean);
+    html += '<div class="harm-asp-label">' + row.PairCount + ' resonating pair' + (row.PairCount===1?'':'s') + '</div>';
+    html += pairs.map(function(p) {
+      var m = p.match(/^(.*?)\s+([\d.]+)°$/);
+      var pairName = m ? m[1] : p;
+      var orb = m ? m[2] + '°' : '';
+      return '<div class="harm-asp-item">' +
+        '<div class="harm-asp-head">' + pairName +
+          (orb ? ' <span class="asp-close">· ' + orb + ' off exact</span>' : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  if (row.Source && row.Source !== 'nan') {
+    html += '<div style="font-size:9px;color:#b09e82;margin-top:10px;font-style:italic">' + row.Source + '</div>';
+  }
+
+  document.getElementById('harm-detail-right').innerHTML = html;
+
+  // Draw the mini wheel for the traditional aspects in this harmonic family
   var typeMap = {};
   ASP_TYPES.forEach(function(t){ typeMap[t.name] = t; });
-  // Only the diameter pairs (Asc-Desc, MC-IC) are 180° by definition; cross
-  // axis pairs like Asc-MC remain valid aspects.
-  var AXIS_DIAM = {'Asc|Desc':1, 'Desc|Asc':1, 'MC|IC':1, 'IC|MC':1};
-  var aspects = (LAST_DATA.aspects || []).filter(function(a){
-    if (AXIS_DIAM[a.Body1 + '|' + a.Body2]) return false;
-    if ((a.Closeness || 0) < HARM_MIN_CLOSE) return false;
+  var aspects = (LAST_DATA && LAST_DATA.aspects || []).filter(function(a) {
     var t = typeMap[a.Aspect];
     return t && t.harmonic === harmonic;
   }).sort(function(a,b){ return (b.Closeness||0) - (a.Closeness||0); });
-
-  var fam = (LAST_DATA.harmonics || []).find(function(h){ return h.harmonic === harmonic; });
-  var familyName = fam ? fam.name : 'H' + harmonic;
-
-  var html = '<div class="harm-title">H' + harmonic + ' · ' + familyName + ' family</div>';
-  html += '<div class="harm-meaning">' + (HARM_MEANING[harmonic] || '') + '</div>';
-  if (aspects.length) {
-    html += '<div class="harm-asp-label">' + aspects.length + ' aspect' + (aspects.length===1?'':'s') + ' in this chart</div>';
-    html += aspects.map(function(a){
-      var t = typeMap[a.Aspect];
-      var sym = t ? t.sym : '';
-      var pct = Math.round((a.Closeness || 0) * 100);
-      var miss = (a.Angle != null && a.Degrees != null)
-        ? Math.abs(a.Angle - a.Degrees).toFixed(2) + '°'
-        : '';
-      return '<div class="harm-asp-item">' +
-        '<div class="harm-asp-head">' +
-          '<span class="asp-glyph">' + sym + '</span>' +
-          a.Body1 + ' ' + a.Aspect + ' ' + a.Body2 +
-          ' <span class="asp-close">· ' + pct + '%' +
-          (miss ? ' (' + miss + ')' : '') + '</span>' +
-        '</div>' +
-        '<div class="harm-asp-desc">' + harmPairDescription(a.Body1, a.Body2, harmonic) + '</div>' +
-      '</div>';
-    }).join('');
-  } else {
-    html += '<div class="harm-hint">No active aspects in this family.</div>';
-  }
-  document.getElementById('harm-detail-right').innerHTML = html;
-
   drawHarmMini(LAST_DATA, aspects);
 }
 
@@ -1635,6 +1580,34 @@ function drawCurrentWheel() { redrawAll(); }
   cvs.addEventListener('mouseleave', function(){ tip.classList.remove('vis'); });
 })();
 
+// ─── Auto-fetch natal harmonics after chart loads ────────────────────────────
+function fetchNatalHarmonics(d, chartParams) {
+  var loadingEl = document.getElementById('harm-loading');
+  if (loadingEl) loadingEl.style.display = 'inline';
+  document.getElementById('harm-empty').style.display = 'flex';
+  document.getElementById('harm-empty').textContent = 'Computing harmonic resonances…';
+  document.getElementById('harm-content').style.display = 'none';
+
+  var payload = {
+    birth_datetime: chartParams.birth_datetime,
+    location: chartParams.location,
+    zodiac_system: chartParams.zodiac_system,
+    house_system: chartParams.house_system,
+    base_orb: chartParams.base_orb,
+    orb_formula: chartParams.orb_formula,
+    active_bodies: ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'],
+    max_harmonic: 360,
+    min_tightness_pct: 0,
+    personal_only: true,
+  };
+
+  fetch('/harmonics', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) })
+    .then(function(r){ return r.ok ? r.json() : r.json().then(function(e){ throw new Error(e.detail); }); })
+    .then(function(data){ renderHarmonics(data.ranked || []); })
+    .catch(function(){ renderHarmonics([]); })
+    .finally(function(){ if (loadingEl) loadingEl.style.display = 'none'; });
+}
+
 // ─── Form submit ─────────────────────────────────────────────────────────────
 (function(){
   var form    = document.getElementById('chart-form');
@@ -1672,10 +1645,10 @@ function drawCurrentWheel() { redrawAll(); }
         LAST_DATA = d;
         buildMeta(d);
         buildInfoBox(d);
-        renderHarmonics(d);
         renderWordCloud(d);
         results.classList.add('active');
         requestAnimationFrame(redrawAll);
+        fetchNatalHarmonics(d, p);
       })
       .catch(function(ex){
         spinner.style.display = 'none'; btn.disabled = false;
