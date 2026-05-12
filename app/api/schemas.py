@@ -53,6 +53,30 @@ class ChartRequest(BaseModel):
     website: str | None = Field(default=None, exclude=True)
 
 
+class HarmonicsRequest(ChartRequest):
+    """Chart request extended with harmonic-matrix controls."""
+
+    active_bodies: list[str] = Field(
+        default=[
+            "Sun", "Moon", "Mercury", "Venus", "Mars",
+            "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto",
+        ],
+        description="Bodies to include in the harmonic matrix.",
+    )
+    max_harmonic: int = Field(
+        default=360, ge=1, le=360,
+        description="Highest harmonic to evaluate (1–360).",
+    )
+    min_tightness_pct: float = Field(
+        default=0.0, ge=0.0, le=100.0,
+        description="Only return rows with Tightness% >= this value.",
+    )
+    personal_only: bool = Field(
+        default=True,
+        description="Exclude pairs where both bodies are axis/node points.",
+    )
+
+
 class BirthMomentResponse(BaseModel):
     latitude: float
     longitude: float
