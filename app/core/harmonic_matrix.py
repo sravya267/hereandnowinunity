@@ -298,8 +298,24 @@ def rank_harmonics(
             "Source": info.get("source", "") if isinstance(info, dict) else str(info["source"]),
         })
 
+    result = pd.DataFrame(rows)
+
+    # Keep only harmonics with genuine astrological definitions.
+    # Filter out auto-generated "Blend of prime factors" and "Prime Hxx: irreducible"
+    # entries which are mechanical placeholders, not real interpretations.
+    def _is_meaningful(natal: object) -> bool:
+        s = str(natal)
+        return (
+            bool(s) and s != "nan"
+            and not s.startswith("Blend of prime factors")
+            and not s.startswith("Prime H")
+        )
+
+    mask = result["NatalMeaning"].apply(_is_meaningful)
+    result = result[mask]
+
     return (
-        pd.DataFrame(rows)
+        result
         .sort_values(["PairCount", "Tightest"], ascending=[False, True])
         .reset_index(drop=True)
     )
