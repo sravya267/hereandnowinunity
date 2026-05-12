@@ -252,16 +252,30 @@ def rank_harmonics(
     -------
     DataFrame with columns:
 
-    Harmonic    - harmonic number
-    Factors     - prime factorisation (e.g. '3²', '2 × 7', 'prime')
-    PairCount   - number of resonating pairs
-    Tightest    - natal orb of the closest pair (degrees)
-    Pairs       - comma-separated ``Body1–Body2 X.XXX°`` entries, tightest first
+    Harmonic         - harmonic number
+    Factors          - prime factorisation (e.g. '3²', '2 × 7', 'prime')
+    Name             - harmonic name from vibrational_harmonics.csv
+    PairCount        - number of resonating pairs
+    Tightest         - natal orb of the closest pair (degrees)
+    Pairs            - comma-separated ``Body1–Body2 X.XXX°`` entries
+    NatalMeaning     - natal chart interpretation from CSV
+    TransitMeaning   - transit interpretation from CSV
+    HarmonyMeaning   - synastry/harmony interpretation from CSV
+    Source           - citation source from CSV
     """
+    from app.core.harmonics import VIBRATIONAL_HARMONICS
+
     df = long_df[long_df["Personal"]] if personal_only else long_df
 
     if df.empty:
-        return pd.DataFrame(columns=["Harmonic", "Factors", "PairCount", "Tightest", "Pairs"])
+        return pd.DataFrame(columns=[
+            "Harmonic", "Factors", "Name", "PairCount", "Tightest", "Pairs",
+            "NatalMeaning", "TransitMeaning", "HarmonyMeaning", "Source",
+        ])
+
+    vh = VIBRATIONAL_HARMONICS.set_index("harmonic")[
+        ["name", "natal_definition", "transit_definition", "harmony_definition", "source"]
+    ]
 
     rows = []
     for h, group in df.groupby("Harmonic"):
@@ -270,12 +284,18 @@ def rank_harmonics(
             f"{r['Body1']}–{r['Body2']} {r['Tightness']:.3f}°"
             for _, r in group.iterrows()
         )
+        info = vh.loc[h] if h in vh.index else {}
         rows.append({
             "Harmonic": int(h),
             "Factors": group["Factors"].iloc[0],
+            "Name": info.get("name", "") if isinstance(info, dict) else str(info["name"]),
             "PairCount": len(group),
             "Tightest": round(float(group["Tightness"].min()), 4),
             "Pairs": pairs_str,
+            "NatalMeaning": info.get("natal_definition", "") if isinstance(info, dict) else str(info["natal_definition"]),
+            "TransitMeaning": info.get("transit_definition", "") if isinstance(info, dict) else str(info["transit_definition"]),
+            "HarmonyMeaning": info.get("harmony_definition", "") if isinstance(info, dict) else str(info["harmony_definition"]),
+            "Source": info.get("source", "") if isinstance(info, dict) else str(info["source"]),
         })
 
     return (
