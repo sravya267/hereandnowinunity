@@ -171,29 +171,35 @@ def compute_harmonic_long(
 
 
 def rank_harmonics_from_matrix(matrix: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate a heatmap matrix into per-harmonic resonance metrics.
+    """Aggregate a heatmap matrix into per-harmonic resonance info.
 
-    Returns one row per harmonic with three columns:
-      - PairCount:    how many body pairs resonate at that harmonic
-      - Tightness%:   the tightest hit  (max Tightness%, 0..100)
-      - AvgTightness%: average across resonating pairs (0..100)
+    Returns one row per harmonic with:
+      - PairCount: how many body pairs resonate at that harmonic
+      - Pairs:     comma-separated list of "Body1 – Body2 XX%" entries,
+                   sorted by Tightness% descending.
 
-    Sorted by PairCount desc, then Tightness% desc.
+    Sorted by PairCount desc, then by the tightest pair desc.
     """
     if matrix.empty:
-        return pd.DataFrame(columns=[
-            "Harmonic", "PairCount", "Tightness%", "AvgTightness%",
-        ])
+        return pd.DataFrame(columns=["Harmonic", "PairCount", "Pairs"])
 
-    count = (matrix > 0).sum(axis=0)
-    tightest = matrix.max(axis=0)
-    average = matrix.replace(0, np.nan).mean(axis=0).fillna(0)
-    out = pd.DataFrame({
-        "Harmonic": [int(c[1:]) for c in matrix.columns],
-        "PairCount": count.values,
-        "Tightness%": tightest.values.round(2),
-        "AvgTightness%": average.values.round(2),
-    })
-    return out.sort_values(
-        ["PairCount", "Tightness%"], ascending=[False, False]
-    ).reset_index(drop=True)
+    rows = []
+    for col in matrix.columns:
+        h = int(col[1:])
+        series = matrix[col]
+        hits = series[series > 0].sort_values(ascending=False)
+        count = len(hits)
+        pairs_str = ", ".join(
+            f"{pair} {pct:.0f}%" for pair, pct in hits.items()
+        )
+        rows.append({
+            "Harmonic": h,
+            "PairCount": count,
+            "Pairs": pairs_str,
+            "_top": float(hits.iloc[0]) if count else 0.0,  # sort key
+        })
+
+    out = pd.DataFrame(rows).sort_values(
+        ["PairCount", "_top"], ascending=[False, False]
+    ).drop(columns="_top").reset_index(drop=True)
+    return out
