@@ -4,22 +4,25 @@ Produces the data needed for a heatmap of (body pair) x (harmonic) and a
 long-form table of matched (body pair, harmonic) hits.
 
 Two tightness measures per (pair, harmonic):
-    Tightness   - degrees off from a perfect conjunction in the H-h
-                  harmonic chart (low = tight, 0 = exact)
-    Tightness%  - same thing as a 0-100% scale relative to OrbLimit
-                  (high = tight, 100 = exact)
+    Tightness   - degrees off nearest exact aspect in the NATAL chart
+                  (low = tight, 0 = exact).  This is the remainder after
+                  dividing the aspect_angle by the harmonic's step (360/h):
+                      r = aspect_angle mod (360/h)
+                      Tightness = min(r, 360/h - r)
+    HCTightness - same orb scaled to the harmonic chart (Tightness × h).
+                  Useful for comparing across harmonics on a common scale.
+    Tightness%  - 0-100 scale relative to OrbLimit (high = tight, 100 = exact)
 
 Method:
     For two planets with longitudes L1, L2 and harmonic h:
-        aspect_angle = min(|L1 - L2|, 360 - |L1 - L2|)        # 0..180,
-                                                              # the angular
-                                                              # gap between
-                                                              # the two bodies
-        Mod          = (aspect_angle * h) mod 360             # 0..360
-        Tightness    = min(Mod, 360 - Mod)                    # 0..180
-    The pair forms a conjunction in the H-h chart if Tightness <= OrbLimit.
+        aspect_angle = min(|L1 - L2|, 360 - |L1 - L2|)   # 0..180
+        step         = 360 / h                             # harmonic step
+        r            = aspect_angle mod step               # remainder
+        Tightness    = min(r, step - r)                    # 0..step/2
+        HCTightness  = Tightness × h                       # in H-h chart space
+    The pair resonates with harmonic h if HCTightness <= OrbLimit.
     OrbLimit at H1 is base_orb; narrows with h via orb_formula.
-    Tightness% = 100 * (1 - Tightness / OrbLimit) — 100 at exact, 0 at edge.
+    Tightness% = 100 * (1 - HCTightness / OrbLimit) — 100 at exact, 0 at edge.
 """
 from __future__ import annotations
 
@@ -88,11 +91,13 @@ def compute_harmonic_matrix(
         diff = abs(longitudes[i] - longitudes[j]) % 360
         aspect_angle = min(diff, 360 - diff)
 
-        mod = (aspect_angle * harmonics) % 360
-        tightness = np.minimum(mod, 360 - mod)
+        step = 360.0 / harmonics                          # 360/h per harmonic
+        r = aspect_angle % step                           # remainder in [0, step)
+        tightness = np.minimum(r, step - r)               # natal-chart orb
+        hc_tightness = tightness * harmonics              # harmonic-chart orb
 
-        hit_mask = tightness <= orbs
-        tightness_pct = np.where(hit_mask, 100.0 * (1.0 - tightness / orbs), 0.0)
+        hit_mask = hc_tightness <= orbs
+        tightness_pct = np.where(hit_mask, 100.0 * (1.0 - hc_tightness / orbs), 0.0)
 
         pair_labels.append(f"{b1} – {b2}")
         rows.append(tightness_pct)
@@ -116,11 +121,13 @@ def compute_harmonic_long(
     orb_formula: OrbFormula = DEFAULT_FORMULA,
     min_tightness_pct: float = 0.0,
 ) -> pd.DataFrame:
-    """Return long-form hits: ``Body1, Body2, Harmonic, AspectAngle, Mod,
-    Tightness, OrbLimit, Tightness%``.
+    """Return long-form hits: ``Body1, Body2, Harmonic, AspectAngle,
+    Tightness, HCTightness, OrbLimit, Tightness%``.
 
-    Tightness    - degrees off from exact in the H-h chart (low = tight).
-    Tightness%   - same as 0..100 scale of OrbLimit (high = tight).
+    Tightness    - degrees off nearest exact aspect in the natal chart
+                   (remainder after dividing AspectAngle by 360/h).
+    HCTightness  - same orb in the H-h harmonic chart (Tightness × h).
+    Tightness%   - 0..100 scale of OrbLimit (high = tight, 100 = exact).
 
     Only rows where the pair resonates (Tightness% >= ``min_tightness_pct``)
     are included. Sorted by Tightness% descending.
@@ -142,12 +149,14 @@ def compute_harmonic_long(
         diff = abs(longitudes[i] - longitudes[j]) % 360
         aspect_angle = min(diff, 360 - diff)
 
-        mod = (aspect_angle * harmonics) % 360
-        tightness = np.minimum(mod, 360 - mod)
+        step = 360.0 / harmonics                          # 360/h per harmonic
+        r = aspect_angle % step                           # remainder in [0, step)
+        tightness = np.minimum(r, step - r)               # natal-chart orb
+        hc_tightness = tightness * harmonics              # harmonic-chart orb
 
-        hit_idx = np.where(tightness <= orbs)[0]
+        hit_idx = np.where(hc_tightness <= orbs)[0]
         for k in hit_idx:
-            tightness_pct = 100.0 * (1.0 - tightness[k] / orbs[k])
+            tightness_pct = 100.0 * (1.0 - hc_tightness[k] / orbs[k])
             if tightness_pct < min_tightness_pct:
                 continue
             records.append({
@@ -155,9 +164,8 @@ def compute_harmonic_long(
                 "Body2": b2,
                 "Harmonic": int(harmonics[k]),
                 "AspectAngle": round(float(aspect_angle), 4),
-                "Mod": round(float(mod[k]), 4),
-                "NatalOrb": round(float(tightness[k]) / float(harmonics[k]), 4),
                 "Tightness": round(float(tightness[k]), 4),
+                "HCTightness": round(float(hc_tightness[k]), 4),
                 "OrbLimit": round(float(orbs[k]), 4),
                 "Tightness%": round(float(tightness_pct), 2),
             })
@@ -165,7 +173,7 @@ def compute_harmonic_long(
     if not records:
         return pd.DataFrame(columns=[
             "Body1", "Body2", "Harmonic", "AspectAngle",
-            "Mod", "NatalOrb", "Tightness", "OrbLimit", "Tightness%",
+            "Tightness", "HCTightness", "OrbLimit", "Tightness%",
         ])
     out = pd.DataFrame(records)
     return out.sort_values(["Tightness%", "Harmonic"], ascending=[False, True]).reset_index(drop=True)
@@ -200,8 +208,8 @@ def rank_harmonics_from_matrix(
         orb_at_h = float(orb_limit(h, base_orb=base_orb, formula=orb_formula))
         series = matrix[col]
         hits = series[series > 0]
-        # Tightness (in H-h degrees) = orb_at_h * (1 - pct/100)
-        # Natal orb = Tightness / h
+        # HCTightness = orb_at_h * (1 - pct/100)
+        # Tightness (natal orb) = HCTightness / h
         hits_hc = (orb_at_h * (1.0 - hits / 100.0)).sort_values()
         count = len(hits_hc)
         pairs_str = ", ".join(
