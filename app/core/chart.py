@@ -19,6 +19,7 @@ import swisseph as swe
 from app.config import settings
 from app.core.aspects import calculate_aspects
 from app.core.constants import PLANETS, degree_to_nakshatra, degree_to_sign
+from app.core.orbs import DEFAULT_BASE_ORB, DEFAULT_FORMULA, OrbFormula
 from app.core.ephemeris import (
     HouseSystem,
     ZodiacSystem,
@@ -53,6 +54,8 @@ def compute_chart(
     location_name: str,
     zodiac_system: ZodiacSystem = "Tropical",
     house_system: HouseSystem = "Koch",
+    base_orb: float = DEFAULT_BASE_ORB,
+    orb_formula: OrbFormula = DEFAULT_FORMULA,
 ) -> Chart:
     """Compute a complete natal chart for the given birth moment.
 
@@ -133,7 +136,7 @@ def compute_chart(
     df["rad_rot_x"] = np.cos(rad)
     df["rad_rot_y"] = np.sin(rad)
 
-    aspects_df = calculate_aspects(df)
+    aspects_df = calculate_aspects(df, base_orb=base_orb, orb_formula=orb_formula)
     traits = _compute_traits(df)
     patterns = detect_patterns(aspects_df)
     harmonics = rank_harmonic_families(aspects_df)

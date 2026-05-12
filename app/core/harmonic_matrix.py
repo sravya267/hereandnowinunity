@@ -22,15 +22,12 @@ from itertools import combinations
 import numpy as np
 import pandas as pd
 
+from app.core.orbs import DEFAULT_BASE_ORB, DEFAULT_FORMULA, OrbFormula, orb_limit
+
 
 # Bodies that are structurally fixed (always exactly 180° apart) — skip
 _AXIS_POINTS: frozenset[str] = frozenset({"Asc", "Desc", "MC", "IC"})
 _NODES: frozenset[str] = frozenset({"North Node", "South Node"})
-
-
-def _orb_for(h: int, base_orb: float) -> float:
-    """Harmonic-chart orb. Standard practice: tighten with harmonic depth."""
-    return base_orb / np.sqrt(h)
 
 
 def _skip_pair(b1: str, b2: str) -> bool:
@@ -44,7 +41,8 @@ def _skip_pair(b1: str, b2: str) -> bool:
 def compute_harmonic_matrix(
     bodies_df: pd.DataFrame,
     max_harmonic: int = 360,
-    base_orb: float = 8.0,
+    base_orb: float = DEFAULT_BASE_ORB,
+    orb_formula: OrbFormula = DEFAULT_FORMULA,
 ) -> pd.DataFrame:
     """Return wide matrix: rows = body pairs, columns = H1..H{max_harmonic}.
 
@@ -59,8 +57,10 @@ def compute_harmonic_matrix(
     max_harmonic
         Highest harmonic to evaluate (inclusive). Default 360.
     base_orb
-        Harmonic-chart orb at H1, in degrees. Default 8°; narrows as
-        ``base_orb / sqrt(h)`` for higher harmonics.
+        Orb at H1 in natal-chart degrees. Default 8°.
+    orb_formula
+        ``"sqrt"`` (default), ``"linear"``, or ``"fixed"``. See
+        :mod:`app.core.orbs`.
     """
     df = bodies_df[~bodies_df["Body"].str.contains("House Cusp", na=False)]
     df = df.dropna(subset=["Longitude (°)"]).reset_index(drop=True)
@@ -68,7 +68,7 @@ def compute_harmonic_matrix(
     longitudes = df["Longitude (°)"].to_numpy()
 
     harmonics = np.arange(1, max_harmonic + 1)
-    orbs = base_orb / np.sqrt(harmonics)
+    orbs = orb_limit(harmonics, base_orb=base_orb, formula=orb_formula)
 
     pair_labels: list[str] = []
     rows: list[np.ndarray] = []
@@ -105,7 +105,8 @@ def compute_harmonic_matrix(
 def compute_harmonic_long(
     bodies_df: pd.DataFrame,
     max_harmonic: int = 360,
-    base_orb: float = 8.0,
+    base_orb: float = DEFAULT_BASE_ORB,
+    orb_formula: OrbFormula = DEFAULT_FORMULA,
     min_closeness: float = 0.0,
 ) -> pd.DataFrame:
     """Return long-form hits: ``Body1, Body2, Harmonic, AspectAngle, Mod, ...``.
@@ -119,7 +120,7 @@ def compute_harmonic_long(
     longitudes = df["Longitude (°)"].to_numpy()
 
     harmonics = np.arange(1, max_harmonic + 1)
-    orbs = base_orb / np.sqrt(harmonics)
+    orbs = orb_limit(harmonics, base_orb=base_orb, formula=orb_formula)
 
     records: list[dict] = []
     for i, j in combinations(range(len(bodies)), 2):
