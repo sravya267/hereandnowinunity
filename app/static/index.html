@@ -264,22 +264,16 @@ canvas{display:block;width:100%;height:100%}
             <div id="pat-tooltip" class="pat-tooltip"></div>
           </div>
           <div class="filter-panel closed" id="filter-panel">
-            <div class="fp-hdr">
-              <span>Orbs</span>
-              <select id="orb-type" style="width:auto;font-size:9px;padding:1px 4px;text-transform:uppercase;letter-spacing:.04em">
-                <option value="pct" selected>% of max</option>
-                <option value="deg">&#176; fixed</option>
-              </select>
-            </div>
+            <div class="fp-hdr"><span>Orbs</span></div>
             <div class="orb-row">
               <span class="orb-label">Major</span>
-              <input type="range" class="orb-slider" id="major-orb-val" value="100" min="10" max="200" step="5">
-              <span class="orb-readout" id="major-orb-readout">100%</span>
+              <input type="range" class="orb-slider" id="major-orb-val" value="6" min="0.5" max="15" step="0.5">
+              <span class="orb-readout" id="major-orb-readout">6.0°</span>
             </div>
             <div class="orb-row">
               <span class="orb-label">Minor</span>
-              <input type="range" class="orb-slider" id="minor-orb-val" value="50" min="10" max="200" step="5">
-              <span class="orb-readout" id="minor-orb-readout">50%</span>
+              <input type="range" class="orb-slider" id="minor-orb-val" value="3" min="0.5" max="15" step="0.5">
+              <span class="orb-readout" id="minor-orb-readout">3.0°</span>
             </div>
             <div class="fp-hdr"><span>House System</span></div>
             <select id="house-system" title="Tropical only — Sidereal always uses Whole Sign">
@@ -656,9 +650,8 @@ var BODY_DISPLAY = {
   Chiron:false, Nodes:false, Angles:false, Points:false
 };
 var ASPECT_TO    = {Chiron:false, Nodes:false, Angles:false, Points:false};
-var ORB_TYPE = 'pct';
-var MAJOR_ORB_VAL = 100;
-var MINOR_ORB_VAL = 50;
+var MAJOR_ORB_VAL = 6;
+var MINOR_ORB_VAL = 3;
 var NODE_NAMES  = ['North Node','South Node','True Node','Mean Node','Rahu','Ketu'];
 var ANGLE_NAMES = ['Asc','Desc','MC','IC'];
 var POINT_NAMES = ['Vertex','Fortune'];
@@ -934,7 +927,6 @@ function drawWheel(data) {
     var orbDelta = (a.OrbLimit != null && a.Closeness != null)
       ? (1 - a.Closeness) * a.OrbLimit
       : Math.abs((a.Angle || 0) - (a.Degrees || 0));
-    if (ORB_TYPE === 'pct') return a.OrbLimit != null ? (orbDelta / a.OrbLimit * 100 <= val) : (orbDelta <= 6);
     return orbDelta <= val;
   });
 
@@ -1476,7 +1468,7 @@ function drawCurrentWheel() { redrawAll(); }
 
   // Orb sliders
   function fmtOrb(v) {
-    return ORB_TYPE === 'deg' ? (v.toFixed(1) + '°') : (Math.round(v) + '%');
+    return v.toFixed(1) + '°';
   }
   function bindOrb(id, readoutId, setter) {
     var el = document.getElementById(id);
@@ -1492,24 +1484,6 @@ function drawCurrentWheel() { redrawAll(); }
   }
   bindOrb('major-orb-val', 'major-orb-readout', function(v){ MAJOR_ORB_VAL = v; });
   bindOrb('minor-orb-val', 'minor-orb-readout', function(v){ MINOR_ORB_VAL = v; });
-
-  document.getElementById('orb-type').addEventListener('change', function(){
-    ORB_TYPE = this.value;
-    var maj = document.getElementById('major-orb-val'), mn = document.getElementById('minor-orb-val');
-    var majR = document.getElementById('major-orb-readout'), mnR = document.getElementById('minor-orb-readout');
-    if (ORB_TYPE === 'deg') {
-      maj.min = '0.5'; maj.max = '15'; maj.step = '0.5'; maj.value = '6';
-      mn.min  = '0.5'; mn.max  = '15'; mn.step  = '0.5'; mn.value  = '3';
-      MAJOR_ORB_VAL = 6; MINOR_ORB_VAL = 3;
-    } else {
-      maj.min = '10'; maj.max = '200'; maj.step = '5'; maj.value = '100';
-      mn.min  = '10'; mn.max  = '200'; mn.step  = '5'; mn.value  = '50';
-      MAJOR_ORB_VAL = 100; MINOR_ORB_VAL = 50;
-    }
-    majR.textContent = fmtOrb(MAJOR_ORB_VAL);
-    mnR.textContent  = fmtOrb(MINOR_ORB_VAL);
-    if (LAST_DATA) drawCurrentWheel();
-  });
 
   document.getElementById('house-system').addEventListener('change', function(){
     if (LAST_DATA) document.getElementById('chart-form').requestSubmit();
