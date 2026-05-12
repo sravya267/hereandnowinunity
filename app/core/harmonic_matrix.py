@@ -156,6 +156,7 @@ def compute_harmonic_long(
                 "Harmonic": int(harmonics[k]),
                 "AspectAngle": round(float(aspect_angle), 4),
                 "Mod": round(float(mod[k]), 4),
+                "NatalOrb": round(float(tightness[k]) / float(harmonics[k]), 4),
                 "Tightness": round(float(tightness[k]), 4),
                 "OrbLimit": round(float(orbs[k]), 4),
                 "Tightness%": round(float(tightness_pct), 2),
@@ -164,7 +165,7 @@ def compute_harmonic_long(
     if not records:
         return pd.DataFrame(columns=[
             "Body1", "Body2", "Harmonic", "AspectAngle",
-            "Mod", "Tightness", "OrbLimit", "Tightness%",
+            "Mod", "NatalOrb", "Tightness", "OrbLimit", "Tightness%",
         ])
     out = pd.DataFrame(records)
     return out.sort_values(["Tightness%", "Harmonic"], ascending=[False, True]).reset_index(drop=True)
@@ -179,13 +180,16 @@ def rank_harmonics_from_matrix(
 
     Returns one row per harmonic with:
       - PairCount: how many body pairs resonate at that harmonic
-      - Pairs:     comma-separated list of ``Body1 – Body2 X.XX°`` entries
-                   (the Tightness in degrees off from exact in the H-h chart),
-                   sorted tightest first.
+      - Pairs:     comma-separated list of
+                   ``Body1 – Body2 X.XX° (Y.YY° Hh)`` entries, where
+                   the first number is the natal orb (degrees off the
+                   nearest exact aspect of that harmonic) and the second
+                   is the same orb expressed in harmonic-chart degrees
+                   (natal orb × h). Sorted tightest first.
 
     ``base_orb`` and ``orb_formula`` must match those used to build
     ``matrix`` so Tightness can be recovered from Tightness%.
-    Sorted by PairCount desc, then by the tightest pair (smallest degrees).
+    Sorted by PairCount desc, then by the tightest pair (smallest natal orb).
     """
     if matrix.empty:
         return pd.DataFrame(columns=["Harmonic", "PairCount", "Pairs"])
@@ -196,17 +200,19 @@ def rank_harmonics_from_matrix(
         orb_at_h = float(orb_limit(h, base_orb=base_orb, formula=orb_formula))
         series = matrix[col]
         hits = series[series > 0]
-        # Tightness (degrees) = orb_at_h * (1 - pct/100); tighter = smaller
-        hits_deg = (orb_at_h * (1.0 - hits / 100.0)).sort_values()
-        count = len(hits_deg)
+        # Tightness (in H-h degrees) = orb_at_h * (1 - pct/100)
+        # Natal orb = Tightness / h
+        hits_hc = (orb_at_h * (1.0 - hits / 100.0)).sort_values()
+        count = len(hits_hc)
         pairs_str = ", ".join(
-            f"{pair} {deg:.2f}°" for pair, deg in hits_deg.items()
+            f"{pair} {hc/h:.2f}° ({hc:.2f}° H{h})"
+            for pair, hc in hits_hc.items()
         )
         rows.append({
             "Harmonic": h,
             "PairCount": count,
             "Pairs": pairs_str,
-            "_top": float(hits_deg.iloc[0]) if count else float("inf"),
+            "_top": float(hits_hc.iloc[0]) if count else float("inf"),
         })
 
     out = pd.DataFrame(rows).sort_values(
