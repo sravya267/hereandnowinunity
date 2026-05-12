@@ -1,19 +1,25 @@
 """Harmonic matrix: for every body pair, score resonance against H1-H360.
 
-Produces the data needed for a heatmap of (body pair) x (harmonic) closeness,
-plus a long-form table of matched (body pair, harmonic) hits.
+Produces the data needed for a heatmap of (body pair) x (harmonic) and a
+long-form table of matched (body pair, harmonic) hits.
 
-Method (standard vibrational astrology):
+Two tightness measures per (pair, harmonic):
+    Tightness   - degrees off from a perfect conjunction in the H-h
+                  harmonic chart (low = tight, 0 = exact)
+    Tightness%  - same thing as a 0-100% scale relative to OrbLimit
+                  (high = tight, 100 = exact)
+
+Method:
     For two planets with longitudes L1, L2 and harmonic h:
         aspect_angle = min(|L1 - L2|, 360 - |L1 - L2|)        # 0..180,
                                                               # the angular
                                                               # gap between
                                                               # the two bodies
-        hc_angle     = (aspect_angle * h) mod 360
-        hc_orb       = min(hc_angle, 360 - hc_angle)          # 0..180
-    The pair forms a conjunction in the H-h chart if hc_orb <= ORB(h).
-    Orb tightens with harmonic: ORB(h) = base_orb / sqrt(h).
-    Closeness = 1 - hc_orb / ORB(h), so 1.0 at exact, 0.0 at the edge.
+        Mod          = (aspect_angle * h) mod 360             # 0..360
+        Tightness    = min(Mod, 360 - Mod)                    # 0..180
+    The pair forms a conjunction in the H-h chart if Tightness <= OrbLimit.
+    OrbLimit at H1 is base_orb; narrows with h via orb_formula.
+    Tightness% = 100 * (1 - Tightness / OrbLimit) — 100 at exact, 0 at edge.
 """
 from __future__ import annotations
 
@@ -46,8 +52,9 @@ def compute_harmonic_matrix(
 ) -> pd.DataFrame:
     """Return wide matrix: rows = body pairs, columns = H1..H{max_harmonic}.
 
-    Cell value is the closeness (0..1) at which that pair resonates with that
-    harmonic. 0 means the pair does not form a conjunction in the H-h chart.
+    Cell value is Tightness% (0..100) at which that pair resonates with that
+    harmonic. 0 means the pair does not form a conjunction in the H-h chart;
+    100 means an exact conjunction in that chart.
 
     Parameters
     ----------
@@ -81,14 +88,14 @@ def compute_harmonic_matrix(
         diff = abs(longitudes[i] - longitudes[j]) % 360
         aspect_angle = min(diff, 360 - diff)
 
-        hc_angle = (aspect_angle * harmonics) % 360
-        hc_orb = np.minimum(hc_angle, 360 - hc_angle)
+        mod = (aspect_angle * harmonics) % 360
+        tightness = np.minimum(mod, 360 - mod)
 
-        hit_mask = hc_orb <= orbs
-        closeness = np.where(hit_mask, 1.0 - hc_orb / orbs, 0.0)
+        hit_mask = tightness <= orbs
+        tightness_pct = np.where(hit_mask, 100.0 * (1.0 - tightness / orbs), 0.0)
 
         pair_labels.append(f"{b1} – {b2}")
-        rows.append(closeness)
+        rows.append(tightness_pct)
 
     if not rows:
         return pd.DataFrame(columns=[f"H{h}" for h in harmonics])
@@ -107,12 +114,16 @@ def compute_harmonic_long(
     max_harmonic: int = 360,
     base_orb: float = DEFAULT_BASE_ORB,
     orb_formula: OrbFormula = DEFAULT_FORMULA,
-    min_closeness: float = 0.0,
+    min_tightness_pct: float = 0.0,
 ) -> pd.DataFrame:
-    """Return long-form hits: ``Body1, Body2, Harmonic, AspectAngle, Mod, ...``.
+    """Return long-form hits: ``Body1, Body2, Harmonic, AspectAngle, Mod,
+    Tightness, OrbLimit, Tightness%``.
 
-    Only rows where the pair actually resonates with the harmonic (closeness
-    >= ``min_closeness``) are included. Sorted by Closeness descending.
+    Tightness    - degrees off from exact in the H-h chart (low = tight).
+    Tightness%   - same as 0..100 scale of OrbLimit (high = tight).
+
+    Only rows where the pair resonates (Tightness% >= ``min_tightness_pct``)
+    are included. Sorted by Tightness% descending.
     """
     df = bodies_df[~bodies_df["Body"].str.contains("House Cusp", na=False)]
     df = df.dropna(subset=["Longitude (°)"]).reset_index(drop=True)
@@ -131,53 +142,53 @@ def compute_harmonic_long(
         diff = abs(longitudes[i] - longitudes[j]) % 360
         aspect_angle = min(diff, 360 - diff)
 
-        hc_angle = (aspect_angle * harmonics) % 360
-        hc_orb = np.minimum(hc_angle, 360 - hc_angle)
+        mod = (aspect_angle * harmonics) % 360
+        tightness = np.minimum(mod, 360 - mod)
 
-        hit_idx = np.where(hc_orb <= orbs)[0]
+        hit_idx = np.where(tightness <= orbs)[0]
         for k in hit_idx:
-            closeness = 1.0 - hc_orb[k] / orbs[k]
-            if closeness < min_closeness:
+            tightness_pct = 100.0 * (1.0 - tightness[k] / orbs[k])
+            if tightness_pct < min_tightness_pct:
                 continue
             records.append({
                 "Body1": b1,
                 "Body2": b2,
                 "Harmonic": int(harmonics[k]),
                 "AspectAngle": round(float(aspect_angle), 4),
-                "Mod": round(float(hc_angle[k]), 4),
-                "HCOrb": round(float(hc_orb[k]), 4),
+                "Mod": round(float(mod[k]), 4),
+                "Tightness": round(float(tightness[k]), 4),
                 "OrbLimit": round(float(orbs[k]), 4),
-                "Closeness": round(float(closeness), 4),
+                "Tightness%": round(float(tightness_pct), 2),
             })
 
     if not records:
         return pd.DataFrame(columns=[
             "Body1", "Body2", "Harmonic", "AspectAngle",
-            "Mod", "HCOrb", "OrbLimit", "Closeness",
+            "Mod", "Tightness", "OrbLimit", "Tightness%",
         ])
     out = pd.DataFrame(records)
-    return out.sort_values(["Closeness", "Harmonic"], ascending=[False, True]).reset_index(drop=True)
+    return out.sort_values(["Tightness%", "Harmonic"], ascending=[False, True]).reset_index(drop=True)
 
 
 def rank_harmonics_from_matrix(matrix: pd.DataFrame) -> pd.DataFrame:
     """Aggregate a heatmap matrix into per-harmonic resonance metrics.
 
     Returns one row per harmonic with two separate columns:
-      - PairCount: how many body pairs resonate at that harmonic
-      - BestCloseness: the tightest hit (max closeness, 0..1)
+      - PairCount:     how many body pairs resonate at that harmonic
+      - BestTightness%: the tightest hit (max Tightness%, 0..100)
 
-    Sorted by PairCount desc, then BestCloseness desc.
+    Sorted by PairCount desc, then BestTightness% desc.
     """
     if matrix.empty:
-        return pd.DataFrame(columns=["Harmonic", "PairCount", "BestCloseness"])
+        return pd.DataFrame(columns=["Harmonic", "PairCount", "BestTightness%"])
 
     count = (matrix > 0).sum(axis=0)
     best = matrix.max(axis=0)
     out = pd.DataFrame({
         "Harmonic": [int(c[1:]) for c in matrix.columns],
         "PairCount": count.values,
-        "BestCloseness": best.values.round(4),
+        "BestTightness%": best.values.round(2),
     })
     return out.sort_values(
-        ["PairCount", "BestCloseness"], ascending=[False, False]
+        ["PairCount", "BestTightness%"], ascending=[False, False]
     ).reset_index(drop=True)
