@@ -585,14 +585,10 @@ function vibRender(data) {
     trDetail.style.display = 'none';
     if (hasMeaning) {
       var src = (row.Source && row.Source !== 'nan') ? '<div class="vib-source">Source: ' + row.Source + '</div>' : '';
-      var transit = (row.TransitMeaning && row.TransitMeaning !== 'nan')
-        ? '<div class="vib-meaning-section"><span class="vib-meaning-label">Transit</span> ' + row.TransitMeaning + '</div>' : '';
-      var harmony = (row.HarmonyMeaning && row.HarmonyMeaning !== 'nan')
-        ? '<div class="vib-meaning-section"><span class="vib-meaning-label">Synastry</span> ' + row.HarmonyMeaning + '</div>' : '';
       trDetail.innerHTML =
         '<td colspan="5" class="vib-meaning-cell">' +
           '<div class="vib-meaning-natal">' + row.NatalMeaning + '</div>' +
-          transit + harmony + src +
+          src +
         '</td>';
 
       (function(tr, trDetail, iconId) {
