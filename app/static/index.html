@@ -695,10 +695,10 @@ function drawWheel(data) {
     var meta2 = ASP_TYPES.find(function(t){ return t.name === a.Aspect; });
     var isMajor = meta2 ? meta2.major : true;
     var val = isMajor ? MAJOR_ORB_VAL : MINOR_ORB_VAL;
-    var orbDelta = (a.Orb != null && a.Closeness != null)
-      ? (1 - a.Closeness) * a.Orb
+    var orbDelta = (a.OrbLimit != null && a.Closeness != null)
+      ? (1 - a.Closeness) * a.OrbLimit
       : Math.abs((a.Angle || 0) - (a.Degrees || 0));
-    if (ORB_TYPE === 'pct') return a.Orb != null ? (orbDelta / a.Orb * 100 <= val) : (orbDelta <= 6);
+    if (ORB_TYPE === 'pct') return a.OrbLimit != null ? (orbDelta / a.OrbLimit * 100 <= val) : (orbDelta <= 6);
     return orbDelta <= val;
   });
 

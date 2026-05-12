@@ -81,13 +81,8 @@ PLANET_IDS: dict[str, int] = {
 # ---------------------------------------------------------------------------
 # Aspects
 # ---------------------------------------------------------------------------
-# Orbs are doubled vs. the raw values to match the notebook's behaviour.
-# New (post-Cochrane) higher-harmonic aspects use base orb 1.5 (→ 3°) for
-# the 7th-harmonic family and 1 (→ 2°) for the 9th/10th-harmonic family.
-_BASE_ORBS = [
-    5, 5, 5, 5, 4, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1,
-    1.5, 1.5, 1, 1, 1,
-]
+# Orbs are NOT stored here anymore — they are derived from the user-supplied
+# base_orb and orb_formula via app.core.orbs, using each aspect's Harmonic.
 
 ASPECTS: pd.DataFrame = pd.DataFrame({
     "Degrees": [
@@ -111,7 +106,6 @@ ASPECTS: pd.DataFrame = pd.DataFrame({
         8, 9, 10, 5, 11, 12, 12, 8,
         7, 7, 9, 9, 10,
     ],
-    "Orb": [o * 2 for o in _BASE_ORBS],
     "Description": [
         "A merging of planetary energies; highly significant and intensifying.",
         "Indicates tension, conflict, or balance between opposing forces.",
