@@ -10,7 +10,7 @@ Two tightness measures per (pair, harmonic):
                       r = aspect_angle mod (360/h)
                       Tightness = min(r, 360/h - r)
     HCTightness - same orb scaled to the harmonic chart (Tightness × h).
-                  Useful for comparing across harmonics on a common scale.
+                  Used internally for the orb check; exposed for reference.
     Tightness%  - 0-100 scale relative to OrbLimit (high = tight, 100 = exact)
 
 Method:
@@ -26,6 +26,7 @@ Method:
 """
 from __future__ import annotations
 
+from collections import Counter
 from itertools import combinations
 
 import numpy as np
@@ -34,18 +35,62 @@ import pandas as pd
 from app.core.orbs import DEFAULT_BASE_ORB, DEFAULT_FORMULA, OrbFormula, orb_limit
 
 
-# Bodies that are structurally fixed (always exactly 180° apart) — skip
+# Bodies whose pairs are structurally fixed — skipped in pair computation
 _AXIS_POINTS: frozenset[str] = frozenset({"Asc", "Desc", "MC", "IC"})
 _NODES: frozenset[str] = frozenset({"North Node", "South Node"})
 
+# Bodies whose pairs inflate harmonic counts without personal meaning
+_IMPERSONAL: frozenset[str] = _AXIS_POINTS | _NODES
+
 
 def _skip_pair(b1: str, b2: str) -> bool:
+    """Skip pairs that are always exactly 180° apart by definition."""
     if b1 in _NODES and b2 in _NODES:
         return True
     if b1 in _AXIS_POINTS and b2 in _AXIS_POINTS:
         return True
     return False
 
+
+def _is_personal_pair(b1: str, b2: str) -> bool:
+    """True if at least one body in the pair is a planet (not axis/node)."""
+    return not (b1 in _IMPERSONAL and b2 in _IMPERSONAL)
+
+
+# ---------------------------------------------------------------------------
+# Prime factorisation helpers
+# ---------------------------------------------------------------------------
+
+def prime_factors(n: int) -> list[int]:
+    """Return the prime factors of n (with repetition), e.g. 12 → [2, 2, 3]."""
+    factors: list[int] = []
+    d = 2
+    while d * d <= n:
+        while n % d == 0:
+            factors.append(d)
+            n //= d
+        d += 1
+    if n > 1:
+        factors.append(n)
+    return factors
+
+
+def factor_label(n: int) -> str:
+    """Human-readable prime factorisation, e.g. 12 → '2² × 3', 7 → 'prime'."""
+    factors = prime_factors(n)
+    if len(factors) == 1:
+        return "prime"
+    counts = Counter(factors)
+    parts = []
+    for p in sorted(counts):
+        exp = counts[p]
+        parts.append(f"{p}²" if exp == 2 else f"{p}³" if exp == 3 else f"{p}^{exp}" if exp > 3 else str(p))
+    return " × ".join(parts)
+
+
+# ---------------------------------------------------------------------------
+# Core computation
+# ---------------------------------------------------------------------------
 
 def compute_harmonic_matrix(
     bodies_df: pd.DataFrame,
@@ -56,21 +101,18 @@ def compute_harmonic_matrix(
     """Return wide matrix: rows = body pairs, columns = H1..H{max_harmonic}.
 
     Cell value is Tightness% (0..100) at which that pair resonates with that
-    harmonic. 0 means the pair does not form a conjunction in the H-h chart;
-    100 means an exact conjunction in that chart.
+    harmonic. 0 means the pair does not resonate; 100 means exact.
 
     Parameters
     ----------
     bodies_df
-        DataFrame with ``Body`` and ``Longitude (°)`` columns (same shape as
-        the input to :func:`app.core.aspects.calculate_aspects`).
+        DataFrame with ``Body`` and ``Longitude (°)`` columns.
     max_harmonic
         Highest harmonic to evaluate (inclusive). Default 360.
     base_orb
         Orb at H1 in natal-chart degrees. Default 8°.
     orb_formula
-        ``"sqrt"`` (default), ``"linear"``, or ``"fixed"``. See
-        :mod:`app.core.orbs`.
+        ``"sqrt"`` (default), ``"linear"``, or ``"fixed"``.
     """
     df = bodies_df[~bodies_df["Body"].str.contains("House Cusp", na=False)]
     df = df.dropna(subset=["Longitude (°)"]).reset_index(drop=True)
@@ -91,10 +133,10 @@ def compute_harmonic_matrix(
         diff = abs(longitudes[i] - longitudes[j]) % 360
         aspect_angle = min(diff, 360 - diff)
 
-        step = 360.0 / harmonics                          # 360/h per harmonic
-        r = aspect_angle % step                           # remainder in [0, step)
-        tightness = np.minimum(r, step - r)               # natal-chart orb
-        hc_tightness = tightness * harmonics              # harmonic-chart orb
+        step = 360.0 / harmonics
+        r = aspect_angle % step
+        tightness = np.minimum(r, step - r)
+        hc_tightness = tightness * harmonics
 
         hit_mask = hc_tightness <= orbs
         tightness_pct = np.where(hit_mask, 100.0 * (1.0 - hc_tightness / orbs), 0.0)
@@ -121,16 +163,22 @@ def compute_harmonic_long(
     orb_formula: OrbFormula = DEFAULT_FORMULA,
     min_tightness_pct: float = 0.0,
 ) -> pd.DataFrame:
-    """Return long-form hits: ``Body1, Body2, Harmonic, AspectAngle,
-    Tightness, HCTightness, OrbLimit, Tightness%``.
+    """Return long-form hits: one row per (pair, harmonic) resonance.
 
-    Tightness    - degrees off nearest exact aspect in the natal chart
-                   (remainder after dividing AspectAngle by 360/h).
-    HCTightness  - same orb in the H-h harmonic chart (Tightness × h).
-    Tightness%   - 0..100 scale of OrbLimit (high = tight, 100 = exact).
+    Columns
+    -------
+    Body1, Body2     - the two bodies in the pair
+    Harmonic         - harmonic number h
+    Factors          - prime factorisation label (e.g. '3²', '2 × 7', 'prime')
+    AspectAngle      - angular separation between the two bodies (0..180°)
+    Tightness        - natal-chart orb: degrees off nearest exact aspect of h
+                       = aspect_angle mod (360/h), folded to 0..180/h
+    HCTightness      - same orb in harmonic-chart degrees (Tightness × h)
+    OrbLimit         - maximum HCTightness allowed for a hit at this h
+    Tightness%       - 0-100 closeness score (100 = exact, 0 = at orb edge)
+    Personal         - True if at least one body is a planet (not axis/node)
 
-    Only rows where the pair resonates (Tightness% >= ``min_tightness_pct``)
-    are included. Sorted by Tightness% descending.
+    Sorted by Tightness% descending.
     """
     df = bodies_df[~bodies_df["Body"].str.contains("House Cusp", na=False)]
     df = df.dropna(subset=["Longitude (°)"]).reset_index(drop=True)
@@ -149,34 +197,92 @@ def compute_harmonic_long(
         diff = abs(longitudes[i] - longitudes[j]) % 360
         aspect_angle = min(diff, 360 - diff)
 
-        step = 360.0 / harmonics                          # 360/h per harmonic
-        r = aspect_angle % step                           # remainder in [0, step)
-        tightness = np.minimum(r, step - r)               # natal-chart orb
-        hc_tightness = tightness * harmonics              # harmonic-chart orb
+        step = 360.0 / harmonics
+        r = aspect_angle % step
+        tightness = np.minimum(r, step - r)
+        hc_tightness = tightness * harmonics
 
         hit_idx = np.where(hc_tightness <= orbs)[0]
         for k in hit_idx:
             tightness_pct = 100.0 * (1.0 - hc_tightness[k] / orbs[k])
             if tightness_pct < min_tightness_pct:
                 continue
+            h = int(harmonics[k])
             records.append({
                 "Body1": b1,
                 "Body2": b2,
-                "Harmonic": int(harmonics[k]),
+                "Harmonic": h,
+                "Factors": factor_label(h),
                 "AspectAngle": round(float(aspect_angle), 4),
                 "Tightness": round(float(tightness[k]), 4),
                 "HCTightness": round(float(hc_tightness[k]), 4),
                 "OrbLimit": round(float(orbs[k]), 4),
                 "Tightness%": round(float(tightness_pct), 2),
+                "Personal": _is_personal_pair(b1, b2),
             })
 
     if not records:
         return pd.DataFrame(columns=[
-            "Body1", "Body2", "Harmonic", "AspectAngle",
-            "Tightness", "HCTightness", "OrbLimit", "Tightness%",
+            "Body1", "Body2", "Harmonic", "Factors", "AspectAngle",
+            "Tightness", "HCTightness", "OrbLimit", "Tightness%", "Personal",
         ])
     out = pd.DataFrame(records)
     return out.sort_values(["Tightness%", "Harmonic"], ascending=[False, True]).reset_index(drop=True)
+
+
+# ---------------------------------------------------------------------------
+# Ranking
+# ---------------------------------------------------------------------------
+
+def rank_harmonics(
+    long_df: pd.DataFrame,
+    personal_only: bool = True,
+) -> pd.DataFrame:
+    """Aggregate long-form hits into one row per harmonic.
+
+    Parameters
+    ----------
+    long_df
+        Output of :func:`compute_harmonic_long`.
+    personal_only
+        If True (default), exclude pairs where both bodies are axis/node
+        points. This prevents structural axis pairs from inflating counts.
+
+    Returns
+    -------
+    DataFrame with columns:
+
+    Harmonic    - harmonic number
+    Factors     - prime factorisation (e.g. '3²', '2 × 7', 'prime')
+    PairCount   - number of resonating pairs
+    Tightest    - natal orb of the closest pair (degrees)
+    Pairs       - comma-separated ``Body1–Body2 X.XXX°`` entries, tightest first
+    """
+    df = long_df[long_df["Personal"]] if personal_only else long_df
+
+    if df.empty:
+        return pd.DataFrame(columns=["Harmonic", "Factors", "PairCount", "Tightest", "Pairs"])
+
+    rows = []
+    for h, group in df.groupby("Harmonic"):
+        group = group.sort_values("Tightness")
+        pairs_str = ",  ".join(
+            f"{r['Body1']}–{r['Body2']} {r['Tightness']:.3f}°"
+            for _, r in group.iterrows()
+        )
+        rows.append({
+            "Harmonic": int(h),
+            "Factors": group["Factors"].iloc[0],
+            "PairCount": len(group),
+            "Tightest": round(float(group["Tightness"].min()), 4),
+            "Pairs": pairs_str,
+        })
+
+    return (
+        pd.DataFrame(rows)
+        .sort_values(["PairCount", "Tightest"], ascending=[False, True])
+        .reset_index(drop=True)
+    )
 
 
 def rank_harmonics_from_matrix(
@@ -186,21 +292,15 @@ def rank_harmonics_from_matrix(
 ) -> pd.DataFrame:
     """Aggregate a heatmap matrix into per-harmonic resonance info.
 
-    Returns one row per harmonic with:
-      - PairCount: how many body pairs resonate at that harmonic
-      - Pairs:     comma-separated list of
-                   ``Body1 – Body2 X.XX° (Y.YY° Hh)`` entries, where
-                   the first number is the natal orb (degrees off the
-                   nearest exact aspect of that harmonic) and the second
-                   is the same orb expressed in harmonic-chart degrees
-                   (natal orb × h). Sorted tightest first.
+    Prefer :func:`rank_harmonics` (works from the long-form output and
+    supports personal_only filtering). This function is kept for callers
+    that already have the wide matrix.
 
-    ``base_orb`` and ``orb_formula`` must match those used to build
-    ``matrix`` so Tightness can be recovered from Tightness%.
-    Sorted by PairCount desc, then by the tightest pair (smallest natal orb).
+    Returns one row per harmonic with: Harmonic, Factors, PairCount, Pairs.
+    Sorted by PairCount desc, then tightest pair asc.
     """
     if matrix.empty:
-        return pd.DataFrame(columns=["Harmonic", "PairCount", "Pairs"])
+        return pd.DataFrame(columns=["Harmonic", "Factors", "PairCount", "Pairs"])
 
     rows = []
     for col in matrix.columns:
@@ -208,22 +308,24 @@ def rank_harmonics_from_matrix(
         orb_at_h = float(orb_limit(h, base_orb=base_orb, formula=orb_formula))
         series = matrix[col]
         hits = series[series > 0]
-        # HCTightness = orb_at_h * (1 - pct/100)
-        # Tightness (natal orb) = HCTightness / h
+        # HCTightness = orb_at_h * (1 - pct/100); Tightness = HCTightness / h
         hits_hc = (orb_at_h * (1.0 - hits / 100.0)).sort_values()
         count = len(hits_hc)
-        pairs_str = ", ".join(
-            f"{pair} {hc/h:.2f}° ({hc:.2f}° H{h})"
+        pairs_str = ",  ".join(
+            f"{pair} {hc/h:.3f}°"
             for pair, hc in hits_hc.items()
         )
         rows.append({
             "Harmonic": h,
+            "Factors": factor_label(h),
             "PairCount": count,
             "Pairs": pairs_str,
             "_top": float(hits_hc.iloc[0]) if count else float("inf"),
         })
 
-    out = pd.DataFrame(rows).sort_values(
-        ["PairCount", "_top"], ascending=[False, True]
-    ).drop(columns="_top").reset_index(drop=True)
-    return out
+    return (
+        pd.DataFrame(rows)
+        .sort_values(["PairCount", "_top"], ascending=[False, True])
+        .drop(columns="_top")
+        .reset_index(drop=True)
+    )
