@@ -4,8 +4,6 @@ in a chart's aspects table.
 from __future__ import annotations
 
 import math
-from functools import reduce
-from typing import Iterator
 
 import pandas as pd
 
@@ -57,7 +55,7 @@ def _is_prime(n: int) -> bool:
 
 
 def _prime_factors(n: int) -> list[int]:
-    """Return sorted list of unique prime factors of n."""
+    """Return sorted list of unique prime factors of n (no repetition)."""
     factors: set[int] = set()
     d = 2
     while d * d <= n:
@@ -68,6 +66,25 @@ def _prime_factors(n: int) -> list[int]:
     if n > 1:
         factors.add(n)
     return sorted(factors)
+
+
+def _factorization(n: int) -> str:
+    """Full prime factorization with repetition, e.g. 12 → '2×2×3'.
+
+    Primes return their own value; 1 returns '1'.
+    """
+    if n <= 1:
+        return str(n)
+    factors: list[int] = []
+    d, m = 2, n
+    while d * d <= m:
+        while m % d == 0:
+            factors.append(d)
+            m //= d
+        d += 1
+    if m > 1:
+        factors.append(m)
+    return "×".join(str(f) for f in factors)
 
 
 def _definition(h: int) -> str:
@@ -94,10 +111,10 @@ VIBRATIONAL_HARMONICS: pd.DataFrame = pd.DataFrame({
     "aspect_degree": [round(360 / h, 6) for h in _RANGE],
     "name":         [HARMONIC_NAMES.get(h, f"H{h}") for h in _RANGE],
     "definition":   [_definition(h) for h in _RANGE],
-    "prime":        [_is_prime(h) for h in _RANGE],
-    # LCM of each harmonic with 360: the smallest degree-count at which this
-    # harmonic completes a whole number of cycles within the zodiac circle.
-    "lcm_360":      [math.lcm(h, 360) for h in _RANGE],
+    "prime":               [_is_prime(h) for h in _RANGE],
+    # Full prime factorization with repetition, e.g. 12 → '2×2×3'.
+    # Primes show only themselves; 1 shows '1'.
+    "prime_factorization": [_factorization(h) for h in _RANGE],
 })
 
 
