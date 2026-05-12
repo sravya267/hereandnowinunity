@@ -5,9 +5,12 @@ plus a long-form table of matched (body pair, harmonic) hits.
 
 Method (standard vibrational astrology):
     For two planets with longitudes L1, L2 and harmonic h:
-        natal angle  = min(|L1 - L2|, 360 - |L1 - L2|)        # 0..180
-        hc angle     = (natal_angle * h) mod 360
-        hc orb       = min(hc_angle, 360 - hc_angle)          # 0..180
+        aspect_angle = min(|L1 - L2|, 360 - |L1 - L2|)        # 0..180,
+                                                              # the angular
+                                                              # gap between
+                                                              # the two bodies
+        hc_angle     = (aspect_angle * h) mod 360
+        hc_orb       = min(hc_angle, 360 - hc_angle)          # 0..180
     The pair forms a conjunction in the H-h chart if hc_orb <= ORB(h).
     Orb tightens with harmonic: ORB(h) = base_orb / sqrt(h).
     Closeness = 1 - hc_orb / ORB(h), so 1.0 at exact, 0.0 at the edge.
@@ -76,9 +79,9 @@ def compute_harmonic_matrix(
             continue
 
         diff = abs(longitudes[i] - longitudes[j]) % 360
-        angle = min(diff, 360 - diff)
+        aspect_angle = min(diff, 360 - diff)
 
-        hc_angle = (angle * harmonics) % 360
+        hc_angle = (aspect_angle * harmonics) % 360
         hc_orb = np.minimum(hc_angle, 360 - hc_angle)
 
         hit_mask = hc_orb <= orbs
@@ -105,7 +108,7 @@ def compute_harmonic_long(
     base_orb: float = 8.0,
     min_closeness: float = 0.0,
 ) -> pd.DataFrame:
-    """Return long-form hits: ``Body1, Body2, Harmonic, Orb, Closeness``.
+    """Return long-form hits: ``Body1, Body2, Harmonic, AspectAngle, Mod, ...``.
 
     Only rows where the pair actually resonates with the harmonic (closeness
     >= ``min_closeness``) are included. Sorted by Closeness descending.
@@ -125,9 +128,9 @@ def compute_harmonic_long(
             continue
 
         diff = abs(longitudes[i] - longitudes[j]) % 360
-        angle = min(diff, 360 - diff)
+        aspect_angle = min(diff, 360 - diff)
 
-        hc_angle = (angle * harmonics) % 360
+        hc_angle = (aspect_angle * harmonics) % 360
         hc_orb = np.minimum(hc_angle, 360 - hc_angle)
 
         hit_idx = np.where(hc_orb <= orbs)[0]
@@ -139,7 +142,7 @@ def compute_harmonic_long(
                 "Body1": b1,
                 "Body2": b2,
                 "Harmonic": int(harmonics[k]),
-                "NatalAngle": round(float(angle), 4),
+                "AspectAngle": round(float(aspect_angle), 4),
                 "Mod": round(float(hc_angle[k]), 4),
                 "HCOrb": round(float(hc_orb[k]), 4),
                 "OrbLimit": round(float(orbs[k]), 4),
@@ -148,7 +151,7 @@ def compute_harmonic_long(
 
     if not records:
         return pd.DataFrame(columns=[
-            "Body1", "Body2", "Harmonic", "NatalAngle",
+            "Body1", "Body2", "Harmonic", "AspectAngle",
             "Mod", "HCOrb", "OrbLimit", "Closeness",
         ])
     out = pd.DataFrame(records)
