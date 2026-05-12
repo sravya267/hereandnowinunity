@@ -175,20 +175,20 @@ def rank_harmonics_from_matrix(matrix: pd.DataFrame) -> pd.DataFrame:
 
     Returns one row per harmonic with two separate columns:
       - PairCount:     how many body pairs resonate at that harmonic
-      - BestTightness%: the tightest hit (max Tightness%, 0..100)
+      - Tightness%: the tightest hit (max Tightness%, 0..100)
 
-    Sorted by PairCount desc, then BestTightness% desc.
+    Sorted by PairCount desc, then Tightness% desc.
     """
     if matrix.empty:
-        return pd.DataFrame(columns=["Harmonic", "PairCount", "BestTightness%"])
+        return pd.DataFrame(columns=["Harmonic", "PairCount", "Tightness%"])
 
     count = (matrix > 0).sum(axis=0)
-    best = matrix.max(axis=0)
+    tightest = matrix.max(axis=0)
     out = pd.DataFrame({
         "Harmonic": [int(c[1:]) for c in matrix.columns],
         "PairCount": count.values,
-        "BestTightness%": best.values.round(2),
+        "Tightness%": tightest.values.round(2),
     })
     return out.sort_values(
-        ["PairCount", "BestTightness%"], ascending=[False, False]
+        ["PairCount", "Tightness%"], ascending=[False, False]
     ).reset_index(drop=True)
