@@ -46,6 +46,7 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .page{display:none;padding:10px 16px}
 .page.active{display:block}
 
+<<<<<<< Updated upstream
 .row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .right-2x2{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;height:600px;min-width:0}
 .card{background:#fff;border:1px solid #e8e4df;border-radius:5px;overflow:hidden;display:flex;flex-direction:column}
@@ -64,16 +65,34 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .pat-bodies{color:#8b7355;font-size:10px}
 .pat-desc{color:#9b9185;font-size:10px}
 .pat-score{float:right;font-size:10px;color:#b09e82}
+=======
+.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.card{background:#fff;border:1px solid #e8e4df;border-radius:5px;overflow:hidden;display:flex;flex-direction:column}
+.card-fixed{height:540px}
+>>>>>>> Stashed changes
 
 .card-hdr{display:flex;justify-content:space-between;align-items:center;padding:5px 10px;background:#faf8f5;border-bottom:1px solid #e8e4df;flex-shrink:0}
 .card-hdr-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9b9185}
 .copy-btn{padding:2px 9px;border:1px solid #ddd8d1;border-radius:3px;background:#fff;color:#8b7355;font-size:10px;cursor:pointer;font-family:inherit}
 .copy-btn:hover{background:#ece7df}
+<<<<<<< Updated upstream
 
 .card-body{flex:1;overflow:auto;min-height:0;position:relative}
+=======
+.card-body{flex:1;overflow:auto;min-height:0}
+>>>>>>> Stashed changes
+
+/* Aspect filter bar */
+.filter-bar{display:flex;align-items:center;gap:6px;padding:4px 10px;background:#fdf9f5;border-bottom:1px solid #e8e4df;flex-wrap:wrap;flex-shrink:0}
+.filter-bar label{font-size:10px;color:#8a8279;display:flex;align-items:center;gap:2px;cursor:pointer;white-space:nowrap}
+.filter-bar input[type="checkbox"]{width:12px;height:12px;accent-color:#8b7355}
+.filter-bar .orb-ctl{display:flex;align-items:center;gap:3px;margin-left:auto}
+.filter-bar .orb-ctl input[type="range"]{width:60px;height:12px;accent-color:#8b7355}
+.filter-bar .orb-val{font-size:10px;color:#5a4e3c;font-weight:600;min-width:16px}
 
 canvas{display:block;width:100%;height:100%}
 
+<<<<<<< Updated upstream
 .chart-row{display:flex;flex:1;min-height:0;overflow:hidden}
 .canvas-wrap{flex:1;min-width:0;position:relative;overflow:hidden}
 .canvas-wrap canvas{display:block;width:100%;height:100%}
@@ -175,6 +194,10 @@ canvas{display:block;width:100%;height:100%}
 .harm-asp-desc{font-size:10px;color:#7a705e;font-style:italic;line-height:1.45;margin-top:2px;padding-left:18px}
 .harm-asp-item .asp-glyph{display:inline-block;width:14px;text-align:center;color:#8b7355}
 .harm-asp-item .asp-close{color:#b09e82;font-size:10px}
+=======
+.traits-wrap{padding:8px 10px;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start}
+.trait-tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10.5px;background:#f0ebe3;color:#5a4e3c;border:1px solid #ddd8d1}
+>>>>>>> Stashed changes
 
 .info-box{padding:4px 8px;font-size:10px;line-height:1.6;font-family:'Menlo','Consolas','Courier New',monospace;white-space:pre-wrap;word-break:break-word;user-select:text}
 .s-hdr{color:#b09e82;font-size:9px;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #f0ece7;margin-top:4px;margin-bottom:1px;padding-bottom:1px}
@@ -186,8 +209,13 @@ canvas{display:block;width:100%;height:100%}
 .loading::before{content:'';display:inline-block;width:16px;height:16px;border:2px solid #e8e4df;border-top-color:#8b7355;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes sp{to{transform:rotate(360deg)}}
 
+<<<<<<< Updated upstream
 @media(max-width:900px){.row{grid-template-columns:1fr}.right-2x2{grid-template-columns:1fr;grid-template-rows:repeat(4,260px);height:auto}.card-wheel{height:480px}.card-info{height:320px}.intro{grid-template-columns:1fr;padding:8px 14px;gap:6px}}
 @media(max-width:650px){.toolbar{height:auto;padding:8px 12px;flex-wrap:wrap;gap:6px}.toolbar form{flex-wrap:wrap}.sep{display:none}.toolbar input[type="date"],.toolbar input[type="time"],.toolbar input[type="text"],.toolbar select{width:100%}}
+=======
+@media(max-width:1000px){.row{grid-template-columns:1fr 1fr}.card-fixed{height:460px}}
+@media(max-width:650px){.row{grid-template-columns:1fr}.toolbar{height:auto;padding:8px 12px;flex-wrap:wrap;gap:6px}.toolbar form{flex-wrap:wrap}.sep{display:none}.toolbar input[type="date"],.toolbar input[type="time"],.toolbar input[type="text"],.toolbar select{width:100%}}
+>>>>>>> Stashed changes
 </style>
 </head>
 <body>
@@ -236,6 +264,7 @@ canvas{display:block;width:100%;height:100%}
 <div id="empty-state" class="empty-page">Enter birth details above to generate your natal chart</div>
 
 <div id="results" class="page">
+<<<<<<< Updated upstream
   <div class="tab-bar">
     <div class="tabs">
       <button type="button" class="tab active" data-tab="natal">Natal</button>
@@ -368,6 +397,24 @@ canvas{display:block;width:100%;height:100%}
     <!-- Bottom row: Positions/Aspects -->
     <div style="padding-bottom:10px">
       <div class="card card-info">
+=======
+  <div id="meta-bar" class="meta-bar"></div>
+  <div style="padding:8px 0">
+    <div class="row">
+      <!-- Chart Wheel -->
+      <div class="card card-fixed">
+        <div class="card-hdr"><span class="card-hdr-title">Chart Wheel</span></div>
+        <div class="filter-bar" id="aspect-filters"></div>
+        <div class="card-body"><canvas id="wheel-canvas"></canvas></div>
+      </div>
+      <!-- Traits -->
+      <div class="card card-fixed">
+        <div class="card-hdr"><span class="card-hdr-title">Personality Strengths</span></div>
+        <div class="card-body traits-wrap" id="traits-box"></div>
+      </div>
+      <!-- Info -->
+      <div class="card card-fixed">
+>>>>>>> Stashed changes
         <div class="card-hdr">
           <span class="card-hdr-title">Positions &amp; Aspects</span>
           <button class="copy-btn" onclick="copyInfo()">Copy</button>
@@ -462,6 +509,7 @@ canvas{display:block;width:100%;height:100%}
 </div>
 
 <script>
+<<<<<<< Updated upstream
 
 // ─── Vibrational tab ─────────────────────────────────────────────────────────
 
@@ -671,7 +719,61 @@ ASP_TYPES.forEach(function(a){ ASP_FILTER[a.name] = a.defaultOn; });
 // Latest chart data, kept so filter changes can re-render without re-fetching.
 var LAST_DATA = null;
 var PAT_SEGMENTS = []; // aspect segments belonging to active patterns, set by drawWheel
+=======
+// ─── Constants ────────────────────────────────────────────────────────────────
+var SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+var SIGN_SYM = ['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+var SIGN_BG = ['#fff0ef','#edf5ee','#fffce6','#e8f2fa','#fff0ef','#edf5ee','#fffce6','#e8f2fa','#fff0ef','#edf5ee','#fffce6','#e8f2fa'];
+var SIGN_BORDER = ['#e8c4c0','#b8d4ba','#e8dfa8','#b0cde0','#e8c4c0','#b8d4ba','#e8dfa8','#b0cde0','#e8c4c0','#b8d4ba','#e8dfa8','#b0cde0'];
+var NAK_NAMES = ['Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Punarvasu','Pushya','Ashlesha','Magha','Purva Phalguni','Uttara Phalguni','Hasta','Chitra','Swati','Vishakha','Anuradha','Jyeshtha','Moola','Purva Ashadha','Uttara Ashadha','Shravana','Dhanishta','Shatabhisha','Purva Bhadrapada','Uttara Bhadrapada','Revati'];
+var P_ABBR = {Sun:'Su',Moon:'Mo',Mercury:'Me',Venus:'Ve',Mars:'Ma',Jupiter:'Ju',Saturn:'Sa',Uranus:'Ur',Neptune:'Ne',Pluto:'Pl',Chiron:'Ch','North Node':'Ra','South Node':'Ke'};
+var P_COLORS = {Sun:'#e6a817',Moon:'#e0e0e0',Mercury:'#4ec9b0',Venus:'#4a9fd5',Mars:'#e05555',Jupiter:'#d4a24e',Saturn:'#8a7ad8',Uranus:'#a04040',Neptune:'#5bc0de',Pluto:'#c8c8c8',Chiron:'#888','North Node':'#aaa','South Node':'#aaa'};
+var MAJOR_ASPECTS = ['Opposition','Trine','Square','Sextile','Conjunction'];
+var ALL_ASPECTS = ['Opposition','Trine','Square','Quintile','Sextile','Septile','Semi-square','Novile','Decile','Undecile','Semi-sextile'];
+var ASP_SYMS = {Opposition:'☍',Trine:'△',Square:'□',Sextile:'✶',Quintile:'Q','Semi-square':'∠','Semi-sextile':'⚹',Septile:'S',Novile:'N',Decile:'D',Undecile:'U'};
+>>>>>>> Stashed changes
 
+// ─── State ────────────────────────────────────────────────────────────────────
+var chartData = null;
+var enabledAspects = {};
+var maxOrb = 8;
+MAJOR_ASPECTS.forEach(function(a){ enabledAspects[a] = true; });
+
+// ─── Aspect filter bar ───────────────────────────────────────────────────────
+function buildFilterBar() {
+  var bar = document.getElementById('aspect-filters');
+  var html = '';
+  ALL_ASPECTS.forEach(function(a) {
+    var checked = enabledAspects[a] ? ' checked' : '';
+    html += '<label><input type="checkbox" data-asp="' + a + '"' + checked + '>' + a + '</label>';
+  });
+  html += '<span class="orb-ctl"><span style="font-size:10px;color:#9b9185">Orb:</span>';
+  html += '<input type="range" id="orb-slider" min="1" max="12" value="' + maxOrb + '">';
+  html += '<span class="orb-val" id="orb-val">' + maxOrb + '°</span></span>';
+  bar.innerHTML = html;
+
+  bar.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+      enabledAspects[this.dataset.asp] = this.checked;
+      if (chartData) requestAnimationFrame(function(){ drawWheel(chartData); });
+    });
+  });
+  document.getElementById('orb-slider').addEventListener('input', function() {
+    maxOrb = parseInt(this.value);
+    document.getElementById('orb-val').textContent = maxOrb + '°';
+    if (chartData) requestAnimationFrame(function(){ drawWheel(chartData); });
+  });
+}
+
+function filteredAspects(aspects) {
+  return (aspects || []).filter(function(a) {
+    if (!enabledAspects[a.Aspect]) return false;
+    var orb = Math.abs(a.Angle - a.Degrees);
+    return orb <= maxOrb;
+  });
+}
+
+// ─── Wheel drawing ────────────────────────────────────────────────────────────
 function drawWheel(data) {
   if (!data) return;
   PAT_SEGMENTS = [];
@@ -681,7 +783,6 @@ function drawWheel(data) {
   var W = parent.clientWidth, H = parent.clientHeight;
   cvs.width = W * dpr; cvs.height = H * dpr;
   cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
-
   var ctx = cvs.getContext('2d');
   ctx.setTransform(1,0,0,1,0,0);
   ctx.scale(dpr, dpr);
@@ -689,6 +790,7 @@ function drawWheel(data) {
   var cx = W / 2, cy = H / 2;
   var isSid = data.zodiac_system === 'Sidereal';
 
+<<<<<<< Updated upstream
   // Radii (outer to inner).
   var outerPad = isSid ? 26 : 6;
   var R   = Math.min(cx, cy) - outerPad;
@@ -753,24 +855,61 @@ function drawWheel(data) {
     var nakSpan = 360 / 27;
     var nakR = R + outerPad - 4;
     var nakInner = rTickOut + 2;
+=======
+  // Background
+  ctx.fillStyle = '#faf8f5';
+  ctx.fillRect(0, 0, W, H);
+
+  var pad = isSid ? 4 : 4;
+  var R = Math.min(cx, cy) - pad;
+
+  // Ring radii
+  var nakOuter = isSid ? R : 0;
+  var nakInner = isSid ? R * 0.88 : 0;
+  var signOuter = isSid ? nakInner : R;
+  var signInner = signOuter * 0.78;
+  var planetR = signInner * 0.82;
+  var houseR = signInner * 0.65;
+  var aspectR = houseR;
+
+  // Rotation: Asc on left (angle = PI)
+  var asc = data.bodies.find(function(b){ return b.Body === 'Asc'; });
+  var rotLon = asc ? asc['Longitude (°)'] : 0;
+  function lon2a(lon) { return Math.PI - (lon - rotLon) * Math.PI / 180; }
+
+  // ── Nakshatra ring (sidereal only)
+  if (isSid) {
+    var nakSpan = 360 / 27;
+>>>>>>> Stashed changes
     for (var ni = 0; ni < 27; ni++) {
       var na1 = lon2a(ni * nakSpan);
       var na2 = lon2a((ni + 1) * nakSpan);
       ctx.beginPath();
-      ctx.arc(cx, cy, nakR, na1, na2, true);
+      ctx.arc(cx, cy, nakOuter, na1, na2, true);
       ctx.arc(cx, cy, nakInner, na2, na1, false);
       ctx.closePath();
-      ctx.fillStyle = ni % 2 === 0 ? '#fdf8f2' : '#f5efe6';
+      ctx.fillStyle = ni % 2 === 0 ? '#f5f0e8' : '#ede8df';
       ctx.fill();
-      ctx.strokeStyle = '#e8e0d5'; ctx.lineWidth = 0.3; ctx.stroke();
+      ctx.strokeStyle = '#ddd6cb'; ctx.lineWidth = 0.4; ctx.stroke();
 
+      // Radial name
       var nMid = lon2a(ni * nakSpan + nakSpan / 2);
+<<<<<<< Updated upstream
       var nMr = (nakR + nakInner) / 2;
       var np = pt(nMr, nMid);
       ctx.save();
       ctx.translate(np[0], np[1]);
       ctx.rotate(nMid + Math.PI / 2);
       ctx.font = Math.round(R * 0.042) + 'px sans-serif';
+=======
+      var nR = (nakOuter + nakInner) / 2;
+      ctx.save();
+      ctx.translate(cx + nR * Math.cos(nMid), cy + nR * Math.sin(nMid));
+      var rot = nMid;
+      if (Math.cos(nMid) < 0) rot += Math.PI;
+      ctx.rotate(rot);
+      ctx.font = Math.max(7, Math.round(R * 0.032)) + 'px sans-serif';
+>>>>>>> Stashed changes
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillStyle = '#8b7355';
       ctx.fillText(NAK_NAMES[ni], 0, 0);
@@ -778,6 +917,7 @@ function drawWheel(data) {
     }
   }
 
+<<<<<<< Updated upstream
   // ── merged ring inner edge (aspect circle)
   ctx.beginPath(); ctx.arc(cx, cy, r1, 0, 2*Math.PI);
   ctx.strokeStyle = '#bbb'; ctx.lineWidth = 0.5; ctx.stroke();
@@ -956,18 +1096,161 @@ function drawWheel(data) {
     }
     ctx.globalAlpha = 1;
   });
+=======
+  // ── Zodiac sign segments
+  for (var i = 0; i < 12; i++) {
+    var a1 = lon2a(i * 30);
+    var a2 = lon2a((i + 1) * 30);
+    ctx.beginPath();
+    ctx.arc(cx, cy, signOuter, a1, a2, true);
+    ctx.arc(cx, cy, signInner, a2, a1, false);
+    ctx.closePath();
+    ctx.fillStyle = SIGN_BG[i];
+    ctx.fill();
+    ctx.strokeStyle = SIGN_BORDER[i]; ctx.lineWidth = 0.6; ctx.stroke();
+
+    // Sign name
+    var midA = lon2a(i * 30 + 15);
+    var mr = (signOuter + signInner) / 2;
+    ctx.save();
+    ctx.translate(cx + mr * Math.cos(midA), cy + mr * Math.sin(midA));
+    var tr = midA;
+    if (Math.cos(midA) < 0) tr += Math.PI;
+    ctx.rotate(tr);
+    ctx.font = Math.max(9, Math.round(R * 0.048)) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#7a6e60';
+    ctx.fillText(SIGNS[i], 0, 0);
+    ctx.restore();
+  }
+
+  // ── Inner circles
+  ctx.beginPath(); ctx.arc(cx, cy, signInner, 0, 2*Math.PI);
+  ctx.strokeStyle = '#d8d2c8'; ctx.lineWidth = 0.6; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, houseR, 0, 2*Math.PI);
+  ctx.strokeStyle = '#e0dbd3'; ctx.lineWidth = 0.4; ctx.stroke();
+
+  // ── House cusps
+  var cusps = data.bodies.filter(function(b){ return b.Body.indexOf('House Cusp') !== -1; });
+  cusps.forEach(function(c) {
+    var a = lon2a(c['Longitude (°)']);
+    ctx.beginPath();
+    ctx.moveTo(cx + houseR * Math.cos(a), cy + houseR * Math.sin(a));
+    ctx.lineTo(cx + signInner * Math.cos(a), cy + signInner * Math.sin(a));
+    ctx.strokeStyle = '#d8d2c8'; ctx.lineWidth = 0.5; ctx.stroke();
+  });
+
+  // House numbers
+  var sorted = cusps.slice().sort(function(a,b){ return a['Longitude (°)'] - b['Longitude (°)']; });
+  for (var hi = 0; hi < sorted.length; hi++) {
+    var l1 = sorted[hi]['Longitude (°)'];
+    var l2 = sorted[(hi+1) % sorted.length]['Longitude (°)'];
+    if (l2 <= l1) l2 += 360;
+    var hMid = lon2a((l1 + l2) / 2);
+    var hR2 = (houseR + signInner) / 2;
+    ctx.font = Math.round(R * 0.04) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#c4bdb4';
+    ctx.fillText(String(hi + 1), cx + hR2 * Math.cos(hMid), cy + hR2 * Math.sin(hMid));
+  }
+
+  // ── Asc / MC / Desc / IC lines
+  ['Asc','Desc','MC','IC'].forEach(function(name) {
+    var b = data.bodies.find(function(x){ return x.Body === name; });
+    if (!b) return;
+    var a = lon2a(b['Longitude (°)']);
+    ctx.beginPath();
+    ctx.moveTo(cx + houseR * 0.3 * Math.cos(a), cy + houseR * 0.3 * Math.sin(a));
+    ctx.lineTo(cx + signInner * Math.cos(a), cy + signInner * Math.sin(a));
+    ctx.strokeStyle = '#8b7355'; ctx.lineWidth = 1.2; ctx.stroke();
+  });
+
+  // ── Filtered aspect lines
+  var posMap = {};
+  data.bodies.forEach(function(b){ posMap[b.Body] = b['Longitude (°)']; });
+  var fAsp = filteredAspects(data.aspects);
+  fAsp.forEach(function(asp) {
+    var l1 = posMap[asp.Body1], l2 = posMap[asp.Body2];
+    if (l1 == null || l2 == null) return;
+    var a1 = lon2a(l1), a2 = lon2a(l2);
+    ctx.beginPath();
+    ctx.moveTo(cx + aspectR * Math.cos(a1), cy + aspectR * Math.sin(a1));
+    ctx.lineTo(cx + aspectR * Math.cos(a2), cy + aspectR * Math.sin(a2));
+    ctx.strokeStyle = asp.Color || '#999';
+    ctx.globalAlpha = Math.max(0.2, (asp.Closeness || 0.5) * 0.6);
+    ctx.lineWidth = Math.max(0.5, (asp.Closeness || 0.5) * 1.5);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  });
+
+  // ── Planets as colored dots with abbreviations
+  var planets = data.bodies.filter(function(b){
+    return b.Symbol && b.Body.indexOf('House') === -1 &&
+      b.Body !== 'Asc' && b.Body !== 'MC' && b.Body !== 'Desc' && b.Body !== 'IC';
+  });
+
+  // Spread tightly-conjunct planets
+  var placed = [];
+  var dotR = Math.max(8, R * 0.04);
+  planets.forEach(function(p) {
+    var baseA = lon2a(p['Longitude (°)']);
+    var pr = planetR;
+    for (var k = 0; k < placed.length; k++) {
+      var dx = pr * Math.cos(baseA) - placed[k].x;
+      var dy = pr * Math.sin(baseA) - placed[k].y;
+      if (Math.sqrt(dx*dx + dy*dy) < dotR * 3) {
+        pr -= dotR * 2.5;
+      }
+    }
+    var px = cx + pr * Math.cos(baseA);
+    var py = cy + pr * Math.sin(baseA);
+    placed.push({ x: pr * Math.cos(baseA), y: pr * Math.sin(baseA) });
+
+    // Dot
+    var col = P_COLORS[p.Body] || '#888';
+    ctx.beginPath(); ctx.arc(px, py, dotR, 0, 2*Math.PI);
+    ctx.fillStyle = col; ctx.globalAlpha = 0.85; ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Abbreviation
+    var abbr = P_ABBR[p.Body] || p.Body.substring(0, 2);
+    if (p.Motion === 'R') abbr += '(R)';
+    ctx.font = 'bold ' + Math.max(9, Math.round(R * 0.04)) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(abbr, px, py);
+
+    // Label below dot
+    var lx = px + (dotR + 4) * Math.cos(baseA - 0.3);
+    var ly = py + (dotR + 4) * Math.sin(baseA - 0.3);
+    var d = p['Longitude (°)'] % 30;
+    var deg = Math.floor(d), mn = Math.floor((d - deg) * 60);
+    ctx.font = Math.max(7, Math.round(R * 0.03)) + 'px sans-serif';
+    ctx.fillStyle = '#8a8279';
+    ctx.fillText(deg + '°' + (mn<10?'0':'') + mn + "'", lx, ly);
+  });
+>>>>>>> Stashed changes
 }
 
 // ─── Info box ─────────────────────────────────────────────────────────────────
 function signDeg(lon) {
   if (lon == null) return '';
   var d = lon % 30, deg = Math.floor(d), mn = Math.floor((d - deg) * 60);
+<<<<<<< Updated upstream
   return deg + '°' + (mn < 10 ? '0' : '') + mn + "'";
+=======
+  return deg + '°' + (mn<10?'0':'') + mn + "'";
+>>>>>>> Stashed changes
 }
 function fmtDeg(d) {
   if (d == null) return '';
   var deg = Math.floor(d), mn = Math.floor((d - deg) * 60);
+<<<<<<< Updated upstream
   return deg + '°' + (mn < 10 ? '0' : '') + mn + "'";
+=======
+  return deg + '°' + (mn<10?'0':'') + mn + "'";
+>>>>>>> Stashed changes
 }
 
 function buildInfoBox(d) {
@@ -977,6 +1260,7 @@ function buildInfoBox(d) {
       ANGLE_NAMES.indexOf(x.Body) === -1 &&
       POINT_NAMES.indexOf(x.Body) === -1;
   });
+<<<<<<< Updated upstream
   var angles  = d.bodies.filter(function(x){ return ANGLE_NAMES.indexOf(x.Body) !== -1; });
   var points  = d.bodies.filter(function(x){ return POINT_NAMES.indexOf(x.Body) !== -1; });
   var houses  = d.bodies.filter(function(x){ return x.Body && x.Body.indexOf('House Cusp') !== -1; });
@@ -988,10 +1272,23 @@ function buildInfoBox(d) {
     var house  = p.House ? ' &bull; H' + p.House : '';
     var nak    = (isSid && p.Nakshatra) ? ' &bull; ' + p.Nakshatra + ' P' + p.Pada : '';
     html += sym + ' ' + p.Body + motion + '  ' + p.Sign + ' ' + signDeg(p['Longitude (°)']) + house + nak + '\n';
+=======
+  var angles = d.bodies.filter(function(x){ return ['Asc','MC','Desc','IC'].indexOf(x.Body) !== -1; });
+  var houses = d.bodies.filter(function(x){ return x.Body && x.Body.indexOf('House Cusp') !== -1; });
+
+  var html = '<div class="s-hdr">Planets</div>';
+  planets.forEach(function(p) {
+    var sym = p.Symbol || '';
+    var motion = p.Motion === 'R' ? '<span class="retro">(R)</span>' : '(D)';
+    var house = p.House ? ' • H' + p.House : '';
+    var nak = (isSid && p.Nakshatra) ? ' • ' + p.Nakshatra + ' P' + p.Pada : '';
+    html += sym + p.Body + ' ' + motion + ' ' + p.Sign + ' ' + signDeg(p['Longitude (°)']) + house + nak + '\n';
+>>>>>>> Stashed changes
   });
 
   if (angles.length) {
     html += '<div class="s-hdr">Angles</div>';
+<<<<<<< Updated upstream
     angles.forEach(function(a){ html += a.Body + '  ' + a.Sign + ' ' + signDeg(a['Longitude (°)']) + '\n'; });
   }
   if (points.length) {
@@ -1007,12 +1304,20 @@ function buildInfoBox(d) {
     houses.forEach(function(h){
       html += h.Body.replace('House Cusp ','H') + '  ' + h.Sign + ' ' + signDeg(h['Longitude (°)']) + '\n';
     });
+=======
+    angles.forEach(function(a){ html += a.Body + ' ' + a.Sign + ' ' + signDeg(a['Longitude (°)']) + '\n'; });
   }
-  if (d.aspects && d.aspects.length) {
-    html += '<div class="s-hdr">Aspects (' + d.aspects.length + ')</div>';
-    d.aspects.forEach(function(a){
+  if (houses.length) {
+    html += '<div class="s-hdr">Houses</div>';
+    houses.forEach(function(h){ html += h.Body.replace('House Cusp ','H') + ' ' + h.Sign + ' ' + signDeg(h['Longitude (°)']) + '\n'; });
+>>>>>>> Stashed changes
+  }
+  var fAsp = filteredAspects(d.aspects);
+  if (fAsp.length) {
+    html += '<div class="s-hdr">Aspects (' + fAsp.length + ')</div>';
+    fAsp.forEach(function(a){
       var orb = (a.Angle != null && a.Degrees != null) ? fmtDeg(Math.abs(a.Angle - a.Degrees)) : '';
-      html += '<span class="asp-line">' + a.Body1 + ' ' + (a.aspect_symbol||'') + ' ' + a.Body2 + '  ' + a.Aspect + (orb ? '  orb ' + orb : '') + '</span>\n';
+      html += '<span class="asp-line">' + a.Body1 + ' ' + (a.aspect_symbol||'') + ' ' + a.Body2 + ' ' + a.Aspect + (orb ? ' orb ' + orb : '') + '</span>\n';
     });
   }
   document.getElementById('info-box').innerHTML = html;
@@ -1022,11 +1327,11 @@ function copyInfo() {
   var txt = document.getElementById('info-box').innerText;
   navigator.clipboard.writeText(txt).then(function(){
     var b = document.querySelector('.copy-btn');
-    b.textContent = 'Copied!';
-    setTimeout(function(){ b.textContent = 'Copy'; }, 1500);
+    b.textContent = 'Copied!'; setTimeout(function(){ b.textContent = 'Copy'; }, 1500);
   });
 }
 
+<<<<<<< Updated upstream
 // ─── Tab meta caption ────────────────────────────────────────────────────────
 function buildMeta(d) {
   var items = [
@@ -1104,6 +1409,20 @@ function renderWordCloud(d) {
     var color = palette[i % palette.length];
     return '<span class="wc-word" style="font-size:' + size + 'px;font-weight:' + weight +
            ';color:' + color + '">' + t.word + '</span>';
+=======
+function buildTraits(traits) {
+  var box = document.getElementById('traits-box');
+  if (!traits || !traits.length) { box.innerHTML = '<span style="color:#c4bdb4;font-size:11px">No trait data</span>'; return; }
+  box.innerHTML = traits.map(function(t){ return '<span class="trait-tag">' + t + '</span>'; }).join('');
+}
+
+function buildMeta(d) {
+  var items = [['Location',d.location],['Timezone',d.moment.timezone],['System',d.zodiac_system],
+    ['Coords', d.moment.latitude.toFixed(4)+', '+d.moment.longitude.toFixed(4)]];
+  if (d.ayanamsa != null) items.push(['Ayanamsa', fmtDeg(d.ayanamsa)]);
+  document.getElementById('meta-bar').innerHTML = items.map(function(x){
+    return '<div class="meta-item">'+x[0]+': <b>'+x[1]+'</b></div>';
+>>>>>>> Stashed changes
   }).join('');
 }
 
@@ -1574,12 +1893,13 @@ function fetchNatalHarmonics(d, chartParams) {
 
 // ─── Form submit ─────────────────────────────────────────────────────────────
 (function(){
-  var form    = document.getElementById('chart-form');
+  buildFilterBar();
+  var form = document.getElementById('chart-form');
   var spinner = document.getElementById('spinner');
   var results = document.getElementById('results');
-  var empty   = document.getElementById('empty-state');
-  var errBar  = document.getElementById('error-bar');
-  var btn     = document.getElementById('submit-btn');
+  var empty = document.getElementById('empty-state');
+  var errBar = document.getElementById('error-bar');
+  var btn = document.getElementById('submit-btn');
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
@@ -1606,13 +1926,21 @@ function fetchNatalHarmonics(d, chartParams) {
       })
       .then(function(d){
         spinner.style.display = 'none'; btn.disabled = false;
+<<<<<<< Updated upstream
         LAST_DATA = d;
+=======
+        chartData = d;
+>>>>>>> Stashed changes
         buildMeta(d);
         buildInfoBox(d);
         renderWordCloud(d);
         results.classList.add('active');
+<<<<<<< Updated upstream
         requestAnimationFrame(redrawAll);
         fetchNatalHarmonics(d, p);
+=======
+        requestAnimationFrame(function(){ drawWheel(d); });
+>>>>>>> Stashed changes
       })
       .catch(function(ex){
         spinner.style.display = 'none'; btn.disabled = false;
@@ -1620,6 +1948,10 @@ function fetchNatalHarmonics(d, chartParams) {
         errBar.style.display = 'block';
         empty.style.display = 'flex';
       });
+  });
+
+  window.addEventListener('resize', function(){
+    if (chartData) requestAnimationFrame(function(){ drawWheel(chartData); });
   });
 })();
 </script>
