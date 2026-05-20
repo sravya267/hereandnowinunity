@@ -8,7 +8,13 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;color:#3d3a36;font-size:13px;line-height:1.5}
 
-.intro{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:18px;padding:10px 20px;background:#faf6ee;border-bottom:1px solid #e8e4df;font-size:11px;line-height:1.5;color:#7a6e65}
+.intro{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:18px;padding:10px 20px;background:#faf6ee;border-bottom:1px solid #e8e4df;font-size:11px;line-height:1.5;color:#7a6e65;max-height:300px;overflow:hidden;transition:max-height .6s ease,padding .6s ease,opacity .4s ease;position:relative;cursor:pointer}
+.intro.collapsed{max-height:0;padding-top:0;padding-bottom:0;opacity:0;border-bottom:none}
+.intro-reopen{position:absolute;top:6px;right:10px;font-size:10px;color:#b09e82;background:transparent;border:none;cursor:pointer;font-family:inherit;padding:2px 6px;border-radius:3px}
+.intro-reopen:hover{color:#5a4e3c;background:#f5efe6}
+.intro-peek{display:none;text-align:center;padding:3px 0;background:#faf6ee;border-bottom:1px solid #e8e4df;font-size:10px;color:#b09e82;cursor:pointer;font-style:italic}
+.intro-peek:hover{color:#5a4e3c;background:#f5efe6}
+.intro-peek.show{display:block}
 .intro em{font-style:italic;color:#5a4e3c}
 .intro .attr{display:block;margin-top:3px;color:#9b9185;font-size:10px;font-style:normal}
 .intro-note{color:#7a6e65}
@@ -192,7 +198,7 @@ canvas{display:block;width:100%;height:100%}
 </head>
 <body>
 
-<div class="intro">
+<div class="intro" id="intro-banner">
   <div class="intro-col">
     <em>&ldquo;The birth chart is a map of consciousness, not a sentence of fate.&rdquo;</em>
     <span class="attr">&mdash; David Cochrane</span>
@@ -206,6 +212,7 @@ canvas{display:block;width:100%;height:100%}
     <span class="attr">Thanks, Sravya</span>
   </div>
 </div>
+<div class="intro-peek" id="intro-peek" title="Show welcome quotes">&#8964; show quotes</div>
 
 <div class="toolbar">
   <div class="brand">Astro<span>Chart</span></div>
@@ -1042,6 +1049,27 @@ function buildMeta(d) {
 }
 
 // ─── Tab switcher ────────────────────────────────────────────────────────────
+// Auto-collapse the welcome quotes banner after a few seconds.
+// Clicking the banner collapses it immediately; clicking the peek bar re-opens it.
+(function initIntroBanner(){
+  var banner = document.getElementById('intro-banner');
+  var peek = document.getElementById('intro-peek');
+  if (!banner || !peek) return;
+
+  function collapse() {
+    banner.classList.add('collapsed');
+    peek.classList.add('show');
+  }
+  function expand() {
+    banner.classList.remove('collapsed');
+    peek.classList.remove('show');
+  }
+
+  setTimeout(collapse, 6000);
+  banner.addEventListener('click', collapse);
+  peek.addEventListener('click', expand);
+})();
+
 (function initTabs(){
   var tabs = document.querySelectorAll('.tab');
   tabs.forEach(function(btn){
@@ -1210,7 +1238,7 @@ function renderHarmDetail(harmonic) {
     var pairs = row.Pairs.split(',  ').map(function(p) { return p.trim(); }).filter(Boolean);
     html += '<div class="harm-asp-label">' + row.PairCount + ' resonating pair' + (row.PairCount===1?'':'s') + '</div>';
     html += pairs.map(function(p) {
-      var m = p.match(/^(.*?)\s+([\d.]+)°$/);
+      var m = p.match(/^(.*?)\s+([\d.]+°)$/);
       var pairName = m ? m[1] : p;
       var orb = m ? m[2] + '°' : '';
       return '<div class="harm-asp-item">' +
