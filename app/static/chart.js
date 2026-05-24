@@ -135,7 +135,6 @@ function vibRender(data) {
 }
 
 // ─── Wheel drawing ────────────────────────────────────────────────────────────
-var SIGN_SYMBOLS = ['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
 var SIGN_NAMES_W = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 // Element-tinted glyphs: Fire=red, Earth=green, Air=amber, Water=blue
 var SIGN_GLYPH_COLS = ['#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e'];
@@ -179,7 +178,6 @@ function aspLineColor(meta) {
 
 // Display toggles. Per-planet keys default to true; group keys default to false.
 // Unchecking a body hides its symbol and any aspect lines involving it.
-var PLANET_NAMES = ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
 var BODY_DISPLAY = {
   Sun:true, Moon:true, Mercury:true, Venus:true, Mars:true,
   Jupiter:true, Saturn:true, Uranus:true, Neptune:true, Pluto:true,
@@ -888,28 +886,6 @@ function drawHarmMini(data, aspects) {
   });
 })();
 
-// Min-closeness slider for the Vibrational Resonance card. Re-aggregates
-// the family bar list from filtered aspects and re-renders any active
-// harmonic detail.
-(function initHarmFilter(){
-  var slider = document.getElementById('harm-min-close');
-  var read = document.getElementById('harm-min-close-readout');
-  if (!slider || !read) return;
-  slider.addEventListener('input', function(){
-    var pct = parseInt(slider.value, 10) || 0;
-    HARM_MIN_CLOSE = pct / 100;
-    read.textContent = pct + '%';
-    if (LAST_DATA) {
-      var prev = SELECTED_HARMONIC;
-      renderHarmonics(LAST_DATA);
-      // Restore selection if it still has aspects passing the filter
-      if (prev != null) {
-        var stillThere = computeHarmRows(LAST_DATA).some(function(r){ return r.harmonic === prev; });
-        if (stillThere) renderHarmDetail(prev);
-      }
-    }
-  });
-})();
 
 // Backwards-compat alias used by older redraw call sites
 function drawCurrentWheel() { redrawAll(); }

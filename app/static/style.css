@@ -3,8 +3,6 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 
 .intro{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:18px;padding:10px 20px;background:#faf6ee;border-bottom:1px solid #e8e4df;font-size:11px;line-height:1.5;color:#7a6e65;max-height:300px;overflow:hidden;transition:max-height .6s ease,padding .6s ease,opacity .4s ease;position:relative;cursor:pointer}
 .intro.collapsed{max-height:0;padding-top:0;padding-bottom:0;opacity:0;border-bottom:none}
-.intro-reopen{position:absolute;top:6px;right:10px;font-size:10px;color:#b09e82;background:transparent;border:none;cursor:pointer;font-family:inherit;padding:2px 6px;border-radius:3px}
-.intro-reopen:hover{color:#5a4e3c;background:#f5efe6}
 .intro-peek{display:none;text-align:center;padding:3px 0;background:#faf6ee;border-bottom:1px solid #e8e4df;font-size:10px;color:#b09e82;cursor:pointer;font-style:italic}
 .intro-peek:hover{color:#5a4e3c;background:#f5efe6}
 .intro-peek.show{display:block}
@@ -56,13 +54,6 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .word-cloud{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;align-content:center;padding:6px 8px;line-height:1.35;text-align:center;flex:1;overflow:auto}
 .word-cloud .wc-word{display:inline-block;margin:1px 4px;color:#5a4e3c;white-space:nowrap}
 .word-cloud .wc-empty{color:#c4bdb4;text-align:center;padding:30px;width:100%;font-size:12px}
-.pat-list{padding:6px 8px;font-size:11px;line-height:1.6;overflow:auto;height:100%}
-.pat-item{border-bottom:1px solid #f0ece7;padding:5px 0}
-.pat-item:last-child{border-bottom:none}
-.pat-type{font-weight:600;color:#5a4e3c;font-size:11px}
-.pat-bodies{color:#8b7355;font-size:10px}
-.pat-desc{color:#9b9185;font-size:10px}
-.pat-score{float:right;font-size:10px;color:#b09e82}
 
 .card-hdr{display:flex;justify-content:space-between;align-items:center;padding:5px 10px;background:#faf8f5;border-bottom:1px solid #e8e4df;flex-shrink:0}
 .card-hdr-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9b9185}
@@ -143,17 +134,11 @@ canvas{display:block;width:100%;height:100%}
 .vib-meaning-row td{background:#f7f3ee;padding:0}
 .vib-meaning-cell{padding:10px 14px 12px 28px !important;border-bottom:2px solid #e8e4df}
 .vib-meaning-natal{font-size:11px;color:#5a4e3c;line-height:1.65;margin-bottom:6px}
-.vib-meaning-section{font-size:10.5px;color:#7a705e;line-height:1.6;margin-top:4px}
-.vib-meaning-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#b09e82;margin-right:5px}
 .vib-source{font-size:9px;color:#b09e82;margin-top:8px;font-style:italic}
 
 .harm-empty{display:flex;align-items:center;justify-content:center;height:100%;color:#c4bdb4;font-size:13px;text-align:center;padding:20px}
 .harm-content{display:none;height:100%;flex-direction:column;padding:10px 12px}
 .harm-list-hdr{font-size:10px;color:#9b9185;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;flex-shrink:0}
-.harm-filter{display:flex;align-items:center;gap:8px;margin:0 0 6px;flex-shrink:0}
-.harm-filter-label{font-size:10px;color:#9b9185;text-transform:uppercase;letter-spacing:.05em;flex:0 0 auto}
-.harm-filter .orb-slider{flex:1 1 auto;min-width:40px}
-.harm-filter .orb-readout{flex:0 0 40px}
 .harm-list{flex:1 1 auto;overflow-y:auto;font-size:11px;padding-right:4px}
 .harm-row{display:flex;align-items:center;gap:6px;padding:3px 5px;cursor:pointer;border-radius:3px;user-select:none;border:1px solid transparent}
 .harm-row:hover{background:#faf6ee}
@@ -171,7 +156,6 @@ canvas{display:block;width:100%;height:100%}
 .harm-asp-item{padding:5px 0;font-size:11px;color:#5a4e3c;border-bottom:1px dotted #f0ece7}
 .harm-asp-item:last-child{border-bottom:none}
 .harm-asp-head{font-variant-numeric:tabular-nums;font-weight:500}
-.harm-asp-desc{font-size:10px;color:#7a705e;font-style:italic;line-height:1.45;margin-top:2px;padding-left:18px}
 .harm-asp-item .asp-glyph{display:inline-block;width:14px;text-align:center;color:#8b7355}
 .harm-asp-item .asp-close{color:#b09e82;font-size:10px}
 
