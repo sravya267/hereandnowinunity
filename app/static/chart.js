@@ -1,18 +1,6 @@
 
 // ─── Vibrational tab ─────────────────────────────────────────────────────────
 
-(function(){
-  // Keep vib orb fields in sync with the main form defaults
-  var mainOrb = document.getElementById('base-orb');
-  var mainFormula = document.getElementById('orb-formula');
-  function syncVibOrb() {
-    document.getElementById('vib-base-orb').value = mainOrb.value;
-    document.getElementById('vib-orb-formula').value = mainFormula.value;
-  }
-  mainOrb.addEventListener('change', syncVibOrb);
-  mainFormula.addEventListener('change', syncVibOrb);
-})();
-
 function vibSetAll(on) {
   document.querySelectorAll('.vib-body').forEach(function(cb){ cb.checked = on; });
 }
@@ -1122,17 +1110,35 @@ function fetchNatalHarmonics(d, chartParams) {
     spinner.style.display = 'block';
     btn.disabled = true;
 
-    var p = {
-      birth_datetime: document.getElementById('birth-date').value + 'T' + document.getElementById('birth-time').value + ':00',
-      location: document.getElementById('location').value.trim(),
-      zodiac_system: document.getElementById('zodiac').value,
-      house_system: document.getElementById('house-system').value,
-      base_orb: parseFloat(document.getElementById('base-orb').value) || 8.0,
-      orb_formula: document.getElementById('orb-formula').value,
-      website: document.getElementById('hp-website').value, // honeypot — should always be empty
+    // Shared location/time fields used by both requests below.
+    var birth_datetime = document.getElementById('birth-date').value + 'T' + document.getElementById('birth-time').value + ':00';
+    var location       = document.getElementById('location').value.trim();
+    var zodiac_system  = document.getElementById('zodiac').value;
+    var house_system   = document.getElementById('house-system').value;
+
+    // Natal wheel aspects: always use a generous fixed orb so the
+    // filter-panel major/minor sliders have full independent control.
+    var chartReq = {
+      birth_datetime: birth_datetime,
+      location: location,
+      zodiac_system: zodiac_system,
+      house_system: house_system,
+      base_orb: 8.0,
+      orb_formula: 'sqrt',
+      website: document.getElementById('hp-website').value,
     };
 
-    fetch('/chart', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(p) })
+    // Harmonic resonance uses the toolbar's orb settings (independent of natal wheel).
+    var harmParams = {
+      birth_datetime: birth_datetime,
+      location: location,
+      zodiac_system: zodiac_system,
+      house_system: house_system,
+      base_orb: parseFloat(document.getElementById('base-orb').value) || 8.0,
+      orb_formula: document.getElementById('orb-formula').value,
+    };
+
+    fetch('/chart', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(chartReq) })
       .then(function(r){
         if (!r.ok) return r.json().then(function(d){ throw new Error(d.detail || 'Failed'); });
         return r.json();
@@ -1145,7 +1151,7 @@ function fetchNatalHarmonics(d, chartParams) {
         renderWordCloud(d);
         results.classList.add('active');
         requestAnimationFrame(redrawAll);
-        fetchNatalHarmonics(d, p);
+        fetchNatalHarmonics(d, harmParams);
       })
       .catch(function(ex){
         spinner.style.display = 'none'; btn.disabled = false;
