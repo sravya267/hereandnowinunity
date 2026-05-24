@@ -172,8 +172,8 @@ var BODY_DISPLAY = {
   Chiron:false, Nodes:false, Angles:false, Points:false
 };
 var ASPECT_TO    = {Chiron:false, Nodes:false, Angles:false, Points:false};
-var MAJOR_ORB_VAL = 6;
-var MINOR_ORB_VAL = 3;
+var MAJOR_ORB_VAL = 8;
+var MINOR_ORB_VAL = 4;
 var NODE_NAMES  = ['North Node','South Node','True Node','Mean Node','Rahu','Ketu'];
 var ANGLE_NAMES = ['Asc','Desc','MC','IC'];
 var POINT_NAMES = ['Vertex','Fortune'];
@@ -1116,26 +1116,29 @@ function fetchNatalHarmonics(d, chartParams) {
     var zodiac_system  = document.getElementById('zodiac').value;
     var house_system   = document.getElementById('house-system').value;
 
-    // Natal wheel aspects: always use a generous fixed orb so the
-    // filter-panel major/minor sliders have full independent control.
+    // Natal wheel aspects: use a generous fixed orb so every aspect type
+    // shares the same OrbLimit. This lets the filter-panel major/minor
+    // sliders filter uniformly — moving the slider has the same effect
+    // on trines, squares, sextiles, etc., not just conjunctions.
     var chartReq = {
+      birth_datetime: birth_datetime,
+      location: location,
+      zodiac_system: zodiac_system,
+      house_system: house_system,
+      base_orb: 10.0,
+      orb_formula: 'fixed',
+      website: document.getElementById('hp-website').value,
+    };
+
+    // Natal harmonic resonance: uses sensible defaults. Users can explore
+    // different orb settings via the Vibrational Astrology tab.
+    var harmParams = {
       birth_datetime: birth_datetime,
       location: location,
       zodiac_system: zodiac_system,
       house_system: house_system,
       base_orb: 8.0,
       orb_formula: 'sqrt',
-      website: document.getElementById('hp-website').value,
-    };
-
-    // Harmonic resonance uses the toolbar's orb settings (independent of natal wheel).
-    var harmParams = {
-      birth_datetime: birth_datetime,
-      location: location,
-      zodiac_system: zodiac_system,
-      house_system: house_system,
-      base_orb: parseFloat(document.getElementById('base-orb').value) || 8.0,
-      orb_formula: document.getElementById('orb-formula').value,
     };
 
     fetch('/chart', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(chartReq) })
