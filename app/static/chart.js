@@ -437,6 +437,11 @@ function drawWheel(data) {
 
   var aspects = (data.aspects || []).filter(function(a) {
     if (isAxisDiameterPair(a)) return false;
+    // Aspects in an active pattern are always shown so the complete
+    // pattern shape (triangle, cross, etc.) is visible — bypass the
+    // aspect-type, body-display, and orb filters. The user explicitly
+    // enabled the pattern and expects to see its full geometry.
+    if (patternEdges[edgeKey(a.Body1, a.Body2)]) return true;
     if (!ASP_FILTER[a.Aspect]) return false;
     // Per-body display: hidden bodies hide their aspect lines
     if (BODY_DISPLAY.hasOwnProperty(a.Body1) && !BODY_DISPLAY[a.Body1]) return false;
