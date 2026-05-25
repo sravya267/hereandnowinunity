@@ -10,7 +10,7 @@ Two tightness measures per (pair, harmonic):
                       r = aspect_angle mod (360/h)
                       Tightness = min(r, 360/h - r)
     HCTightness - same orb scaled to the harmonic chart (Tightness × h).
-                  Used internally for the orb check; exposed for reference.
+                  Exposed for reference; not used for the orb check.
     Tightness%  - 0-100 scale relative to OrbLimit (high = tight, 100 = exact)
 
 Method:
@@ -20,9 +20,11 @@ Method:
         r            = aspect_angle mod step               # remainder
         Tightness    = min(r, step - r)                    # 0..step/2
         HCTightness  = Tightness × h                       # in H-h chart space
-    The pair resonates with harmonic h if HCTightness <= OrbLimit.
-    OrbLimit at H1 is base_orb; narrows with h via orb_formula.
-    Tightness% = 100 * (1 - HCTightness / OrbLimit) — 100 at exact, 0 at edge.
+    The pair resonates with harmonic h if Tightness <= OrbLimit.
+    OrbLimit at H1 is base_orb; narrows with h via orb_formula. This
+    matches the natal-orb convention used by aspects.py, so an opposition
+    flagged on the natal wheel is also flagged as H2 resonance.
+    Tightness% = 100 * (1 - Tightness / OrbLimit) — 100 at exact, 0 at edge.
 """
 from __future__ import annotations
 
@@ -138,8 +140,8 @@ def compute_harmonic_matrix(
         tightness = np.minimum(r, step - r)
         hc_tightness = tightness * harmonics
 
-        hit_mask = hc_tightness <= orbs
-        tightness_pct = np.where(hit_mask, 100.0 * (1.0 - hc_tightness / orbs), 0.0)
+        hit_mask = tightness <= orbs
+        tightness_pct = np.where(hit_mask, 100.0 * (1.0 - tightness / orbs), 0.0)
 
         pair_labels.append(f"{b1} – {b2}")
         rows.append(tightness_pct)
@@ -202,9 +204,9 @@ def compute_harmonic_long(
         tightness = np.minimum(r, step - r)
         hc_tightness = tightness * harmonics
 
-        hit_idx = np.where(hc_tightness <= orbs)[0]
+        hit_idx = np.where(tightness <= orbs)[0]
         for k in hit_idx:
-            tightness_pct = 100.0 * (1.0 - hc_tightness[k] / orbs[k])
+            tightness_pct = 100.0 * (1.0 - tightness[k] / orbs[k])
             if tightness_pct < min_tightness_pct:
                 continue
             h = int(harmonics[k])
@@ -344,19 +346,19 @@ def rank_harmonics_from_matrix(
         orb_at_h = float(orb_limit(h, base_orb=base_orb, formula=orb_formula))
         series = matrix[col]
         hits = series[series > 0]
-        # HCTightness = orb_at_h * (1 - pct/100); Tightness = HCTightness / h
-        hits_hc = (orb_at_h * (1.0 - hits / 100.0)).sort_values()
-        count = len(hits_hc)
+        # Tightness (natal orb in °) = orb_at_h * (1 - pct/100)
+        hits_tight = (orb_at_h * (1.0 - hits / 100.0)).sort_values()
+        count = len(hits_tight)
         pairs_str = ",  ".join(
-            f"{pair} {hc/h:.3f}°"
-            for pair, hc in hits_hc.items()
+            f"{pair} {tight:.3f}°"
+            for pair, tight in hits_tight.items()
         )
         rows.append({
             "Harmonic": h,
             "Factors": factor_label(h),
             "PairCount": count,
             "Pairs": pairs_str,
-            "_top": float(hits_hc.iloc[0]) if count else float("inf"),
+            "_top": float(hits_tight.iloc[0]) if count else float("inf"),
         })
 
     return (
