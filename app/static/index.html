@@ -151,6 +151,11 @@
           <div class="card-body" id="harm-body">
             <div id="harm-empty" class="harm-empty">Calculate a chart to see resonant harmonics.</div>
             <div id="harm-content" class="harm-content" style="display:none">
+              <div class="harm-orb-ctrl">
+                <span class="harm-orb-label">Orb</span>
+                <input type="range" id="harm-base-orb" class="orb-slider" min="1" max="16" step="0.5" value="8">
+                <span id="harm-base-orb-val" class="harm-orb-readout">8°</span>
+              </div>
               <div class="harm-list-hdr">Ranked by pair count &middot; click a row for meaning</div>
               <div id="harm-list" class="harm-list"></div>
             </div>

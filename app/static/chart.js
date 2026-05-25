@@ -192,6 +192,7 @@ ASP_TYPES.forEach(function(a){ ASP_FILTER[a.name] = a.defaultOn; });
 
 // Latest chart data, kept so filter changes can re-render without re-fetching.
 var LAST_DATA = null;
+var LAST_HARM_PARAMS = null; // params used for the last /harmonics fetch
 var PAT_SEGMENTS = []; // aspect segments belonging to active patterns, set by drawWheel
 
 function drawWheel(data) {
@@ -838,26 +839,36 @@ function drawHarmMini(data, harmonic) {
     bodyPos[b.Body] = lon2a(lonH);
   });
 
-  // Find conjunctions in the h-chart — these are the actual H-h resonances.
-  // Use a standard chart conjunction orb (8°) measured in h-chart degrees.
-  // This matches how a practitioner reads any natal/harmonic chart visually.
-  var orbLimit = 8.0;
+  // Draw aspects in the h-chart. Each planet is at its harmonic-chart
+  // position (lon × h mod 360); we check standard aspect angles between them.
+  var MINI_ASPECTS = [
+    { deg: 0,   orb: 8, color: '#27ae60' },  // conjunction
+    { deg: 180, orb: 6, color: '#e74c3c' },  // opposition
+    { deg: 120, orb: 5, color: '#3498db' },  // trine
+    { deg: 90,  orb: 4, color: '#e67e22' },  // square
+    { deg: 60,  orb: 3, color: '#9b59b6' },  // sextile
+  ];
   var names = Object.keys(bodyLonH);
   for (var i = 0; i < names.length; i++) {
     for (var j = i + 1; j < names.length; j++) {
-      var d = Math.abs(bodyLonH[names[i]] - bodyLonH[names[j]]);
-      var sep = Math.min(d, 360 - d);
-      if (sep > orbLimit) continue;
-      var a1 = bodyPos[names[i]], a2 = bodyPos[names[j]];
-      var p1 = pt(rLine, a1), p2 = pt(rLine, a2);
-      var closeness = 1 - sep / orbLimit;
-      ctx.beginPath();
-      ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
-      ctx.strokeStyle = '#27ae60';
-      ctx.lineWidth = Math.max(1.2, closeness * 3);
-      ctx.globalAlpha = 0.5 + closeness * 0.5;
-      ctx.stroke();
-      ctx.globalAlpha = 1;
+      var diff0 = Math.abs(bodyLonH[names[i]] - bodyLonH[names[j]]);
+      var sep = Math.min(diff0, 360 - diff0);
+      for (var k = 0; k < MINI_ASPECTS.length; k++) {
+        var asp = MINI_ASPECTS[k];
+        var adiff = Math.abs(sep - asp.deg);
+        if (adiff > asp.orb) continue;
+        var closeness = 1 - adiff / asp.orb;
+        var a1 = bodyPos[names[i]], a2 = bodyPos[names[j]];
+        var p1 = pt(rLine, a1), p2 = pt(rLine, a2);
+        ctx.beginPath();
+        ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
+        ctx.strokeStyle = asp.color;
+        ctx.lineWidth = Math.max(1.0, closeness * 2.5);
+        ctx.globalAlpha = 0.35 + closeness * 0.55;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        break;
+      }
     }
   }
 
@@ -1126,6 +1137,27 @@ function fetchNatalHarmonics(d, chartParams) {
     .finally(function(){ if (loadingEl) loadingEl.style.display = 'none'; });
 }
 
+// ─── Harm-orb slider: live readout + debounced re-fetch ──────────────────────
+(function(){
+  var slider = document.getElementById('harm-base-orb');
+  var readout = document.getElementById('harm-base-orb-val');
+  if (!slider) return;
+
+  slider.addEventListener('input', function(){
+    if (readout) readout.textContent = slider.value + '°';
+  });
+
+  var refetchTimer = null;
+  slider.addEventListener('change', function(){
+    if (!LAST_DATA || !LAST_HARM_PARAMS) return;
+    clearTimeout(refetchTimer);
+    refetchTimer = setTimeout(function(){
+      var p = Object.assign({}, LAST_HARM_PARAMS, { base_orb: parseFloat(slider.value) });
+      fetchNatalHarmonics(LAST_DATA, p);
+    }, 200);
+  });
+})();
+
 // ─── Form submit ─────────────────────────────────────────────────────────────
 (function(){
   var form    = document.getElementById('chart-form');
@@ -1163,14 +1195,14 @@ function fetchNatalHarmonics(d, chartParams) {
       website: document.getElementById('hp-website').value,
     };
 
-    // Natal harmonic resonance: uses sensible defaults. Users can explore
-    // different orb settings via the Vibrational Astrology tab.
+    // Natal harmonic resonance: orb is user-adjustable via #harm-base-orb.
+    var harmOrbEl = document.getElementById('harm-base-orb');
     var harmParams = {
       birth_datetime: birth_datetime,
       location: location,
       zodiac_system: zodiac_system,
       house_system: house_system,
-      base_orb: 8.0,
+      base_orb: harmOrbEl ? parseFloat(harmOrbEl.value) : 8.0,
       orb_formula: 'sqrt',
     };
 
@@ -1182,6 +1214,7 @@ function fetchNatalHarmonics(d, chartParams) {
       .then(function(d){
         spinner.style.display = 'none'; btn.disabled = false;
         LAST_DATA = d;
+        LAST_HARM_PARAMS = harmParams;
         buildMeta(d);
         buildInfoBox(d);
         renderWordCloud(d);
