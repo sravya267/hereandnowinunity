@@ -27,7 +27,7 @@ function vibCompute() {
     base_orb: parseFloat(document.getElementById('vib-base-orb').value) || 8.0,
     orb_formula: document.getElementById('vib-orb-formula').value,
     active_bodies: active,
-    max_harmonic: 360,
+    max_harmonic: 32,
     min_tightness_pct: 0,
     personal_only: true,
   };
@@ -1125,7 +1125,7 @@ function fetchNatalHarmonics(d, chartParams) {
     base_orb: chartParams.base_orb,
     orb_formula: chartParams.orb_formula,
     active_bodies: ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'],
-    max_harmonic: 360,
+    max_harmonic: 32,
     min_tightness_pct: 0,
     personal_only: true,
   };
