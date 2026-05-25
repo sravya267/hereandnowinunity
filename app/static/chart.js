@@ -775,19 +775,17 @@ function renderHarmDetail(harmonic) {
 
   document.getElementById('harm-detail-right').innerHTML = html;
 
-  // Draw the mini wheel for the traditional aspects in this harmonic family
-  var typeMap = {};
-  ASP_TYPES.forEach(function(t){ typeMap[t.name] = t; });
-  var aspects = (LAST_DATA && LAST_DATA.aspects || []).filter(function(a) {
-    var t = typeMap[a.Aspect];
-    return t && t.harmonic === harmonic;
-  }).sort(function(a,b){ return (b.Closeness||0) - (a.Closeness||0); });
-  drawHarmMini(LAST_DATA, aspects);
+  drawHarmMini(LAST_DATA, harmonic);
 }
 
-function drawHarmMini(data, aspects) {
+// Plot the H-h harmonic chart: every planet's longitude is multiplied by h
+// and taken mod 360. Pairs that were 360/h apart in the natal chart land on
+// top of each other in this view — those are the H-h resonances, drawn as
+// conjunction lines.
+function drawHarmMini(data, harmonic) {
   var cvs = document.getElementById('harm-mini-canvas');
   if (!cvs) return;
+  var h = harmonic || 1;
   var parent = cvs.parentElement;
   var dpr = window.devicePixelRatio || 1;
   var W = parent.clientWidth, H = parent.clientHeight;
@@ -803,15 +801,15 @@ function drawHarmMini(data, aspects) {
 
   var cx = W/2, cy = H/2;
   var R = Math.min(cx, cy) - 14;
-  // Two visible rings; planets sit in the band between them. Aspect lines
-  // are drawn inside the inner ring.
   var rOuter = R * 0.95;
   var rInner = R * 0.78;
   var rPlanet = (rOuter + rInner) / 2;
   var rLine = rInner;
 
+  // Rotate so the harmonic-chart Desc sits at 3 o'clock for consistency
+  // with the natal wheel layout. Desc longitude is also multiplied by h.
   var desc = data.bodies.find(function(b){ return b.Body === 'Desc'; });
-  var rotLon = desc ? desc['Longitude (°)'] : 0;
+  var rotLon = desc ? ((desc['Longitude (°)'] * h) % 360 + 360) % 360 : 0;
   function lon2a(lon){ return -(lon - rotLon) * Math.PI / 180; }
   function pt(r, a){ return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; }
 
@@ -820,7 +818,8 @@ function drawHarmMini(data, aspects) {
   ctx.beginPath(); ctx.arc(cx, cy, rOuter, 0, 2*Math.PI); ctx.stroke();
   ctx.beginPath(); ctx.arc(cx, cy, rInner, 0, 2*Math.PI); ctx.stroke();
 
-  // 12 sign tick marks across the planet band
+  // 12 reference tick marks every 30° (visual reference only — in a
+  // harmonic chart these don't carry zodiac-sign meaning).
   for (var i = 0; i < 12; i++) {
     var a = lon2a(i * 30);
     var p1 = pt(rInner, a), p2 = pt(rOuter, a);
@@ -828,36 +827,59 @@ function drawHarmMini(data, aspects) {
     ctx.strokeStyle = '#e0d8cc'; ctx.lineWidth = 0.6; ctx.stroke();
   }
 
-  var involved = {};
-  aspects.forEach(function(a){ involved[a.Body1] = true; involved[a.Body2] = true; });
-  var bodyPos = {};
+  // Show all 10 main planets at their h-chart positions.
+  var PLANETS = ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
+  var bodyPos = {};   // angle on the canvas
+  var bodyLonH = {};  // raw H-h longitude (mod 360), for orb math
   data.bodies.forEach(function(b){
-    if (involved[b.Body]) bodyPos[b.Body] = lon2a(b['Longitude (°)']);
+    if (PLANETS.indexOf(b.Body) === -1) return;
+    var lonH = ((b['Longitude (°)'] * h) % 360 + 360) % 360;
+    bodyLonH[b.Body] = lonH;
+    bodyPos[b.Body] = lon2a(lonH);
   });
 
-  // Aspect lines inside the inner ring
-  aspects.forEach(function(a){
-    var a1 = bodyPos[a.Body1], a2 = bodyPos[a.Body2];
-    if (a1 === undefined || a2 === undefined) return;
-    var p1 = pt(rLine, a1), p2 = pt(rLine, a2);
-    var meta = ASP_TYPES.find(function(t){ return t.name === a.Aspect; });
-    var closeness = a.Closeness || 0.5;
-    ctx.beginPath();
-    ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
-    ctx.strokeStyle = aspLineColor(meta);
-    ctx.lineWidth = Math.max(1.2, closeness * 2.8);
-    ctx.globalAlpha = 0.55 + closeness * 0.45;
-    ctx.stroke();
-    ctx.globalAlpha = 1;
+  // Find conjunctions in the h-chart — these are the actual H-h resonances.
+  // Use a standard chart conjunction orb (8°) measured in h-chart degrees.
+  // This matches how a practitioner reads any natal/harmonic chart visually.
+  var orbLimit = 8.0;
+  var names = Object.keys(bodyLonH);
+  for (var i = 0; i < names.length; i++) {
+    for (var j = i + 1; j < names.length; j++) {
+      var d = Math.abs(bodyLonH[names[i]] - bodyLonH[names[j]]);
+      var sep = Math.min(d, 360 - d);
+      if (sep > orbLimit) continue;
+      var a1 = bodyPos[names[i]], a2 = bodyPos[names[j]];
+      var p1 = pt(rLine, a1), p2 = pt(rLine, a2);
+      var closeness = 1 - sep / orbLimit;
+      ctx.beginPath();
+      ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
+      ctx.strokeStyle = '#27ae60';
+      ctx.lineWidth = Math.max(1.2, closeness * 3);
+      ctx.globalAlpha = 0.5 + closeness * 0.5;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // Cluster offset for planets nearly on top of each other in the h-chart
+  // (which is exactly what a tight H-h resonance looks like). Stagger their
+  // symbols slightly inward so glyphs don't overlap.
+  var sorted = names.slice().sort(function(x, y){ return bodyLonH[x] - bodyLonH[y]; });
+  var placements = [];
+  var lastLon = -1e9, stack = 0;
+  sorted.forEach(function(name){
+    var lon = bodyLonH[name];
+    stack = (lon - lastLon < 4) ? Math.min(stack + 1, 3) : 0;
+    lastLon = lon;
+    placements.push({ name: name, r: rPlanet - stack * R * 0.08 });
   });
 
-  // Planet symbols inside the band, bold black with white halo
-  Object.keys(bodyPos).forEach(function(name){
-    var ang = bodyPos[name];
-    var b = data.bodies.find(function(x){ return x.Body === name; });
+  placements.forEach(function(it){
+    var ang = bodyPos[it.name];
+    var b = data.bodies.find(function(x){ return x.Body === it.name; });
     if (!b) return;
-    var p = pt(rPlanet, ang);
-    var sym = b.Symbol || name.substring(0, 2);
+    var p = pt(it.r, ang);
+    var sym = b.Symbol || it.name.substring(0, 2);
     ctx.font = 'bold ' + Math.round(R * 0.11) + 'px serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.lineWidth = 3.5; ctx.strokeStyle = '#fff';
@@ -865,6 +887,12 @@ function drawHarmMini(data, aspects) {
     ctx.fillStyle = '#000';
     ctx.fillText(sym, p[0], p[1]);
   });
+
+  // "Hn" label in the centre so the user knows which harmonic chart this is.
+  ctx.fillStyle = '#b09e82';
+  ctx.font = 'bold ' + Math.round(R * 0.22) + 'px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('H' + h, cx, cy);
 }
 
 // Click delegation for harm-list rows
