@@ -265,6 +265,7 @@ def rank_harmonics(
     HarmonyMeaning   - synastry/harmony interpretation from CSV
     Source           - citation source from CSV
     """
+    import math
     from app.core.harmonics import VIBRATIONAL_HARMONICS
 
     df = long_df[long_df["Personal"]] if personal_only else long_df
@@ -272,6 +273,7 @@ def rank_harmonics(
     if df.empty:
         return pd.DataFrame(columns=[
             "Harmonic", "Factors", "Name", "PairCount", "Tightest", "Pairs",
+            "SumClose", "SumCloseAdj",
             "NatalMeaning", "TransitMeaning", "HarmonyMeaning", "Source",
         ])
 
@@ -287,6 +289,7 @@ def rank_harmonics(
             for _, r in group.iterrows()
         )
         info = vh.loc[h] if h in vh.index else {}
+        sum_close = round(float((group["Tightness%"] / 100.0).sum()), 4)
         rows.append({
             "Harmonic": int(h),
             "Factors": group["Factors"].iloc[0],
@@ -294,6 +297,8 @@ def rank_harmonics(
             "PairCount": len(group),
             "Tightest": round(float(group["Tightness"].min()), 4),
             "Pairs": pairs_str,
+            "SumClose": sum_close,
+            "SumCloseAdj": round(sum_close / math.sqrt(h), 4),
             "NatalMeaning": info.get("natal_definition", "") if isinstance(info, dict) else str(info["natal_definition"]),
             "TransitMeaning": info.get("transit_definition", "") if isinstance(info, dict) else str(info["transit_definition"]),
             "HarmonyMeaning": info.get("harmony_definition", "") if isinstance(info, dict) else str(info["harmony_definition"]),

@@ -686,6 +686,21 @@ var BODY_THEMES = {
   'Mean Node':  'soul direction and growth'
 };
 
+function sortHarmonics(ranked, method) {
+  var sorted = ranked.slice();
+  if (method === 'sumclose') {
+    sorted.sort(function(a, b) { return (b.SumClose || 0) - (a.SumClose || 0); });
+  } else if (method === 'adjusted') {
+    sorted.sort(function(a, b) { return (b.SumCloseAdj || 0) - (a.SumCloseAdj || 0); });
+  } else {
+    sorted.sort(function(a, b) {
+      if (b.PairCount !== a.PairCount) return b.PairCount - a.PairCount;
+      return (a.Tightest || 0) - (b.Tightest || 0);
+    });
+  }
+  return sorted;
+}
+
 function renderHarmonics(ranked) {
   var emptyEl  = document.getElementById('harm-empty');
   var contentEl = document.getElementById('harm-content');
@@ -702,18 +717,43 @@ function renderHarmonics(ranked) {
   emptyEl.style.display = 'none';
   contentEl.style.display = 'flex';
 
-  var maxPairs = ranked[0].PairCount || 1;
-  listEl.innerHTML = ranked.map(function(r, i) {
-    var barW = Math.max(4, Math.round((r.PairCount / maxPairs) * 100));
+  renderHarmonicsList();
+}
+
+function renderHarmonicsList() {
+  if (!LAST_HARMONICS) return;
+  var listEl   = document.getElementById('harm-list');
+  var detailEl = document.getElementById('harm-detail-right');
+  var hdrEl    = document.getElementById('harm-list-hdr');
+  var rankBy   = (document.getElementById('harm-rank-by') || {}).value || 'pairs';
+
+  var LABELS = {
+    pairs:    'Ranked by pair count',
+    sumclose: 'Ranked by total resonance (Σ closeness)',
+    adjusted: 'Ranked by noise-adjusted score (Σ closeness ÷ √h)',
+  };
+  if (hdrEl) hdrEl.textContent = (LABELS[rankBy] || LABELS.pairs) + ' · click a row for meaning';
+
+  var sorted = sortHarmonics(LAST_HARMONICS, rankBy);
+  var metricKey = { pairs: 'PairCount', sumclose: 'SumClose', adjusted: 'SumCloseAdj' }[rankBy];
+  var maxVal = sorted.length ? (sorted[0][metricKey] || 1) : 1;
+
+  listEl.innerHTML = sorted.map(function(r, i) {
+    var val = r[metricKey] || 0;
+    var barW = Math.max(4, Math.round((val / maxVal) * 100));
     var label = 'H' + r.Harmonic + (r.Name && r.Name !== '—' ? ' · ' + r.Name : '');
     var hasMeaning = r.NatalMeaning && r.NatalMeaning !== 'nan' && r.NatalMeaning !== '';
+    var metaStr = rankBy === 'pairs'
+      ? r.PairCount + ' pairs · ' + (r.Tightest || 0).toFixed(3) + '°'
+      : (rankBy === 'sumclose' ? 'Σ' : 'adj') + ' ' + val.toFixed(2) + ' · ' + r.PairCount + ' pairs';
     return (
-      '<div class="harm-row" data-harm="' + r.Harmonic + '" ' +
+      '<div class="harm-row' + (SELECTED_HARMONIC === r.Harmonic ? ' sel' : '') +
+           '" data-harm="' + r.Harmonic + '" ' +
            (hasMeaning ? 'style="cursor:pointer"' : '') + '>' +
         '<div class="harm-row-num">' + (i+1) + '</div>' +
         '<div class="harm-row-name">' + label + '</div>' +
         '<div class="harm-row-bar-bg"><div class="harm-row-bar" style="width:' + barW + '%"></div></div>' +
-        '<div class="harm-row-meta">' + r.PairCount + ' pairs · ' + (r.Tightest||0).toFixed(3) + '°</div>' +
+        '<div class="harm-row-meta">' + metaStr + '</div>' +
       '</div>'
     );
   }).join('');
@@ -1156,6 +1196,13 @@ function fetchNatalHarmonics(d, chartParams) {
       fetchNatalHarmonics(LAST_DATA, p);
     }, 200);
   });
+})();
+
+// ─── Harm rank-by dropdown: re-sort client-side, no re-fetch ─────────────────
+(function(){
+  var sel = document.getElementById('harm-rank-by');
+  if (!sel) return;
+  sel.addEventListener('change', function(){ renderHarmonicsList(); });
 })();
 
 // ─── Form submit ─────────────────────────────────────────────────────────────

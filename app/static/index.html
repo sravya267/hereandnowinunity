@@ -155,8 +155,13 @@
                 <span class="harm-orb-label">Orb</span>
                 <input type="range" id="harm-base-orb" class="orb-slider" min="1" max="16" step="0.5" value="8">
                 <span id="harm-base-orb-val" class="harm-orb-readout">8°</span>
+                <select id="harm-rank-by" class="harm-rank-select">
+                  <option value="pairs" selected>Pair Count</option>
+                  <option value="sumclose">Total Resonance</option>
+                  <option value="adjusted">Noise-Adjusted</option>
+                </select>
               </div>
-              <div class="harm-list-hdr">Ranked by pair count &middot; click a row for meaning</div>
+              <div class="harm-list-hdr" id="harm-list-hdr">Ranked by pair count &middot; click a row for meaning</div>
               <div id="harm-list" class="harm-list"></div>
             </div>
           </div>
