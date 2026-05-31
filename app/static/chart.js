@@ -322,13 +322,14 @@ function drawWheel(data) {
     var l1 = sorted[hi]['Longitude (°)'];
     var l2 = sorted[(hi+1) % sorted.length]['Longitude (°)'];
     if (l2 <= l1) l2 += 360;
+    var houseNum = parseInt(sorted[hi].Body.replace('House Cusp ', ''), 10);
     var hMid = lon2a((l1 + l2) / 2);
     var hR = r1 + R * 0.055;
     var hp = pt(hR, hMid);
     ctx.font = Math.round(R * 0.05) + 'px sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = '#888';
-    ctx.fillText(String(hi + 1), hp[0], hp[1]);
+    ctx.fillText(String(houseNum), hp[0], hp[1]);
   }
 
   // ── Asc / Desc / MC / IC axes — drawn only between the first (r1) and
