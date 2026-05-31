@@ -124,6 +124,7 @@ function vibRender(data) {
 
 // ─── Wheel drawing ────────────────────────────────────────────────────────────
 var SIGN_NAMES_W = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+var SIGN_ABBR_W  = ['Ari','Tau','Gem','Can','Leo','Vir','Lib','Sco','Sag','Cap','Aqu','Pis'];
 // Element-tinted glyphs: Fire=red, Earth=green, Air=amber, Water=blue
 var SIGN_GLYPH_COLS = ['#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e'];
 var NAK_NAMES = ['Ashw','Bhar','Krit','Rohi','Mrig','Ardr','Puna','Push','Ashl','Magh','PPha','UPha','Hast','Chit','Swat','Vish','Anur','Jyes','Mool','PAsh','UAsh','Shra','Dhan','Shat','PBha','UBha','Reva'];
@@ -842,10 +843,12 @@ function drawHarmMini(data, harmonic) {
 
   var cx = W/2, cy = H/2;
   var R = Math.min(cx, cy) - 14;
-  var rOuter = R * 0.95;
-  var rInner = R * 0.78;
-  var rPlanet = (rOuter + rInner) / 2;
-  var rLine = rInner;
+  var rSignOut = R;
+  var rSignIn  = R * 0.83;
+  var rOuter   = R * 0.83;
+  var rInner   = R * 0.66;
+  var rPlanet  = (rOuter + rInner) / 2;
+  var rLine    = rInner;
 
   // Rotate so the harmonic-chart Desc sits at 3 o'clock for consistency
   // with the natal wheel layout. Desc longitude is also multiplied by h.
@@ -854,19 +857,35 @@ function drawHarmMini(data, harmonic) {
   function lon2a(lon){ return -(lon - rotLon) * Math.PI / 180; }
   function pt(r, a){ return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; }
 
-  // Outer + inner ring
+  // ── zodiac sign band
+  for (var i = 0; i < 12; i++) {
+    var sa1 = lon2a(i * 30);
+    var sa2 = lon2a((i + 1) * 30);
+    ctx.beginPath();
+    ctx.arc(cx, cy, rSignOut, sa1, sa2, true);
+    ctx.arc(cx, cy, rSignIn,  sa2, sa1, false);
+    ctx.closePath();
+    ctx.fillStyle = '#fafaf7';
+    ctx.fill();
+    ctx.strokeStyle = '#ccc'; ctx.lineWidth = 0.5; ctx.stroke();
+
+    var midA = lon2a(i * 30 + 15);
+    var mr   = (rSignOut + rSignIn) / 2;
+    var sgp  = pt(mr, midA);
+    ctx.save();
+    ctx.translate(sgp[0], sgp[1]);
+    ctx.rotate(midA + Math.PI / 2);
+    ctx.font = Math.round(R * 0.09) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = SIGN_GLYPH_COLS[i];
+    ctx.fillText(SIGN_ABBR_W[i], 0, 0);
+    ctx.restore();
+  }
+
+  // ── main rings
   ctx.strokeStyle = '#bbb'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(cx, cy, rOuter, 0, 2*Math.PI); ctx.stroke();
   ctx.beginPath(); ctx.arc(cx, cy, rInner, 0, 2*Math.PI); ctx.stroke();
-
-  // 12 reference tick marks every 30° (visual reference only — in a
-  // harmonic chart these don't carry zodiac-sign meaning).
-  for (var i = 0; i < 12; i++) {
-    var a = lon2a(i * 30);
-    var p1 = pt(rInner, a), p2 = pt(rOuter, a);
-    ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
-    ctx.strokeStyle = '#e0d8cc'; ctx.lineWidth = 0.6; ctx.stroke();
-  }
 
   // Show all 10 main planets at their h-chart positions.
   var PLANETS = ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
@@ -937,6 +956,33 @@ function drawHarmMini(data, harmonic) {
     ctx.strokeText(sym, p[0], p[1]);
     ctx.fillStyle = '#000';
     ctx.fillText(sym, p[0], p[1]);
+  });
+
+  // ── Asc / Desc / MC / IC at their h-chart positions
+  var ANGLE_ABBR = { Asc: 'Ac', Desc: 'Dc', MC: 'MC', IC: 'IC' };
+  ['Asc','Desc','MC','IC'].forEach(function(name) {
+    var b = data.bodies.find(function(x){ return x.Body === name; });
+    if (!b) return;
+    var lonH = ((b['Longitude (°)'] * h) % 360 + 360) % 360;
+    var aa   = lon2a(lonH);
+    var ip   = pt(rLine, aa), ap = pt(rSignIn, aa);
+    ctx.beginPath();
+    ctx.moveTo(ip[0], ip[1]); ctx.lineTo(ap[0], ap[1]);
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    var lp  = pt(rOuter - R * 0.035, aa);
+    var rot = aa;
+    if (Math.cos(rot) < 0) rot += Math.PI;
+    ctx.save();
+    ctx.translate(lp[0], lp[1]);
+    ctx.rotate(rot);
+    ctx.font = 'bold ' + Math.round(R * 0.085) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = 3; ctx.strokeStyle = '#fff';
+    ctx.strokeText(ANGLE_ABBR[name], 0, 0);
+    ctx.fillStyle = '#333';
+    ctx.fillText(ANGLE_ABBR[name], 0, 0);
+    ctx.restore();
   });
 
   // "Hn" label in the centre so the user knows which harmonic chart this is.
