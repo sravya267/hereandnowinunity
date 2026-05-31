@@ -343,21 +343,26 @@ function drawWheel(data) {
     var ap = pt(r3, aa);
     ctx.beginPath();
     ctx.moveTo(ip[0], ip[1]); ctx.lineTo(ap[0], ap[1]);
-    ctx.strokeStyle = '#222'; ctx.lineWidth = 2.2; ctx.stroke();
+    ctx.strokeStyle = '#222'; ctx.lineWidth = 1.0; ctx.stroke();
 
-    var lp = pt(r3 - R * 0.05, aa);
+    var lp = pt(r3 - R * 0.06, aa);
     var rot = aa;
-    if (Math.cos(rot) < 0) rot += Math.PI; // keep text upright
+    if (Math.cos(rot) < 0) rot += Math.PI;
+    var fs = Math.round(R * 0.038);
+    var degStr = signDeg(b['Longitude (°)']);
     ctx.save();
     ctx.translate(lp[0], lp[1]);
     ctx.rotate(rot);
-    ctx.font = 'bold ' + Math.round(R * 0.04) + 'px sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    // White halo for legibility over the merged ring contents
-    ctx.lineWidth = 4; ctx.strokeStyle = '#fff';
-    ctx.strokeText(name, 0, 0);
+    ctx.lineWidth = 3; ctx.strokeStyle = '#fff';
+    ctx.font = 'bold ' + fs + 'px sans-serif';
+    ctx.strokeText(name, 0, -fs * 0.65);
     ctx.fillStyle = '#222';
-    ctx.fillText(name, 0, 0);
+    ctx.fillText(name, 0, -fs * 0.65);
+    ctx.font = (fs - 1) + 'px sans-serif';
+    ctx.strokeText(degStr, 0, fs * 0.65);
+    ctx.fillStyle = '#555';
+    ctx.fillText(degStr, 0, fs * 0.65);
     ctx.restore();
   });
 
