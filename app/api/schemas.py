@@ -97,3 +97,38 @@ class ChartResponse(BaseModel):
     traits: list[dict[str, Any]] | None = None
     patterns: list[dict[str, Any]] | None = None
     harmonics: list[dict[str, Any]] | None = None
+
+
+class PersonRequest(BaseModel):
+    """Birth details for one person in a synastry comparison."""
+    birth_datetime: datetime = Field(..., description="Local wall-clock time, ISO-8601.")
+    location: str = Field(..., min_length=1)
+    zodiac_system: Literal["Tropical", "Sidereal"] = "Tropical"
+    house_system: Literal["Placidus","Koch","Whole Sign","Equal","Porphyry","Regiomontanus","Campanus"] = "Koch"
+    name: str | None = None
+
+
+class SynastryRequest(BaseModel):
+    person_a: PersonRequest
+    person_b: PersonRequest
+    base_orb: float = Field(default=8.0, ge=0.1, le=30.0)
+    orb_formula: Literal["sqrt", "linear", "fixed"] = "fixed"
+
+
+class SynastryHarmonicsRequest(BaseModel):
+    person_a: PersonRequest
+    person_b: PersonRequest
+    active_bodies: list[str] = Field(default=["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto"])
+    max_harmonic: int = Field(default=32, ge=1, le=360)
+    base_orb: float = Field(default=8.0, ge=0.1, le=30.0)
+    orb_formula: Literal["sqrt", "linear", "fixed"] = "sqrt"
+    min_tightness_pct: float = Field(default=0.0, ge=0.0, le=100.0)
+
+
+class SynastryResponse(BaseModel):
+    chart_a: ChartResponse
+    chart_b: ChartResponse
+    cross_aspects: list[dict[str, Any]]
+    composite_bodies: list[dict[str, Any]]
+    composite_aspects: list[dict[str, Any]]
+    score: dict[str, Any]
