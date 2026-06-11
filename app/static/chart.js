@@ -1398,7 +1398,13 @@ function initCompFilters() {
   var gear = document.getElementById('comp-gear-btn');
   var panel = document.getElementById('comp-filter-panel');
   if (gear && panel) {
-    gear.addEventListener('click', function() { panel.classList.toggle('closed'); });
+    var compCard = gear.closest ? gear.closest('.syn-biwheel-card') : null;
+    gear.addEventListener('click', function() {
+      var opening = panel.classList.contains('closed');
+      panel.classList.toggle('closed');
+      if (compCard) compCard.classList.toggle('is-expanded', opening);
+      compRedraw();
+    });
   }
 
   var aspList = document.getElementById('comp-asp-list');
@@ -1488,12 +1494,16 @@ function initSynFilters() {
     synRedrawBiWheel();
   });
 
-  // Gear button
+  // Gear button — toggle filter + expand card
   var gear = document.getElementById('syn-gear-btn');
   var panel = document.getElementById('syn-filter-panel');
   if (gear && panel) {
+    var synCard = gear.closest ? gear.closest('.syn-biwheel-card') : null;
     gear.addEventListener('click', function() {
+      var opening = panel.classList.contains('closed');
       panel.classList.toggle('closed');
+      if (synCard) synCard.classList.toggle('is-expanded', opening);
+      synRedrawBiWheel();
     });
   }
 
@@ -1740,8 +1750,9 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
   if (!cvs) return;
   var parent = cvs.parentElement;
   var dpr = window.devicePixelRatio || 1;
-  // Use a square canvas based on the available width (capped at 520px)
-  var S = Math.min(parent.clientWidth, 520);
+  var card = cvs.closest ? cvs.closest('.syn-biwheel-card') : null;
+  var maxS = (card && card.classList.contains('is-expanded')) ? 700 : 500;
+  var S = Math.min(parent.clientWidth || maxS, maxS);
   var W = S, H = S;
   cvs.width = W * dpr; cvs.height = H * dpr;
   cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
@@ -1830,14 +1841,15 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
 
   // Helper: is a body visible given filter state?
   function bodyVisA(name) {
-    // Angles share one checkbox (key = 'Asc' covers Asc/Desc, 'MC' covers MC/IC)
     if (name === 'Desc') return SYN_BODY_A['Asc'] !== false;
     if (name === 'IC')   return SYN_BODY_A['MC']  !== false;
+    if (name === 'South Node') return SYN_BODY_A['North Node'] !== false;
     return SYN_BODY_A[name] !== false;
   }
   function bodyVisB(name) {
     if (name === 'Desc') return SYN_BODY_B['Asc'] !== false;
     if (name === 'IC')   return SYN_BODY_B['MC']  !== false;
+    if (name === 'South Node') return SYN_BODY_B['North Node'] !== false;
     return SYN_BODY_B[name] !== false;
   }
 
@@ -1926,7 +1938,9 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
   if (!cvs) return;
   var parent = cvs.parentElement;
   var dpr = window.devicePixelRatio || 1;
-  var S = Math.min(parent.clientWidth, 440);
+  var card = cvs.closest ? cvs.closest('.syn-biwheel-card') : null;
+  var maxS = (card && card.classList.contains('is-expanded')) ? 680 : 480;
+  var S = Math.min(parent.clientWidth || maxS, maxS);
   var W = S, H = S;
   cvs.width = W * dpr; cvs.height = H * dpr;
   cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
@@ -1978,6 +1992,7 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
   function compBodyVis(name) {
     if (name === 'Desc') return COMP_BODY['Asc'] !== false;
     if (name === 'IC')   return COMP_BODY['MC']  !== false;
+    if (name === 'South Node') return COMP_BODY['North Node'] !== false;
     return COMP_BODY[name] !== false;
   }
 

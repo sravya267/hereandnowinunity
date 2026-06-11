@@ -49,15 +49,7 @@
       <label>Date</label><input type="date" id="syn-a-date" required>
       <label>Time</label><input type="time" id="syn-a-time" step="60" required>
       <label>Place</label><input type="text" id="syn-a-loc" placeholder="City, Country" required class="syn-tb-place">
-    </div>
-    <div class="syn-tb-row">
-      <span class="syn-tb-lbl syn-b-lbl">B</span>
-      <label>Name</label><input type="text" id="syn-b-name" placeholder="optional" class="syn-tb-name">
-      <label>Date</label><input type="date" id="syn-b-date" required>
-      <label>Time</label><input type="time" id="syn-b-time" step="60" required>
-      <label>Place</label><input type="text" id="syn-b-loc" placeholder="City, Country" required class="syn-tb-place">
-    </div>
-    <div class="syn-tb-row syn-tb-row2">
+      <div class="syn-tb-sep"></div>
       <label>System</label>
       <select id="syn-zodiac"><option value="Tropical">Tropical</option><option value="Sidereal">Sidereal</option></select>
       <label>Houses</label>
@@ -70,6 +62,14 @@
         <option value="Regiomontanus">Regiomontanus</option>
         <option value="Campanus">Campanus</option>
       </select>
+    </div>
+    <div class="syn-tb-row">
+      <span class="syn-tb-lbl syn-b-lbl">B</span>
+      <label>Name</label><input type="text" id="syn-b-name" placeholder="optional" class="syn-tb-name">
+      <label>Date</label><input type="date" id="syn-b-date" required>
+      <label>Time</label><input type="time" id="syn-b-time" step="60" required>
+      <label>Place</label><input type="text" id="syn-b-loc" placeholder="City, Country" required class="syn-tb-place">
+      <div class="syn-tb-sep"></div>
       <label>Orb</label>
       <input type="range" class="orb-slider" id="syn-orb-val" value="8" min="0.5" max="10" step="0.5" style="width:80px">
       <span id="syn-orb-readout" style="font-size:11px;color:#9b9185;min-width:28px">8.0°</span>
@@ -292,6 +292,9 @@
                   <label><input type="checkbox" class="syn-disp-a" data-body="Neptune" checked> Neptune</label>
                   <label><input type="checkbox" class="syn-disp-a" data-body="Pluto"   checked> Pluto</label>
                   <label><input type="checkbox" class="syn-disp-a" data-body="Chiron"> Chiron</label>
+                  <label><input type="checkbox" class="syn-disp-a" data-body="North Node"> Nodes</label>
+                  <label><input type="checkbox" class="syn-disp-a" data-body="Vertex"> Vertex</label>
+                  <label><input type="checkbox" class="syn-disp-a" data-body="Part of Fortune"> Fortune</label>
                   <label><input type="checkbox" class="syn-disp-a" data-body="Asc">    Asc/Desc</label>
                   <label><input type="checkbox" class="syn-disp-a" data-body="MC">     MC/IC</label>
                 </div>
@@ -314,6 +317,9 @@
                   <label><input type="checkbox" class="syn-disp-b" data-body="Neptune" checked> Neptune</label>
                   <label><input type="checkbox" class="syn-disp-b" data-body="Pluto"   checked> Pluto</label>
                   <label><input type="checkbox" class="syn-disp-b" data-body="Chiron"> Chiron</label>
+                  <label><input type="checkbox" class="syn-disp-b" data-body="North Node"> Nodes</label>
+                  <label><input type="checkbox" class="syn-disp-b" data-body="Vertex"> Vertex</label>
+                  <label><input type="checkbox" class="syn-disp-b" data-body="Part of Fortune"> Fortune</label>
                   <label><input type="checkbox" class="syn-disp-b" data-body="Asc">    Asc/Desc</label>
                   <label><input type="checkbox" class="syn-disp-b" data-body="MC">     MC/IC</label>
                 </div>
@@ -371,6 +377,9 @@
                   <label><input type="checkbox" class="comp-disp" data-body="Neptune" checked> Neptune</label>
                   <label><input type="checkbox" class="comp-disp" data-body="Pluto"   checked> Pluto</label>
                   <label><input type="checkbox" class="comp-disp" data-body="Chiron"> Chiron</label>
+                  <label><input type="checkbox" class="comp-disp" data-body="North Node"> Nodes</label>
+                  <label><input type="checkbox" class="comp-disp" data-body="Vertex"> Vertex</label>
+                  <label><input type="checkbox" class="comp-disp" data-body="Part of Fortune"> Fortune</label>
                   <label><input type="checkbox" class="comp-disp" data-body="Asc">    Asc/Desc</label>
                   <label><input type="checkbox" class="comp-disp" data-body="MC">     MC/IC</label>
                 </div>
