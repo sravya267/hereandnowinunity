@@ -42,8 +42,6 @@
 
 <div id="error-bar" class="error-bar"></div>
 <div class="loading" id="spinner">Calculating chart...</div>
-<div id="empty-state" class="empty-page">Enter birth details above to generate your natal chart</div>
-
 <div id="results" class="page">
   <div class="tab-bar">
     <div class="tabs">
@@ -55,7 +53,8 @@
     <div class="tab-meta" id="tab-meta"></div>
   </div>
   <div id="tab-natal" class="tab-page active">
-  <div style="padding:8px 0 0">
+  <div id="natal-empty-state" class="empty-page" style="display:none">Enter birth details above to generate your natal chart</div>
+  <div id="natal-content" style="padding:8px 0 0">
     <!-- Top row: H1 natal (left) + harmonics grid (right) -->
     <div class="row" style="margin-bottom:10px">
       <div class="card card-wheel">
@@ -195,12 +194,158 @@
       </div>
     </div>
   </div>
+  </div><!-- /natal-content -->
   </div>
   <div id="tab-transit" class="tab-page">
     <div class="tab-coming">Transit charts coming soon</div>
   </div>
   <div id="tab-synastry" class="tab-page">
-    <div class="tab-coming">Synastry coming soon</div>
+    <div class="syn-layout">
+
+      <!-- ── Person input forms ─────────────────────────── -->
+      <div class="syn-forms-row">
+        <div class="syn-form-card">
+          <div class="syn-person-lbl syn-a-lbl">Person A</div>
+          <div class="syn-form-fields">
+            <label>Name</label><input type="text" id="syn-a-name" placeholder="optional">
+            <label>Date</label><input type="date" id="syn-a-date" required>
+            <label>Time</label><input type="time" id="syn-a-time" step="60" required>
+            <label>Place</label><input type="text" id="syn-a-loc" placeholder="City, Country" required>
+            <label>System</label>
+            <select id="syn-a-zodiac"><option value="Tropical">Tropical</option><option value="Sidereal">Sidereal</option></select>
+            <label>Houses</label>
+            <select id="syn-a-house">
+              <option value="Koch" selected>Koch</option>
+              <option value="Placidus">Placidus</option>
+              <option value="Whole Sign">Whole Sign</option>
+              <option value="Equal">Equal</option>
+              <option value="Porphyry">Porphyry</option>
+              <option value="Regiomontanus">Regiomontanus</option>
+              <option value="Campanus">Campanus</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="syn-vs">vs</div>
+
+        <div class="syn-form-card">
+          <div class="syn-person-lbl syn-b-lbl">Person B</div>
+          <div class="syn-form-fields">
+            <label>Name</label><input type="text" id="syn-b-name" placeholder="optional">
+            <label>Date</label><input type="date" id="syn-b-date" required>
+            <label>Time</label><input type="time" id="syn-b-time" step="60" required>
+            <label>Place</label><input type="text" id="syn-b-loc" placeholder="City, Country" required>
+            <label>System</label>
+            <select id="syn-b-zodiac"><option value="Tropical">Tropical</option><option value="Sidereal">Sidereal</option></select>
+            <label>Houses</label>
+            <select id="syn-b-house">
+              <option value="Koch" selected>Koch</option>
+              <option value="Placidus">Placidus</option>
+              <option value="Whole Sign">Whole Sign</option>
+              <option value="Equal">Equal</option>
+              <option value="Porphyry">Porphyry</option>
+              <option value="Regiomontanus">Regiomontanus</option>
+              <option value="Campanus">Campanus</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="syn-controls-col">
+          <div class="orb-row" style="margin-bottom:8px">
+            <span class="orb-label">Orb</span>
+            <input type="range" class="orb-slider" id="syn-orb-val" value="8" min="0.5" max="10" step="0.5">
+            <span class="orb-readout" id="syn-orb-readout">8.0&deg;</span>
+          </div>
+          <button class="btn-calc" id="syn-compute-btn" onclick="synCompute()">Compare</button>
+        </div>
+      </div>
+
+      <!-- ── Empty / loading states ─────────────────────── -->
+      <div id="syn-empty" class="harm-empty" style="margin-top:32px">Enter birth details for both people above, then click Compare.</div>
+      <div id="syn-spinner" class="loading" style="display:none;position:relative;padding:32px 0">Calculating synastry&hellip;</div>
+
+      <!-- ── Results ─────────────────────────────────────── -->
+      <div id="syn-results" style="display:none">
+
+        <!-- Row 1: bi-wheel + score + cross-chart harmonics -->
+        <div class="syn-top-row">
+
+          <div class="card syn-biwheel-card">
+            <div class="card-hdr">
+              <span class="card-hdr-title">Synastry Bi-Wheel</span>
+              <span class="syn-legend"><span class="syn-leg-a">&#9679;</span> <span id="syn-leg-a-name">A</span> &nbsp; <span class="syn-leg-b">&#9679;</span> <span id="syn-leg-b-name">B</span></span>
+            </div>
+            <div class="harm-mini-body" style="height:520px">
+              <canvas id="syn-biwheel-canvas"></canvas>
+            </div>
+          </div>
+
+          <div class="syn-right-col">
+
+            <div class="card syn-score-card">
+              <div class="card-hdr"><span class="card-hdr-title">Compatibility Score</span></div>
+              <div class="card-body">
+                <div class="syn-score-wrap">
+                  <div class="syn-score-circle" id="syn-score-circle">—</div>
+                  <div class="syn-score-detail">
+                    <div class="syn-score-summary" id="syn-score-summary"></div>
+                    <div id="syn-score-breakdown"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card syn-harm-card">
+              <div class="card-hdr">
+                <span class="card-hdr-title">Cross-Chart Harmonics</span>
+                <span id="syn-harm-loading" style="font-size:10px;color:#b09e82;display:none">computing&hellip;</span>
+              </div>
+              <div class="card-body" id="syn-harm-body">
+                <div id="syn-harm-empty" class="harm-empty">Loading&hellip;</div>
+                <div id="syn-harm-content" style="display:none">
+                  <div class="harm-orb-ctrl">
+                    <span class="harm-orb-label">Orb</span>
+                    <input type="range" id="syn-harm-orb" class="orb-slider" min="1" max="16" step="0.5" value="8">
+                    <span id="syn-harm-orb-val" class="harm-orb-readout">8&deg;</span>
+                  </div>
+                  <div id="syn-harm-list" class="harm-list"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Row 2: composite wheel + cross-aspects table -->
+        <div class="syn-bottom-row">
+
+          <div class="card syn-composite-card">
+            <div class="card-hdr"><span class="card-hdr-title">Composite Chart</span></div>
+            <div class="harm-mini-body" style="height:440px">
+              <canvas id="syn-composite-canvas"></canvas>
+            </div>
+          </div>
+
+          <div class="card syn-cross-asp-card">
+            <div class="card-hdr">
+              <span class="card-hdr-title">Cross-Aspects</span>
+              <span style="font-size:10px;color:#9b9185" id="syn-asp-count"></span>
+            </div>
+            <div class="card-body" style="overflow-y:auto;height:420px">
+              <table class="vib-table" id="syn-cross-asp-table">
+                <thead><tr>
+                  <th>Person A</th><th>Aspect</th><th>Person B</th>
+                  <th class="num">Orb</th><th class="num">Closeness</th>
+                </tr></thead>
+                <tbody id="syn-cross-asp-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
   </div>
   <div id="tab-vibrational" class="tab-page">
     <div class="vib-layout">
