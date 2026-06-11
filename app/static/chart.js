@@ -1772,9 +1772,6 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
   var SIGN_COLS = ['#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e'];
   var SIGN_ABB  = ['Ari','Tau','Gem','Can','Leo','Vir','Lib','Sco','Sag','Cap','Aqu','Pis'];
 
-  // Background
-  ctx.fillStyle = '#faf6ee'; ctx.fillRect(0, 0, W, H);
-
   // Zodiac band
   for (var s = 0; s < 12; s++) {
     var aStart = lon2a(s * 30), aEnd = lon2a(s * 30 + 30);
@@ -1813,20 +1810,22 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.setLineDash([]);
   });
 
-  // Build planet position maps (all bodies — needed for aspect line anchors)
+  // Build planet position maps — A anchors at outer ring mid, B at inner ring mid
+  var rAnchorA = (rAInner + rAOuter) / 2;
+  var rAnchorB = (rBInner + rBOuter) / 2;
   var planetPosA = {}, planetPosB = {};
 
   var bodiesAFiltered = bodiesA.filter(function(b){ return b.Body && b.Body.indexOf('House Cusp') < 0; });
   bodiesAFiltered.forEach(function(b) {
     var a = lon2a(b['Longitude (°)']);
-    planetPosA[b.Body] = { x: cx + rAspOut * Math.cos(a), y: cy + rAspOut * Math.sin(a), a: a };
+    planetPosA[b.Body] = { x: cx + rAnchorA * Math.cos(a), y: cy + rAnchorA * Math.sin(a), a: a };
   });
 
   var bodiesB = dataB.bodies || [];
   var bodiesBFiltered = bodiesB.filter(function(b){ return b.Body && b.Body.indexOf('House Cusp') < 0; });
   bodiesBFiltered.forEach(function(b) {
     var a = lon2a(b['Longitude (°)']);
-    planetPosB[b.Body] = { x: cx + rAspOut * Math.cos(a), y: cy + rAspOut * Math.sin(a), a: a };
+    planetPosB[b.Body] = { x: cx + rAnchorB * Math.cos(a), y: cy + rAnchorB * Math.sin(a), a: a };
   });
 
   // Helper: is a body visible given filter state?
@@ -1875,9 +1874,9 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.save();
     ctx.translate(cx + r * Math.cos(a), cy + r * Math.sin(a));
     ctx.rotate(a + Math.PI / 2);
-    ctx.fillStyle = b.Color || '#5a4e3c';
-    ctx.font = 'bold 11px serif'; ctx.textAlign = 'center';
-    ctx.fillText(b.Symbol || b.Body[0], 0, 4);
+    ctx.fillStyle = '#8b4513';
+    ctx.font = 'bold 14px serif'; ctx.textAlign = 'center';
+    ctx.fillText(b.Symbol || b.Body[0], 0, 5);
     ctx.restore();
   });
 
@@ -1890,11 +1889,11 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.beginPath();
     ctx.moveTo(cx + rZodIn * Math.cos(a), cy + rZodIn * Math.sin(a));
     ctx.lineTo(cx + rAspOut * 0.9 * Math.cos(a), cy + rAspOut * 0.9 * Math.sin(a));
-    ctx.strokeStyle = '#8b7355'; ctx.lineWidth = 0.8; ctx.stroke();
+    ctx.strokeStyle = '#8b4513'; ctx.lineWidth = 0.8; ctx.stroke();
     ctx.save();
     ctx.translate(cx + rAOuter * 0.97 * Math.cos(a), cy + rAOuter * 0.97 * Math.sin(a));
     ctx.rotate(a + Math.PI/2);
-    ctx.fillStyle = '#5a4e3c'; ctx.font = 'bold 7px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#8b4513'; ctx.font = 'bold 7px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(ang, 0, 3);
     ctx.restore();
   });
@@ -1909,14 +1908,14 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.translate(cx + r * Math.cos(a), cy + r * Math.sin(a));
     ctx.rotate(a + Math.PI / 2);
     ctx.fillStyle = '#2471a3';
-    ctx.font = 'bold 10px serif'; ctx.textAlign = 'center';
-    ctx.fillText(b.Symbol || b.Body[0], 0, 4);
+    ctx.font = 'bold 13px serif'; ctx.textAlign = 'center';
+    ctx.fillText(b.Symbol || b.Body[0], 0, 5);
     ctx.restore();
   });
 
   // Name labels
   ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'left';
-  ctx.fillStyle = '#5a4e3c'; ctx.fillText(nameA, 8, 16);
+  ctx.fillStyle = '#8b4513'; ctx.fillText(nameA, 8, 16);
   ctx.fillStyle = '#2471a3'; ctx.fillText(nameB, 8, 30);
 }
 
@@ -1951,8 +1950,6 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
 
   var SIGN_COLS = ['#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e'];
   var SIGN_ABB  = ['Ari','Tau','Gem','Can','Leo','Vir','Lib','Sco','Sag','Cap','Aqu','Pis'];
-
-  ctx.fillStyle = '#faf6ee'; ctx.fillRect(0, 0, W, H);
 
   // Zodiac band
   for (var s = 0; s < 12; s++) {

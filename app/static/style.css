@@ -205,10 +205,10 @@ canvas{display:block;width:100%;height:100%}
   align-items: flex-start;
   flex-wrap: wrap;
 }
-/* Bi-wheel card: width driven by the canvas (square, ≤520px) */
-.syn-biwheel-card { flex: 0 0 auto; min-width: 0; }
-.syn-biwheel-row  { flex-direction: column; height: auto !important; }
-.syn-biwheel-wrap { width: 100%; height: auto !important; }
+/* Bi-wheel / composite card */
+.syn-biwheel-card { flex: 1 1 320px; min-width: 0; }
+.syn-biwheel-row  { align-items: flex-start; height: auto !important; }
+.syn-biwheel-wrap { flex: 0 0 auto; height: auto !important; }
 .syn-biwheel-wrap canvas { display: block; }
 
 .syn-right-col {
@@ -253,7 +253,7 @@ canvas{display:block;width:100%;height:100%}
 .syn-cross-asp-card { flex: 1 1 300px; min-width: 0; }
 
 .syn-legend { font-size: 11px; color: #9b9185; }
-.syn-leg-a { color: #8b7355; }
+.syn-leg-a { color: #8b4513; }
 .syn-leg-b { color: #2471a3; }
 
 .syn-harm-card .card-body { padding: 4px 8px; max-height: 220px; overflow-y: auto; }
