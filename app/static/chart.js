@@ -1361,6 +1361,88 @@ function fetchNatalHarmonics(d, chartParams) {
 var LAST_SYN_DATA = null;
 var LAST_SYN_HARM_PARAMS = null;
 
+// Composite filter state
+var COMP_MAJOR_ORB = 8;
+var COMP_MINOR_ORB = 4;
+var COMP_ASP_FILTER = {};
+var COMP_BODY = {};
+
+function initCompFilters() {
+  ASP_TYPES.forEach(function(a) {
+    if (!(a.name in COMP_ASP_FILTER)) COMP_ASP_FILTER[a.name] = a.defaultOn;
+  });
+
+  document.querySelectorAll('.comp-disp').forEach(function(cb) {
+    COMP_BODY[cb.dataset.body] = cb.checked;
+    cb.addEventListener('change', function() {
+      COMP_BODY[cb.dataset.body] = cb.checked;
+      compRedraw();
+    });
+  });
+
+  var majSl = document.getElementById('comp-major-orb');
+  var majRd = document.getElementById('comp-major-orb-readout');
+  var minSl = document.getElementById('comp-minor-orb');
+  var minRd = document.getElementById('comp-minor-orb-readout');
+  if (majSl) majSl.addEventListener('input', function() {
+    COMP_MAJOR_ORB = parseFloat(majSl.value);
+    if (majRd) majRd.textContent = COMP_MAJOR_ORB.toFixed(1) + '°';
+    compRedraw();
+  });
+  if (minSl) minSl.addEventListener('input', function() {
+    COMP_MINOR_ORB = parseFloat(minSl.value);
+    if (minRd) minRd.textContent = COMP_MINOR_ORB.toFixed(1) + '°';
+    compRedraw();
+  });
+
+  var gear = document.getElementById('comp-gear-btn');
+  var panel = document.getElementById('comp-filter-panel');
+  if (gear && panel) {
+    gear.addEventListener('click', function() { panel.classList.toggle('closed'); });
+  }
+
+  var aspList = document.getElementById('comp-asp-list');
+  if (aspList) {
+    ASP_TYPES.filter(function(a) { return a.inAspPanel; }).forEach(function(a) {
+      var lbl = document.createElement('label');
+      var cb  = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.dataset.compAsp = a.name;
+      cb.checked = a.defaultOn;
+      COMP_ASP_FILTER[a.name] = a.defaultOn;
+      cb.addEventListener('change', function() {
+        COMP_ASP_FILTER[a.name] = cb.checked;
+        compRedraw();
+      });
+      lbl.appendChild(cb);
+      lbl.appendChild(document.createTextNode(' ' + a.name + ' ' + a.sym));
+      aspList.appendChild(lbl);
+    });
+  }
+}
+
+function compBulkBody(state) {
+  document.querySelectorAll('.comp-disp').forEach(function(cb) {
+    cb.checked = (state === 'all');
+    COMP_BODY[cb.dataset.body] = cb.checked;
+  });
+  compRedraw();
+}
+
+function compBulkAsp(state) {
+  document.querySelectorAll('[data-comp-asp]').forEach(function(cb) {
+    var a = ASP_TYPES.find(function(x){ return x.name === cb.dataset.compAsp; });
+    cb.checked = state === 'all' ? true : state === 'none' ? false : (a && a.major);
+    COMP_ASP_FILTER[cb.dataset.compAsp] = cb.checked;
+  });
+  compRedraw();
+}
+
+function compRedraw() {
+  if (!LAST_SYN_DATA) return;
+  drawCompositeWheel(LAST_SYN_DATA.composite_bodies, LAST_SYN_DATA.composite_aspects);
+}
+
 // Synastry filter state
 var SYN_MAJOR_ORB = 8;
 var SYN_MINOR_ORB = 4;
@@ -1479,6 +1561,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   initSynFilters();
+  initCompFilters();
 });
 
 function synCompute() {
@@ -1895,15 +1978,27 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
   ctx.beginPath(); ctx.arc(cx, cy, rZodIn,  0, 2*Math.PI); ctx.strokeStyle = '#c8bfad'; ctx.lineWidth = 0.8; ctx.stroke();
   ctx.beginPath(); ctx.arc(cx, cy, rAsp,    0, 2*Math.PI); ctx.strokeStyle = '#e8e0d4'; ctx.lineWidth = 0.5; ctx.stroke();
 
+  function compBodyVis(name) {
+    if (name === 'Desc') return COMP_BODY['Asc'] !== false;
+    if (name === 'IC')   return COMP_BODY['MC']  !== false;
+    return COMP_BODY[name] !== false;
+  }
+
   // Aspect lines
   var posMap = {};
   (compositeBodies || []).forEach(function(b) {
     if (!b.Body || b.Body.indexOf('House Cusp') >= 0) return;
+    if (!compBodyVis(b.Body)) return;
     posMap[b.Body] = lon2a(b['Longitude (°)']);
   });
   (compositeAspects || []).forEach(function(asp) {
+    if (!COMP_ASP_FILTER[asp.Aspect]) return;
     var aA = posMap[asp.Body1], aB = posMap[asp.Body2];
     if (aA == null || aB == null) return;
+    var aspMeta = ASP_TYPES.find(function(x){ return x.name === asp.Aspect; });
+    var orbLimit = (aspMeta && aspMeta.major) ? COMP_MAJOR_ORB : COMP_MINOR_ORB;
+    var orb = Math.abs((asp.Angle || 0) - (asp.Degrees || 0));
+    if (orb > orbLimit) return;
     ctx.save();
     ctx.globalAlpha = 0.2 + (asp.Closeness || 0) * 0.5;
     ctx.beginPath();
@@ -1919,6 +2014,7 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
   var ANGLE_SET = {Asc:1, Desc:1, MC:1, IC:1};
   (compositeBodies || []).forEach(function(b) {
     if (!b.Body || b.Body.indexOf('House Cusp') >= 0) return;
+    if (!compBodyVis(b.Body)) return;
     var a = lon2a(b['Longitude (°)']);
     if (ANGLE_SET[b.Body]) {
       ctx.beginPath();
