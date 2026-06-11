@@ -607,12 +607,32 @@ function buildMeta(d) {
       document.querySelectorAll('.tab-page').forEach(function(p){
         p.classList.toggle('active', p.id === 'tab-' + name);
       });
+      // Synastry/Vibrational tabs are usable without a natal chart — make
+      // the results container visible so their forms show immediately.
+      var resultsEl = document.getElementById('results');
+      if (name === 'synastry' || name === 'vibrational') {
+        resultsEl.classList.add('active');
+        document.getElementById('empty-state').style.display = 'none';
+      } else if (name === 'natal' || name === 'transit') {
+        // Only show results div for natal/transit if a chart has been calculated.
+        if (!LAST_DATA) {
+          resultsEl.classList.remove('active');
+          document.getElementById('empty-state').style.display = 'flex';
+        }
+      }
       // Returning to Natal: redraw the wheel since the canvas may have been
       // hidden when sized to 0×0.
       if (name === 'natal' && LAST_DATA) {
         requestAnimationFrame(function(){
           drawCurrentWheel();
           if (SELECTED_HARMONIC != null && LAST_HARMONICS) renderHarmDetail(SELECTED_HARMONIC);
+        });
+      }
+      // Redraw synastry canvases when switching to the tab (hidden canvas = 0×0).
+      if (name === 'synastry' && LAST_SYN_DATA) {
+        requestAnimationFrame(function(){
+          drawBiWheel(LAST_SYN_DATA.chart_a, LAST_SYN_DATA.chart_b, LAST_SYN_DATA.cross_aspects, LAST_SYN_DATA._nameA, LAST_SYN_DATA._nameB);
+          drawCompositeWheel(LAST_SYN_DATA.composite_bodies, LAST_SYN_DATA.composite_aspects);
         });
       }
     });
