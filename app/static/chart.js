@@ -143,18 +143,17 @@ var ASP_TYPES = [
   {name:'Semi-sextile', sym:'⚹',  major:false, positive:true,  harmonic:12, defaultOn:false, inAspPanel:true},
   {name:'Semi-square',  sym:'∠',  major:false, positive:false, harmonic:8,  defaultOn:false, inAspPanel:true},
   {name:'Sesquisquare', sym:'Sq', major:false, positive:false, harmonic:8,  defaultOn:false, inAspPanel:true},
-  // Cochrane harmonic multiples — surfaced only via the Vibrational Resonance card
-  {name:'Quintile',     sym:'⚼',  major:false, positive:true,  harmonic:5,  defaultOn:false, inAspPanel:false},
-  {name:'Bi-Quintile',  sym:'bQ', major:false, positive:true,  harmonic:5,  defaultOn:false, inAspPanel:false},
-  {name:'Septile',      sym:'⚤',  major:false, positive:false, harmonic:7,  defaultOn:false, inAspPanel:false},
-  {name:'Biseptile',    sym:'bS', major:false, positive:false, harmonic:7,  defaultOn:false, inAspPanel:false},
-  {name:'Triseptile',   sym:'tS', major:false, positive:false, harmonic:7,  defaultOn:false, inAspPanel:false},
-  {name:'Novile',       sym:'⭘',  major:false, positive:true,  harmonic:9,  defaultOn:false, inAspPanel:false},
-  {name:'Bi-Novile',    sym:'bN', major:false, positive:true,  harmonic:9,  defaultOn:false, inAspPanel:false},
-  {name:'Quadri-Novile',sym:'qN', major:false, positive:true,  harmonic:9,  defaultOn:false, inAspPanel:false},
-  {name:'Decile',       sym:'⭑',  major:false, positive:true,  harmonic:10, defaultOn:false, inAspPanel:false},
-  {name:'Tri-Decile',   sym:'tD', major:false, positive:true,  harmonic:10, defaultOn:false, inAspPanel:false},
-  {name:'Undecile',     sym:'⭒',  major:false, positive:true,  harmonic:11, defaultOn:false, inAspPanel:false}
+  {name:'Quintile',     sym:'Q',  major:false, positive:true,  harmonic:5,  defaultOn:false, inAspPanel:true},
+  {name:'Bi-Quintile',  sym:'bQ', major:false, positive:true,  harmonic:5,  defaultOn:false, inAspPanel:true},
+  {name:'Septile',      sym:'S',  major:false, positive:false, harmonic:7,  defaultOn:false, inAspPanel:true},
+  {name:'Biseptile',    sym:'bS', major:false, positive:false, harmonic:7,  defaultOn:false, inAspPanel:true},
+  {name:'Triseptile',   sym:'tS', major:false, positive:false, harmonic:7,  defaultOn:false, inAspPanel:true},
+  {name:'Novile',       sym:'N',  major:false, positive:true,  harmonic:9,  defaultOn:false, inAspPanel:true},
+  {name:'Bi-Novile',    sym:'bN', major:false, positive:true,  harmonic:9,  defaultOn:false, inAspPanel:true},
+  {name:'Quadri-Novile',sym:'qN', major:false, positive:true,  harmonic:9,  defaultOn:false, inAspPanel:true},
+  {name:'Decile',       sym:'D',  major:false, positive:true,  harmonic:10, defaultOn:false, inAspPanel:true},
+  {name:'Tri-Decile',   sym:'tD', major:false, positive:true,  harmonic:10, defaultOn:false, inAspPanel:true},
+  {name:'Undecile',     sym:'U',  major:false, positive:true,  harmonic:11, defaultOn:false, inAspPanel:true}
 ];
 // major-neg=red, major-pos=green, minor-neg=orange, minor-pos=seagreen
 function aspLineColor(meta) {
@@ -1488,20 +1487,22 @@ function synCompute() {
   var aName = document.getElementById('syn-a-name').value.trim() || 'Person A';
   var bName = document.getElementById('syn-b-name').value.trim() || 'Person B';
   var baseOrb = parseFloat(document.getElementById('syn-orb-val').value) || 8.0;
+  var zodiacSys  = document.getElementById('syn-zodiac').value;
+  var houseSys   = document.getElementById('syn-house').value;
 
   var payload = {
     person_a: {
       birth_datetime: aDate + 'T' + aTime + ':00',
       location: aLoc,
-      zodiac_system: document.getElementById('syn-a-zodiac').value,
-      house_system: document.getElementById('syn-a-house').value,
+      zodiac_system: zodiacSys,
+      house_system: houseSys,
       name: aName,
     },
     person_b: {
       birth_datetime: bDate + 'T' + bTime + ':00',
       location: bLoc,
-      zodiac_system: document.getElementById('syn-b-zodiac').value,
-      house_system: document.getElementById('syn-b-house').value,
+      zodiac_system: zodiacSys,
+      house_system: houseSys,
       name: bName,
     },
     base_orb: baseOrb,
@@ -1646,7 +1647,9 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
   if (!cvs) return;
   var parent = cvs.parentElement;
   var dpr = window.devicePixelRatio || 1;
-  var W = parent.clientWidth, H = parent.clientHeight;
+  // Use a square canvas based on the available width (capped at 520px)
+  var S = Math.min(parent.clientWidth, 520);
+  var W = S, H = S;
   cvs.width = W * dpr; cvs.height = H * dpr;
   cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
 
@@ -1831,7 +1834,8 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
   if (!cvs) return;
   var parent = cvs.parentElement;
   var dpr = window.devicePixelRatio || 1;
-  var W = parent.clientWidth, H = parent.clientHeight;
+  var S = Math.min(parent.clientWidth, 440);
+  var W = S, H = S;
   cvs.width = W * dpr; cvs.height = H * dpr;
   cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
 

@@ -211,18 +211,6 @@
             <label>Date</label><input type="date" id="syn-a-date" required>
             <label>Time</label><input type="time" id="syn-a-time" step="60" required>
             <label>Place</label><input type="text" id="syn-a-loc" placeholder="City, Country" required>
-            <label>System</label>
-            <select id="syn-a-zodiac"><option value="Tropical">Tropical</option><option value="Sidereal">Sidereal</option></select>
-            <label>Houses</label>
-            <select id="syn-a-house">
-              <option value="Koch" selected>Koch</option>
-              <option value="Placidus">Placidus</option>
-              <option value="Whole Sign">Whole Sign</option>
-              <option value="Equal">Equal</option>
-              <option value="Porphyry">Porphyry</option>
-              <option value="Regiomontanus">Regiomontanus</option>
-              <option value="Campanus">Campanus</option>
-            </select>
           </div>
         </div>
 
@@ -235,10 +223,15 @@
             <label>Date</label><input type="date" id="syn-b-date" required>
             <label>Time</label><input type="time" id="syn-b-time" step="60" required>
             <label>Place</label><input type="text" id="syn-b-loc" placeholder="City, Country" required>
+          </div>
+        </div>
+
+        <div class="syn-controls-col">
+          <div class="syn-shared-row">
             <label>System</label>
-            <select id="syn-b-zodiac"><option value="Tropical">Tropical</option><option value="Sidereal">Sidereal</option></select>
+            <select id="syn-zodiac"><option value="Tropical">Tropical</option><option value="Sidereal">Sidereal</option></select>
             <label>Houses</label>
-            <select id="syn-b-house">
+            <select id="syn-house">
               <option value="Koch" selected>Koch</option>
               <option value="Placidus">Placidus</option>
               <option value="Whole Sign">Whole Sign</option>
@@ -248,10 +241,7 @@
               <option value="Campanus">Campanus</option>
             </select>
           </div>
-        </div>
-
-        <div class="syn-controls-col">
-          <div class="orb-row" style="margin-bottom:8px">
+          <div class="orb-row">
             <span class="orb-label">Orb</span>
             <input type="range" class="orb-slider" id="syn-orb-val" value="8" min="0.5" max="10" step="0.5">
             <span class="orb-readout" id="syn-orb-readout">8.0&deg;</span>
@@ -276,9 +266,9 @@
               <span class="syn-legend"><span class="syn-leg-a">&#9679;</span> <span id="syn-leg-a-name">A</span> &nbsp; <span class="syn-leg-b">&#9679;</span> <span id="syn-leg-b-name">B</span></span>
               <button type="button" class="gear-btn" id="syn-gear-btn" title="Toggle filters">&#9881;</button>
             </div>
-            <div class="chart-row">
-              <div class="canvas-wrap">
-                <canvas id="syn-biwheel-canvas" style="height:520px"></canvas>
+            <div class="chart-row syn-biwheel-row">
+              <div class="canvas-wrap syn-biwheel-wrap">
+                <canvas id="syn-biwheel-canvas"></canvas>
               </div>
               <div class="filter-panel closed" id="syn-filter-panel">
                 <div class="fp-hdr"><span>Orbs</span></div>
