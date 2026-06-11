@@ -1398,12 +1398,9 @@ function initCompFilters() {
   var gear = document.getElementById('comp-gear-btn');
   var panel = document.getElementById('comp-filter-panel');
   if (gear && panel) {
-    var compCard = gear.closest ? gear.closest('.syn-biwheel-card') : null;
     gear.addEventListener('click', function() {
-      var opening = panel.classList.contains('closed');
       panel.classList.toggle('closed');
-      if (compCard) compCard.classList.toggle('is-expanded', opening);
-      compRedraw();
+      setTimeout(compRedraw, 280);
     });
   }
 
@@ -1494,16 +1491,13 @@ function initSynFilters() {
     synRedrawBiWheel();
   });
 
-  // Gear button — toggle filter + expand card
+  // Gear button — toggle filter, redraw after CSS transition finishes
   var gear = document.getElementById('syn-gear-btn');
   var panel = document.getElementById('syn-filter-panel');
   if (gear && panel) {
-    var synCard = gear.closest ? gear.closest('.syn-biwheel-card') : null;
     gear.addEventListener('click', function() {
-      var opening = panel.classList.contains('closed');
       panel.classList.toggle('closed');
-      if (synCard) synCard.classList.toggle('is-expanded', opening);
-      synRedrawBiWheel();
+      setTimeout(synRedrawBiWheel, 280);
     });
   }
 
@@ -1750,9 +1744,7 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
   if (!cvs) return;
   var parent = cvs.parentElement;
   var dpr = window.devicePixelRatio || 1;
-  var card = cvs.closest ? cvs.closest('.syn-biwheel-card') : null;
-  var maxS = (card && card.classList.contains('is-expanded')) ? 700 : 500;
-  var S = Math.min(parent.clientWidth || maxS, maxS);
+  var S = Math.min(parent.clientWidth || 500, 700);
   var W = S, H = S;
   cvs.width = W * dpr; cvs.height = H * dpr;
   cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
@@ -1821,22 +1813,20 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.setLineDash([]);
   });
 
-  // Build planet position maps — A anchors at outer ring mid, B at inner ring mid
-  var rAnchorA = (rAInner + rAOuter) / 2;
-  var rAnchorB = (rBInner + rBOuter) / 2;
+  // Build planet position maps — both anchored at rAspOut (innermost circle) for traditional aspect lines
   var planetPosA = {}, planetPosB = {};
 
   var bodiesAFiltered = bodiesA.filter(function(b){ return b.Body && b.Body.indexOf('House Cusp') < 0; });
   bodiesAFiltered.forEach(function(b) {
     var a = lon2a(b['Longitude (°)']);
-    planetPosA[b.Body] = { x: cx + rAnchorA * Math.cos(a), y: cy + rAnchorA * Math.sin(a), a: a };
+    planetPosA[b.Body] = { x: cx + rAspOut * Math.cos(a), y: cy + rAspOut * Math.sin(a), a: a };
   });
 
   var bodiesB = dataB.bodies || [];
   var bodiesBFiltered = bodiesB.filter(function(b){ return b.Body && b.Body.indexOf('House Cusp') < 0; });
   bodiesBFiltered.forEach(function(b) {
     var a = lon2a(b['Longitude (°)']);
-    planetPosB[b.Body] = { x: cx + rAnchorB * Math.cos(a), y: cy + rAnchorB * Math.sin(a), a: a };
+    planetPosB[b.Body] = { x: cx + rAspOut * Math.cos(a), y: cy + rAspOut * Math.sin(a), a: a };
   });
 
   // Helper: is a body visible given filter state?
@@ -1938,9 +1928,7 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
   if (!cvs) return;
   var parent = cvs.parentElement;
   var dpr = window.devicePixelRatio || 1;
-  var card = cvs.closest ? cvs.closest('.syn-biwheel-card') : null;
-  var maxS = (card && card.classList.contains('is-expanded')) ? 680 : 480;
-  var S = Math.min(parent.clientWidth || maxS, maxS);
+  var S = Math.min(parent.clientWidth || 480, 680);
   var W = S, H = S;
   cvs.width = W * dpr; cvs.height = H * dpr;
   cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
