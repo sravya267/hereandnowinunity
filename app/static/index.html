@@ -274,9 +274,81 @@
             <div class="card-hdr">
               <span class="card-hdr-title">Synastry Bi-Wheel</span>
               <span class="syn-legend"><span class="syn-leg-a">&#9679;</span> <span id="syn-leg-a-name">A</span> &nbsp; <span class="syn-leg-b">&#9679;</span> <span id="syn-leg-b-name">B</span></span>
+              <button type="button" class="gear-btn" id="syn-gear-btn" title="Toggle filters">&#9881;</button>
             </div>
-            <div class="harm-mini-body" style="height:520px">
-              <canvas id="syn-biwheel-canvas"></canvas>
+            <div class="chart-row">
+              <div class="canvas-wrap">
+                <canvas id="syn-biwheel-canvas" style="height:520px"></canvas>
+              </div>
+              <div class="filter-panel closed" id="syn-filter-panel">
+                <div class="fp-hdr"><span>Orbs</span></div>
+                <div class="orb-row">
+                  <span class="orb-label">Major</span>
+                  <input type="range" class="orb-slider" id="syn-major-orb" value="8" min="0.5" max="10" step="0.5">
+                  <span class="orb-readout" id="syn-major-orb-readout">8.0&deg;</span>
+                </div>
+                <div class="orb-row">
+                  <span class="orb-label">Minor</span>
+                  <input type="range" class="orb-slider" id="syn-minor-orb" value="4" min="0.5" max="10" step="0.5">
+                  <span class="orb-readout" id="syn-minor-orb-readout">4.0&deg;</span>
+                </div>
+
+                <div class="fp-hdr">
+                  <span>Person A bodies</span>
+                  <div class="fp-hdr-btns">
+                    <button onclick="synBulkBody('a','all')">All</button>
+                    <button onclick="synBulkBody('a','none')">None</button>
+                  </div>
+                </div>
+                <div class="fp-flow">
+                  <label><input type="checkbox" class="syn-disp-a" data-body="Sun"     checked> Sun</label>
+                  <label><input type="checkbox" class="syn-disp-a" data-body="Moon"    checked> Moon</label>
+                  <label><input type="checkbox" class="syn-disp-a" data-body="Mercury" checked> Mercury</label>
+                  <label><input type="checkbox" class="syn-disp-a" data-body="Venus"   checked> Venus</label>
+                  <label><input type="checkbox" class="syn-disp-a" data-body="Mars"    checked> Mars</label>
+                  <label><input type="checkbox" class="syn-disp-a" data-body="Jupiter" checked> Jupiter</label>
+                  <label><input type="checkbox" class="syn-disp-a" data-body="Saturn"  checked> Saturn</label>
+                  <label><input type="checkbox" class="syn-disp-a" data-body="Uranus"  checked> Uranus</label>
+                  <label><input type="checkbox" class="syn-disp-a" data-body="Neptune" checked> Neptune</label>
+                  <label><input type="checkbox" class="syn-disp-a" data-body="Pluto"   checked> Pluto</label>
+                  <label><input type="checkbox" class="syn-disp-a" data-body="Chiron"> Chiron</label>
+                  <label><input type="checkbox" class="syn-disp-a" data-body="Asc">    Asc/Desc</label>
+                  <label><input type="checkbox" class="syn-disp-a" data-body="MC">     MC/IC</label>
+                </div>
+
+                <div class="fp-hdr">
+                  <span>Person B bodies</span>
+                  <div class="fp-hdr-btns">
+                    <button onclick="synBulkBody('b','all')">All</button>
+                    <button onclick="synBulkBody('b','none')">None</button>
+                  </div>
+                </div>
+                <div class="fp-flow">
+                  <label><input type="checkbox" class="syn-disp-b" data-body="Sun"     checked> Sun</label>
+                  <label><input type="checkbox" class="syn-disp-b" data-body="Moon"    checked> Moon</label>
+                  <label><input type="checkbox" class="syn-disp-b" data-body="Mercury" checked> Mercury</label>
+                  <label><input type="checkbox" class="syn-disp-b" data-body="Venus"   checked> Venus</label>
+                  <label><input type="checkbox" class="syn-disp-b" data-body="Mars"    checked> Mars</label>
+                  <label><input type="checkbox" class="syn-disp-b" data-body="Jupiter" checked> Jupiter</label>
+                  <label><input type="checkbox" class="syn-disp-b" data-body="Saturn"  checked> Saturn</label>
+                  <label><input type="checkbox" class="syn-disp-b" data-body="Uranus"  checked> Uranus</label>
+                  <label><input type="checkbox" class="syn-disp-b" data-body="Neptune" checked> Neptune</label>
+                  <label><input type="checkbox" class="syn-disp-b" data-body="Pluto"   checked> Pluto</label>
+                  <label><input type="checkbox" class="syn-disp-b" data-body="Chiron"> Chiron</label>
+                  <label><input type="checkbox" class="syn-disp-b" data-body="Asc">    Asc/Desc</label>
+                  <label><input type="checkbox" class="syn-disp-b" data-body="MC">     MC/IC</label>
+                </div>
+
+                <div class="fp-hdr">
+                  <span>Aspects</span>
+                  <div class="fp-hdr-btns">
+                    <button onclick="synBulkAsp('all')">All</button>
+                    <button onclick="synBulkAsp('none')">None</button>
+                    <button onclick="synBulkAsp('major')">Major</button>
+                  </div>
+                </div>
+                <div id="syn-asp-list"></div>
+              </div>
             </div>
           </div>
 

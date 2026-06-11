@@ -1352,6 +1352,109 @@ function fetchNatalHarmonics(d, chartParams) {
 var LAST_SYN_DATA = null;
 var LAST_SYN_HARM_PARAMS = null;
 
+// Synastry filter state
+var SYN_MAJOR_ORB = 8;
+var SYN_MINOR_ORB = 4;
+var SYN_ASP_FILTER = {};  // aspect name → bool, populated in initSynFilters
+var SYN_BODY_A = {};      // body name → bool
+var SYN_BODY_B = {};
+
+function initSynFilters() {
+  // Aspect filter defaults: same as natal wheel
+  ASP_TYPES.forEach(function(a) {
+    if (!(a.name in SYN_ASP_FILTER)) SYN_ASP_FILTER[a.name] = a.defaultOn;
+  });
+
+  // Body defaults: all checked bodies
+  document.querySelectorAll('.syn-disp-a').forEach(function(cb) {
+    SYN_BODY_A[cb.dataset.body] = cb.checked;
+    cb.addEventListener('change', function() {
+      SYN_BODY_A[cb.dataset.body] = cb.checked;
+      synRedrawBiWheel();
+    });
+  });
+  document.querySelectorAll('.syn-disp-b').forEach(function(cb) {
+    SYN_BODY_B[cb.dataset.body] = cb.checked;
+    cb.addEventListener('change', function() {
+      SYN_BODY_B[cb.dataset.body] = cb.checked;
+      synRedrawBiWheel();
+    });
+  });
+
+  // Orb sliders
+  var majSl = document.getElementById('syn-major-orb');
+  var majRd = document.getElementById('syn-major-orb-readout');
+  var minSl = document.getElementById('syn-minor-orb');
+  var minRd = document.getElementById('syn-minor-orb-readout');
+  if (majSl) majSl.addEventListener('input', function() {
+    SYN_MAJOR_ORB = parseFloat(majSl.value);
+    majRd.textContent = SYN_MAJOR_ORB.toFixed(1) + '°';
+    synRedrawBiWheel();
+  });
+  if (minSl) minSl.addEventListener('input', function() {
+    SYN_MINOR_ORB = parseFloat(minSl.value);
+    minRd.textContent = SYN_MINOR_ORB.toFixed(1) + '°';
+    synRedrawBiWheel();
+  });
+
+  // Gear button
+  var gear = document.getElementById('syn-gear-btn');
+  var panel = document.getElementById('syn-filter-panel');
+  if (gear && panel) {
+    gear.addEventListener('click', function() {
+      panel.classList.toggle('closed');
+    });
+  }
+
+  // Build aspect checkboxes in #syn-asp-list
+  var aspList = document.getElementById('syn-asp-list');
+  if (aspList) {
+    ASP_TYPES.filter(function(a) { return a.inAspPanel; }).forEach(function(a) {
+      var lbl = document.createElement('label');
+      var cb  = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.dataset.synAsp = a.name;
+      cb.checked = a.defaultOn;
+      SYN_ASP_FILTER[a.name] = a.defaultOn;
+      cb.addEventListener('change', function() {
+        SYN_ASP_FILTER[a.name] = cb.checked;
+        synRedrawBiWheel();
+      });
+      lbl.appendChild(cb);
+      lbl.appendChild(document.createTextNode(' ' + a.name + ' ' + a.sym));
+      aspList.appendChild(lbl);
+    });
+  }
+}
+
+function synBulkBody(person, state) {
+  var cls = person === 'a' ? '.syn-disp-a' : '.syn-disp-b';
+  var map = person === 'a' ? SYN_BODY_A : SYN_BODY_B;
+  document.querySelectorAll(cls).forEach(function(cb) {
+    cb.checked = (state === 'all');
+    map[cb.dataset.body] = cb.checked;
+  });
+  synRedrawBiWheel();
+}
+
+function synBulkAsp(state) {
+  document.querySelectorAll('[data-syn-asp]').forEach(function(cb) {
+    var a = ASP_TYPES.find(function(x){ return x.name === cb.dataset.synAsp; });
+    cb.checked = state === 'all' ? true : state === 'none' ? false : (a && a.major);
+    SYN_ASP_FILTER[cb.dataset.synAsp] = cb.checked;
+  });
+  synRedrawBiWheel();
+}
+
+function synRedrawBiWheel() {
+  if (!LAST_SYN_DATA) return;
+  drawBiWheel(
+    LAST_SYN_DATA.chart_a, LAST_SYN_DATA.chart_b,
+    LAST_SYN_DATA.cross_aspects,
+    LAST_SYN_DATA._nameA, LAST_SYN_DATA._nameB
+  );
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   var sl = document.getElementById('syn-orb-val');
   var rd = document.getElementById('syn-orb-readout');
@@ -1366,6 +1469,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (LAST_SYN_HARM_PARAMS) synFetchHarmonics(parseFloat(sl2.value));
     });
   }
+  initSynFilters();
 });
 
 function synCompute() {
@@ -1613,9 +1717,8 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.setLineDash([]);
   });
 
-  // Build planet position maps
+  // Build planet position maps (all bodies — needed for aspect line anchors)
   var planetPosA = {}, planetPosB = {};
-  var SKIP_BODIES = {'House Cusp':true};
 
   var bodiesAFiltered = bodiesA.filter(function(b){ return b.Body && b.Body.indexOf('House Cusp') < 0; });
   bodiesAFiltered.forEach(function(b) {
@@ -1630,10 +1733,31 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     planetPosB[b.Body] = { x: cx + rAspOut * Math.cos(a), y: cy + rAspOut * Math.sin(a), a: a };
   });
 
-  // Cross-aspect lines (inside the aspect circle)
+  // Helper: is a body visible given filter state?
+  function bodyVisA(name) {
+    // Angles share one checkbox (key = 'Asc' covers Asc/Desc, 'MC' covers MC/IC)
+    if (name === 'Desc') return SYN_BODY_A['Asc'] !== false;
+    if (name === 'IC')   return SYN_BODY_A['MC']  !== false;
+    return SYN_BODY_A[name] !== false;
+  }
+  function bodyVisB(name) {
+    if (name === 'Desc') return SYN_BODY_B['Asc'] !== false;
+    if (name === 'IC')   return SYN_BODY_B['MC']  !== false;
+    return SYN_BODY_B[name] !== false;
+  }
+
+  // Cross-aspect lines — filtered by aspect type, orb, and body visibility
   (crossAspects || []).forEach(function(asp) {
+    if (!SYN_ASP_FILTER[asp.Aspect]) return;
+    if (!bodyVisA(asp.Body1) || !bodyVisB(asp.Body2)) return;
     var posA = planetPosA[asp.Body1], posB = planetPosB[asp.Body2];
     if (!posA || !posB) return;
+    // Orb filter: major aspects use SYN_MAJOR_ORB, minor use SYN_MINOR_ORB
+    var aspMeta = ASP_TYPES.find(function(x){ return x.name === asp.Aspect; });
+    var orbLimit = (aspMeta && aspMeta.major) ? SYN_MAJOR_ORB : SYN_MINOR_ORB;
+    var orb = Math.abs((asp.Angle || 0) - (asp.Degrees || 0));
+    if (orb > orbLimit) return;
+
     ctx.save();
     ctx.globalAlpha = 0.12 + (asp.Closeness || 0) * 0.55;
     ctx.beginPath();
@@ -1648,7 +1772,8 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
   // Person A planets (outer ring, earth tones)
   var ANGLE_SET = {Asc:1, Desc:1, MC:1, IC:1};
   bodiesAFiltered.forEach(function(b) {
-    if (ANGLE_SET[b.Body]) return; // skip angles from planet ring
+    if (ANGLE_SET[b.Body]) return;
+    if (!bodyVisA(b.Body)) return;
     var a = lon2a(b['Longitude (°)']);
     var r = (rAInner + rAOuter) / 2;
     ctx.save();
@@ -1660,8 +1785,9 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.restore();
   });
 
-  // Angle spokes for Person A
+  // Angle spokes for Person A (respects Asc/MC toggles)
   ['Asc','Desc','MC','IC'].forEach(function(ang) {
+    if (!bodyVisA(ang)) return;
     var b = bodiesAFiltered.find(function(x){ return x.Body === ang; });
     if (!b) return;
     var a = lon2a(b['Longitude (°)']);
@@ -1680,6 +1806,7 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
   // Person B planets (inner ring, blue)
   bodiesBFiltered.forEach(function(b) {
     if (ANGLE_SET[b.Body]) return;
+    if (!bodyVisB(b.Body)) return;
     var a = lon2a(b['Longitude (°)']);
     var r = (rBInner + rBOuter) / 2;
     ctx.save();
