@@ -599,6 +599,10 @@ function buildMeta(d) {
 
 (function initTabs(){
   var tabs = document.querySelectorAll('.tab');
+  var chartFormEl   = document.getElementById('chart-form');
+  var synTbFormEl   = document.getElementById('syn-toolbar-form');
+  var toolbarEl     = document.getElementById('toolbar');
+
   tabs.forEach(function(btn){
     btn.addEventListener('click', function(){
       var name = btn.dataset.tab;
@@ -606,6 +610,13 @@ function buildMeta(d) {
       document.querySelectorAll('.tab-page').forEach(function(p){
         p.classList.toggle('active', p.id === 'tab-' + name);
       });
+
+      // Swap toolbar form: synastry gets its own two-person form
+      var isSyn = name === 'synastry';
+      if (chartFormEl) chartFormEl.style.display = isSyn ? 'none' : '';
+      if (synTbFormEl) synTbFormEl.style.display  = isSyn ? '' : 'none';
+      if (toolbarEl)   toolbarEl.classList.toggle('toolbar--synastry', isSyn);
+
       // On the Natal tab, show empty state if no chart loaded yet.
       if (name === 'natal') {
         var ne = document.getElementById('natal-empty-state');
@@ -613,15 +624,14 @@ function buildMeta(d) {
         if (ne) ne.style.display = LAST_DATA ? 'none' : 'flex';
         if (nc) nc.style.display = LAST_DATA ? 'block' : 'none';
       }
-      // Returning to Natal: redraw the wheel since the canvas may have been
-      // hidden when sized to 0×0.
+      // Returning to Natal: redraw the wheel (canvas was sized 0×0 while hidden).
       if (name === 'natal' && LAST_DATA) {
         requestAnimationFrame(function(){
           drawCurrentWheel();
           if (SELECTED_HARMONIC != null && LAST_HARMONICS) renderHarmDetail(SELECTED_HARMONIC);
         });
       }
-      // Redraw synastry canvases when switching to the tab (hidden canvas = 0×0).
+      // Redraw synastry canvases on re-entry.
       if (name === 'synastry' && LAST_SYN_DATA) {
         requestAnimationFrame(function(){
           drawBiWheel(LAST_SYN_DATA.chart_a, LAST_SYN_DATA.chart_b, LAST_SYN_DATA.cross_aspects, LAST_SYN_DATA._nameA, LAST_SYN_DATA._nameB);
@@ -1455,11 +1465,11 @@ function synRedrawBiWheel() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Toolbar orb slider readout for synastry
   var sl = document.getElementById('syn-orb-val');
   var rd = document.getElementById('syn-orb-readout');
-  if (sl && rd) {
-    sl.addEventListener('input', function() { rd.textContent = parseFloat(sl.value).toFixed(1) + '°'; });
-  }
+  if (sl && rd) sl.addEventListener('input', function() { rd.textContent = parseFloat(sl.value).toFixed(1) + '°'; });
+
   var sl2 = document.getElementById('syn-harm-orb');
   var rd2 = document.getElementById('syn-harm-orb-val');
   if (sl2 && rd2) {

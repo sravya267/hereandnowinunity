@@ -24,8 +24,10 @@
 </div>
 <div class="intro-peek" id="intro-peek" title="Show welcome quotes">&#8964; show quotes</div>
 
-<div class="toolbar">
+<div class="toolbar" id="toolbar">
   <div class="brand">Astro<span>Chart</span></div>
+
+  <!-- Natal / Transit / Vibrational form (single person) -->
   <form id="chart-form">
     <label>Date</label><input type="date" id="birth-date" required>
     <div class="sep"></div>
@@ -38,6 +40,41 @@
     <button type="submit" class="btn-calc" id="submit-btn">Calculate</button>
     <input type="text" id="hp-website" name="website" autocomplete="off" tabindex="-1" aria-hidden="true" class="hp-field">
   </form>
+
+  <!-- Synastry form (two people) — hidden until Synastry tab active -->
+  <div id="syn-toolbar-form" class="syn-tb-form" style="display:none">
+    <div class="syn-tb-row">
+      <span class="syn-tb-lbl syn-a-lbl">A</span>
+      <label>Name</label><input type="text" id="syn-a-name" placeholder="optional" class="syn-tb-name">
+      <label>Date</label><input type="date" id="syn-a-date" required>
+      <label>Time</label><input type="time" id="syn-a-time" step="60" required>
+      <label>Place</label><input type="text" id="syn-a-loc" placeholder="City, Country" required class="syn-tb-place">
+      <div class="syn-tb-sep"></div>
+      <span class="syn-tb-lbl syn-b-lbl">B</span>
+      <label>Name</label><input type="text" id="syn-b-name" placeholder="optional" class="syn-tb-name">
+      <label>Date</label><input type="date" id="syn-b-date" required>
+      <label>Time</label><input type="time" id="syn-b-time" step="60" required>
+      <label>Place</label><input type="text" id="syn-b-loc" placeholder="City, Country" required class="syn-tb-place">
+    </div>
+    <div class="syn-tb-row syn-tb-row2">
+      <label>System</label>
+      <select id="syn-zodiac"><option value="Tropical">Tropical</option><option value="Sidereal">Sidereal</option></select>
+      <label>Houses</label>
+      <select id="syn-house">
+        <option value="Koch" selected>Koch</option>
+        <option value="Placidus">Placidus</option>
+        <option value="Whole Sign">Whole Sign</option>
+        <option value="Equal">Equal</option>
+        <option value="Porphyry">Porphyry</option>
+        <option value="Regiomontanus">Regiomontanus</option>
+        <option value="Campanus">Campanus</option>
+      </select>
+      <label>Orb</label>
+      <input type="range" class="orb-slider" id="syn-orb-val" value="8" min="0.5" max="10" step="0.5" style="width:80px">
+      <span id="syn-orb-readout" style="font-size:11px;color:#9b9185;min-width:28px">8.0°</span>
+      <button type="button" class="btn-calc" id="syn-compute-btn" onclick="synCompute()">Compare</button>
+    </div>
+  </div>
 </div>
 
 <div id="error-bar" class="error-bar"></div>
@@ -202,56 +239,8 @@
   <div id="tab-synastry" class="tab-page">
     <div class="syn-layout">
 
-      <!-- ── Person input forms ─────────────────────────── -->
-      <div class="syn-forms-row">
-        <div class="syn-form-card">
-          <div class="syn-person-lbl syn-a-lbl">Person A</div>
-          <div class="syn-form-fields">
-            <label>Name</label><input type="text" id="syn-a-name" placeholder="optional">
-            <label>Date</label><input type="date" id="syn-a-date" required>
-            <label>Time</label><input type="time" id="syn-a-time" step="60" required>
-            <label>Place</label><input type="text" id="syn-a-loc" placeholder="City, Country" required>
-          </div>
-        </div>
-
-        <div class="syn-vs">vs</div>
-
-        <div class="syn-form-card">
-          <div class="syn-person-lbl syn-b-lbl">Person B</div>
-          <div class="syn-form-fields">
-            <label>Name</label><input type="text" id="syn-b-name" placeholder="optional">
-            <label>Date</label><input type="date" id="syn-b-date" required>
-            <label>Time</label><input type="time" id="syn-b-time" step="60" required>
-            <label>Place</label><input type="text" id="syn-b-loc" placeholder="City, Country" required>
-          </div>
-        </div>
-
-        <div class="syn-controls-col">
-          <div class="syn-shared-row">
-            <label>System</label>
-            <select id="syn-zodiac"><option value="Tropical">Tropical</option><option value="Sidereal">Sidereal</option></select>
-            <label>Houses</label>
-            <select id="syn-house">
-              <option value="Koch" selected>Koch</option>
-              <option value="Placidus">Placidus</option>
-              <option value="Whole Sign">Whole Sign</option>
-              <option value="Equal">Equal</option>
-              <option value="Porphyry">Porphyry</option>
-              <option value="Regiomontanus">Regiomontanus</option>
-              <option value="Campanus">Campanus</option>
-            </select>
-          </div>
-          <div class="orb-row">
-            <span class="orb-label">Orb</span>
-            <input type="range" class="orb-slider" id="syn-orb-val" value="8" min="0.5" max="10" step="0.5">
-            <span class="orb-readout" id="syn-orb-readout">8.0&deg;</span>
-          </div>
-          <button class="btn-calc" id="syn-compute-btn" onclick="synCompute()">Compare</button>
-        </div>
-      </div>
-
       <!-- ── Empty / loading states ─────────────────────── -->
-      <div id="syn-empty" class="harm-empty" style="margin-top:32px">Enter birth details for both people above, then click Compare.</div>
+      <div id="syn-empty" class="harm-empty" style="margin-top:32px">Enter birth details for both people in the toolbar above, then click Compare.</div>
       <div id="syn-spinner" class="loading" style="display:none;position:relative;padding:32px 0">Calculating synastry&hellip;</div>
 
       <!-- ── Results ─────────────────────────────────────── -->

@@ -10,10 +10,25 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .intro .attr{display:block;margin-top:3px;color:#9b9185;font-size:10px;font-style:normal}
 .intro-note{color:#7a6e65}
 
-.toolbar{display:flex;align-items:center;background:#fff;border-bottom:1px solid #e8e4df;padding:0 16px;height:44px}
-.brand{font-size:15px;font-weight:600;color:#5a4e3c;margin-right:20px;white-space:nowrap}
+.toolbar{display:flex;align-items:center;background:#fff;border-bottom:1px solid #e8e4df;padding:0 16px;height:44px;gap:0}
+.toolbar--synastry{height:auto;padding:6px 16px;align-items:flex-start;gap:8px}
+.brand{font-size:15px;font-weight:600;color:#5a4e3c;margin-right:20px;white-space:nowrap;padding-top:2px}
 .brand span{font-weight:400;color:#a09788}
 .toolbar form{display:flex;align-items:center;gap:8px;flex:1}
+
+/* Two-person toolbar form */
+.syn-tb-form{display:flex;flex-direction:column;gap:5px;flex:1}
+.syn-tb-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.syn-tb-row2{padding-left:4px}
+.syn-tb-lbl{font-size:11px;font-weight:700;letter-spacing:.04em;padding:0 4px 0 0;white-space:nowrap}
+.syn-tb-sep{width:1px;height:22px;background:#e8e4df;flex-shrink:0;margin:0 4px}
+.syn-tb-form label{font-size:11px;color:#9b9185;white-space:nowrap;flex-shrink:0}
+.syn-tb-form input,.syn-tb-form select{padding:3px 6px;border:1px solid #ddd8d1;border-radius:3px;background:#fcfbf9;color:#3d3a36;font-size:11px;font-family:inherit}
+.syn-tb-form input[type="date"]{width:130px}
+.syn-tb-form input[type="time"]{width:80px}
+.syn-tb-name{width:90px}
+.syn-tb-place{width:140px}
+.syn-tb-form select{width:82px}
 .sep{width:1px;height:22px;background:#e8e4df;flex-shrink:0}
 .toolbar label{font-size:11px;color:#9b9185;white-space:nowrap;flex-shrink:0}
 .toolbar input,.toolbar select{padding:4px 8px;border:1px solid #ddd8d1;border-radius:3px;background:#fcfbf9;color:#3d3a36;font-size:12px;font-family:inherit}
@@ -179,86 +194,8 @@ canvas{display:block;width:100%;height:100%}
 
 /* ── Synastry tab ──────────────────────────────────────────────────────────── */
 .syn-layout { padding: 8px 0; }
-
-/* Input forms row */
-.syn-forms-row {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
-}
-.syn-form-card {
-  flex: 0 1 auto;
-  background: #fff;
-  border: 1px solid #e8e0d4;
-  border-radius: 6px;
-  padding: 8px 10px;
-}
-.syn-person-lbl {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  margin-bottom: 5px;
-}
 .syn-a-lbl { color: #8b7355; }
 .syn-b-lbl { color: #2471a3; }
-
-.syn-form-fields {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 3px 6px;
-  align-items: center;
-}
-.syn-form-fields label { font-size: 10px; color: #5a4e3c; white-space: nowrap; }
-.syn-form-fields input,
-.syn-form-fields select {
-  font-size: 11px;
-  padding: 2px 4px;
-  border: 1px solid #ddd8d1;
-  border-radius: 3px;
-  background: #faf8f4;
-  color: #3d3328;
-  font-family: inherit;
-}
-
-.syn-vs {
-  align-self: center;
-  font-size: 16px;
-  font-weight: 700;
-  color: #c8bfad;
-  flex: 0 0 auto;
-  margin-top: 18px;
-}
-
-.syn-controls-col {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 6px;
-  align-self: flex-end;
-  padding-bottom: 2px;
-}
-/* Shared zodiac + house row inside controls */
-.syn-shared-row {
-  display: grid;
-  grid-template-columns: auto 1fr auto 1fr;
-  gap: 3px 6px;
-  align-items: center;
-  font-size: 10px;
-  color: #5a4e3c;
-}
-.syn-shared-row label { white-space: nowrap; font-size: 10px; }
-.syn-shared-row select {
-  font-size: 11px;
-  padding: 2px 4px;
-  border: 1px solid #ddd8d1;
-  border-radius: 3px;
-  background: #faf8f4;
-  color: #3d3328;
-  font-family: inherit;
-}
 
 /* Results layout */
 .syn-top-row {
