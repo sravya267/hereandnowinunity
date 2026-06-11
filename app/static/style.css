@@ -40,7 +40,7 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .tab-page.active{display:block}
 .tab-coming{display:flex;align-items:center;justify-content:center;height:calc(100vh - 180px);color:#c4bdb4;font-size:14px;text-align:center;padding:20px}
 
-.page{display:none;padding:10px 16px}
+.page{display:block;padding:10px 16px}
 .page.active{display:block}
 
 .row{display:grid;grid-template-columns:1fr 1fr;gap:18px}

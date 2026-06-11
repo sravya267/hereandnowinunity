@@ -42,8 +42,6 @@
 
 <div id="error-bar" class="error-bar"></div>
 <div class="loading" id="spinner">Calculating chart...</div>
-<div id="empty-state" class="empty-page">Enter birth details above to generate your natal chart</div>
-
 <div id="results" class="page">
   <div class="tab-bar">
     <div class="tabs">
@@ -55,7 +53,8 @@
     <div class="tab-meta" id="tab-meta"></div>
   </div>
   <div id="tab-natal" class="tab-page active">
-  <div style="padding:8px 0 0">
+  <div id="natal-empty-state" class="empty-page" style="display:none">Enter birth details above to generate your natal chart</div>
+  <div id="natal-content" style="padding:8px 0 0">
     <!-- Top row: H1 natal (left) + harmonics grid (right) -->
     <div class="row" style="margin-bottom:10px">
       <div class="card card-wheel">
@@ -195,6 +194,7 @@
       </div>
     </div>
   </div>
+  </div><!-- /natal-content -->
   </div>
   <div id="tab-transit" class="tab-page">
     <div class="tab-coming">Transit charts coming soon</div>

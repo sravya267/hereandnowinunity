@@ -607,18 +607,12 @@ function buildMeta(d) {
       document.querySelectorAll('.tab-page').forEach(function(p){
         p.classList.toggle('active', p.id === 'tab-' + name);
       });
-      // Synastry/Vibrational tabs are usable without a natal chart — make
-      // the results container visible so their forms show immediately.
-      var resultsEl = document.getElementById('results');
-      if (name === 'synastry' || name === 'vibrational') {
-        resultsEl.classList.add('active');
-        document.getElementById('empty-state').style.display = 'none';
-      } else if (name === 'natal' || name === 'transit') {
-        // Only show results div for natal/transit if a chart has been calculated.
-        if (!LAST_DATA) {
-          resultsEl.classList.remove('active');
-          document.getElementById('empty-state').style.display = 'flex';
-        }
+      // On the Natal tab, show empty state if no chart loaded yet.
+      if (name === 'natal') {
+        var ne = document.getElementById('natal-empty-state');
+        var nc = document.getElementById('natal-content');
+        if (ne) ne.style.display = LAST_DATA ? 'none' : 'flex';
+        if (nc) nc.style.display = LAST_DATA ? 'block' : 'none';
       }
       // Returning to Natal: redraw the wheel since the canvas may have been
       // hidden when sized to 0×0.
@@ -1279,18 +1273,21 @@ function fetchNatalHarmonics(d, chartParams) {
 
 // ─── Form submit ─────────────────────────────────────────────────────────────
 (function(){
-  var form    = document.getElementById('chart-form');
-  var spinner = document.getElementById('spinner');
-  var results = document.getElementById('results');
-  var empty   = document.getElementById('empty-state');
-  var errBar  = document.getElementById('error-bar');
-  var btn     = document.getElementById('submit-btn');
+  var form       = document.getElementById('chart-form');
+  var spinner    = document.getElementById('spinner');
+  var errBar     = document.getElementById('error-bar');
+  var btn        = document.getElementById('submit-btn');
+  var natalEmpty = document.getElementById('natal-empty-state');
+  var natalCont  = document.getElementById('natal-content');
+
+  // Show the natal empty state on first load (no chart yet).
+  if (natalEmpty) natalEmpty.style.display = 'flex';
+  if (natalCont)  natalCont.style.display  = 'none';
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
     errBar.style.display = 'none';
-    results.classList.remove('active');
-    empty.style.display = 'none';
+    if (natalEmpty) natalEmpty.style.display = 'none';
     spinner.style.display = 'block';
     btn.disabled = true;
 
@@ -1337,7 +1334,7 @@ function fetchNatalHarmonics(d, chartParams) {
         buildMeta(d);
         buildInfoBox(d);
         renderWordCloud(d);
-        results.classList.add('active');
+        if (natalCont) natalCont.style.display = 'block';
         requestAnimationFrame(redrawAll);
         fetchNatalHarmonics(d, harmParams);
       })
@@ -1345,7 +1342,7 @@ function fetchNatalHarmonics(d, chartParams) {
         spinner.style.display = 'none'; btn.disabled = false;
         errBar.textContent = ex.message || 'Network error';
         errBar.style.display = 'block';
-        empty.style.display = 'flex';
+        if (natalEmpty && !LAST_DATA) natalEmpty.style.display = 'flex';
       });
   });
 })();
