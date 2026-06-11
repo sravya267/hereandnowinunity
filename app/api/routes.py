@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import smtplib
 
 import numpy as np
 import pandas as pd
@@ -17,6 +18,59 @@ from app.core.visualization import generate_wordclouds, generate_zodiac_chart
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
+@router.get("/notify/test")
+def notify_test() -> dict:
+    """Send a test notification and return a detailed status report."""
+    from app.config import settings
+
+    report: dict = {
+        "provider": settings.NOTIFY_PROVIDER or "(not set — notifications disabled)",
+        "owner_email": settings.OWNER_EMAIL,
+        "gmail_user": settings.GMAIL_USER,
+        "gmail_app_password_set": bool(settings.GMAIL_APP_PASSWORD),
+        "resend_api_key_set": bool(settings.RESEND_API_KEY),
+        "notify_webhook_url_set": bool(settings.NOTIFY_WEBHOOK_URL),
+        "result": None,
+        "error": None,
+    }
+
+    if not settings.NOTIFY_PROVIDER:
+        report["result"] = "skipped — NOTIFY_PROVIDER is empty"
+        return report
+
+    if settings.NOTIFY_PROVIDER == "gmail":
+        if not (settings.GMAIL_USER and settings.GMAIL_APP_PASSWORD and settings.OWNER_EMAIL):
+            report["result"] = "skipped — missing GMAIL_USER, GMAIL_APP_PASSWORD, or OWNER_EMAIL"
+            return report
+        try:
+            from email.message import EmailMessage
+            msg = EmailMessage()
+            msg["From"] = settings.GMAIL_USER
+            msg["To"] = settings.OWNER_EMAIL
+            msg["Subject"] = "Test — astro chart notification"
+            msg.set_content("This is a test notification from hereandnowinunity.")
+            with smtplib.SMTP("smtp.gmail.com", 587, timeout=15) as smtp:
+                smtp.starttls()
+                smtp.login(settings.GMAIL_USER, settings.GMAIL_APP_PASSWORD)
+                smtp.send_message(msg)
+            report["result"] = "sent OK"
+        except smtplib.SMTPAuthenticationError as exc:
+            report["result"] = "failed"
+            report["error"] = f"Authentication error — App Password likely invalid or revoked: {exc}"
+        except Exception as exc:  # noqa: BLE001
+            report["result"] = "failed"
+            report["error"] = str(exc)
+        return report
+
+    # For other providers just fire the real function and report attempt
+    try:
+        notify_new_chart("test", "test", "Tropical", "P")
+        report["result"] = "called — check logs for errors"
+    except Exception as exc:  # noqa: BLE001
+        report["result"] = "failed"
+        report["error"] = str(exc)
+    return report
 
 def _df_to_records(df: pd.DataFrame) -> list[dict]:
     """Convert a DataFrame to JSON-safe records (NaN → None, numpy → native)."""
