@@ -2032,8 +2032,8 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
     ctx.save();
     ctx.translate(cx + rPlanet * Math.cos(a), cy + rPlanet * Math.sin(a));
     ctx.rotate(a + Math.PI/2);
-    ctx.fillStyle = b.Color || '#5a4e3c';
-    ctx.font = 'bold 11px serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#111';
+    ctx.font = 'bold 12px serif'; ctx.textAlign = 'center';
     ctx.fillText(b.Symbol || b.Body[0], 0, 4);
     ctx.restore();
   });
