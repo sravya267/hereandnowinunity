@@ -1788,3 +1788,18 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
   ctx.font = 'bold 10px sans-serif'; ctx.fillStyle = '#8b7355'; ctx.textAlign = 'center';
   ctx.fillText('Composite', cx, 14);
 }
+
+// ─── Synastry tab ────────────────────────────────────────────────────────────
+
+var SYN_DATA = null;
+var SYN_HARM_DATA = null;
+
+// Slider readout
+(function () {
+  var sl = document.getElementById('syn-orb-val');
+  var rd = document.getElementById('syn-orb-readout');
+  if (sl && rd) {
+    sl.addEventListener('input', function () { rd.textContent = parseFloat(sl.value).toFixed(1) + '°'; });
+  }
+})();
+
