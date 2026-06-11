@@ -246,9 +246,10 @@
       <!-- ── Results ─────────────────────────────────────── -->
       <div id="syn-results" style="display:none">
 
-        <!-- Row 1: bi-wheel + score + cross-chart harmonics -->
-        <div class="syn-top-row">
+        <!-- Row 1: bi-wheel + composite wheel -->
+        <div class="syn-wheels-row">
 
+          <!-- Bi-wheel -->
           <div class="card syn-biwheel-card">
             <div class="card-hdr">
               <span class="card-hdr-title">Synastry Bi-Wheel</span>
@@ -271,7 +272,6 @@
                   <input type="range" class="orb-slider" id="syn-minor-orb" value="4" min="0.5" max="10" step="0.5">
                   <span class="orb-readout" id="syn-minor-orb-readout">4.0&deg;</span>
                 </div>
-
                 <div class="fp-hdr">
                   <span>Person A bodies</span>
                   <div class="fp-hdr-btns">
@@ -294,7 +294,6 @@
                   <label><input type="checkbox" class="syn-disp-a" data-body="Asc">    Asc/Desc</label>
                   <label><input type="checkbox" class="syn-disp-a" data-body="MC">     MC/IC</label>
                 </div>
-
                 <div class="fp-hdr">
                   <span>Person B bodies</span>
                   <div class="fp-hdr-btns">
@@ -317,7 +316,6 @@
                   <label><input type="checkbox" class="syn-disp-b" data-body="Asc">    Asc/Desc</label>
                   <label><input type="checkbox" class="syn-disp-b" data-body="MC">     MC/IC</label>
                 </div>
-
                 <div class="fp-hdr">
                   <span>Aspects</span>
                   <div class="fp-hdr-btns">
@@ -331,49 +329,96 @@
             </div>
           </div>
 
-          <div class="syn-right-col">
-
-            <div class="card syn-score-card">
-              <div class="card-hdr"><span class="card-hdr-title">Compatibility Score</span></div>
-              <div class="card-body">
-                <div class="syn-score-wrap">
-                  <div class="syn-score-circle" id="syn-score-circle">—</div>
-                  <div class="syn-score-detail">
-                    <div class="syn-score-summary" id="syn-score-summary"></div>
-                    <div id="syn-score-breakdown"></div>
+          <!-- Composite wheel -->
+          <div class="card syn-biwheel-card">
+            <div class="card-hdr">
+              <span class="card-hdr-title">Composite Chart</span>
+              <button type="button" class="gear-btn" id="comp-gear-btn" title="Toggle filters">&#9881;</button>
+            </div>
+            <div class="chart-row syn-biwheel-row">
+              <div class="canvas-wrap syn-biwheel-wrap">
+                <canvas id="syn-composite-canvas"></canvas>
+              </div>
+              <div class="filter-panel closed" id="comp-filter-panel">
+                <div class="fp-hdr"><span>Orbs</span></div>
+                <div class="orb-row">
+                  <span class="orb-label">Major</span>
+                  <input type="range" class="orb-slider" id="comp-major-orb" value="8" min="0.5" max="10" step="0.5">
+                  <span class="orb-readout" id="comp-major-orb-readout">8.0&deg;</span>
+                </div>
+                <div class="orb-row">
+                  <span class="orb-label">Minor</span>
+                  <input type="range" class="orb-slider" id="comp-minor-orb" value="4" min="0.5" max="10" step="0.5">
+                  <span class="orb-readout" id="comp-minor-orb-readout">4.0&deg;</span>
+                </div>
+                <div class="fp-hdr">
+                  <span>Bodies</span>
+                  <div class="fp-hdr-btns">
+                    <button onclick="compBulkBody('all')">All</button>
+                    <button onclick="compBulkBody('none')">None</button>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            <div class="card syn-harm-card">
-              <div class="card-hdr">
-                <span class="card-hdr-title">Cross-Chart Harmonics</span>
-                <span id="syn-harm-loading" style="font-size:10px;color:#b09e82;display:none">computing&hellip;</span>
-              </div>
-              <div class="card-body" id="syn-harm-body">
-                <div id="syn-harm-empty" class="harm-empty">Loading&hellip;</div>
-                <div id="syn-harm-content" style="display:none">
-                  <div class="harm-orb-ctrl">
-                    <span class="harm-orb-label">Orb</span>
-                    <input type="range" id="syn-harm-orb" class="orb-slider" min="1" max="16" step="0.5" value="8">
-                    <span id="syn-harm-orb-val" class="harm-orb-readout">8&deg;</span>
-                  </div>
-                  <div id="syn-harm-list" class="harm-list"></div>
+                <div class="fp-flow">
+                  <label><input type="checkbox" class="comp-disp" data-body="Sun"     checked> Sun</label>
+                  <label><input type="checkbox" class="comp-disp" data-body="Moon"    checked> Moon</label>
+                  <label><input type="checkbox" class="comp-disp" data-body="Mercury" checked> Mercury</label>
+                  <label><input type="checkbox" class="comp-disp" data-body="Venus"   checked> Venus</label>
+                  <label><input type="checkbox" class="comp-disp" data-body="Mars"    checked> Mars</label>
+                  <label><input type="checkbox" class="comp-disp" data-body="Jupiter" checked> Jupiter</label>
+                  <label><input type="checkbox" class="comp-disp" data-body="Saturn"  checked> Saturn</label>
+                  <label><input type="checkbox" class="comp-disp" data-body="Uranus"  checked> Uranus</label>
+                  <label><input type="checkbox" class="comp-disp" data-body="Neptune" checked> Neptune</label>
+                  <label><input type="checkbox" class="comp-disp" data-body="Pluto"   checked> Pluto</label>
+                  <label><input type="checkbox" class="comp-disp" data-body="Chiron"> Chiron</label>
+                  <label><input type="checkbox" class="comp-disp" data-body="Asc">    Asc/Desc</label>
+                  <label><input type="checkbox" class="comp-disp" data-body="MC">     MC/IC</label>
                 </div>
+                <div class="fp-hdr">
+                  <span>Aspects</span>
+                  <div class="fp-hdr-btns">
+                    <button onclick="compBulkAsp('all')">All</button>
+                    <button onclick="compBulkAsp('none')">None</button>
+                    <button onclick="compBulkAsp('major')">Major</button>
+                  </div>
+                </div>
+                <div id="comp-asp-list"></div>
               </div>
             </div>
-
           </div>
+
         </div>
 
-        <!-- Row 2: composite wheel + cross-aspects table -->
+        <!-- Row 2: score + harmonics + cross-aspects -->
         <div class="syn-bottom-row">
 
-          <div class="card syn-composite-card">
-            <div class="card-hdr"><span class="card-hdr-title">Composite Chart</span></div>
-            <div class="harm-mini-body" style="height:440px">
-              <canvas id="syn-composite-canvas"></canvas>
+          <div class="card syn-score-card">
+            <div class="card-hdr"><span class="card-hdr-title">Compatibility Score</span></div>
+            <div class="card-body">
+              <div class="syn-score-wrap">
+                <div class="syn-score-circle" id="syn-score-circle">—</div>
+                <div class="syn-score-detail">
+                  <div class="syn-score-summary" id="syn-score-summary"></div>
+                  <div id="syn-score-breakdown"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card syn-harm-card">
+            <div class="card-hdr">
+              <span class="card-hdr-title">Cross-Chart Harmonics</span>
+              <span id="syn-harm-loading" style="font-size:10px;color:#b09e82;display:none">computing&hellip;</span>
+            </div>
+            <div class="card-body" id="syn-harm-body">
+              <div id="syn-harm-empty" class="harm-empty">Loading&hellip;</div>
+              <div id="syn-harm-content" style="display:none">
+                <div class="harm-orb-ctrl">
+                  <span class="harm-orb-label">Orb</span>
+                  <input type="range" id="syn-harm-orb" class="orb-slider" min="1" max="16" step="0.5" value="8">
+                  <span id="syn-harm-orb-val" class="harm-orb-readout">8&deg;</span>
+                </div>
+                <div id="syn-harm-list" class="harm-list"></div>
+              </div>
             </div>
           </div>
 
@@ -382,7 +427,7 @@
               <span class="card-hdr-title">Cross-Aspects</span>
               <span style="font-size:10px;color:#9b9185" id="syn-asp-count"></span>
             </div>
-            <div class="card-body" style="overflow-y:auto;height:420px">
+            <div class="card-body" style="overflow-y:auto;max-height:360px">
               <table class="vib-table" id="syn-cross-asp-table">
                 <thead><tr>
                   <th>Person A</th><th>Aspect</th><th>Person B</th>
