@@ -256,6 +256,7 @@
               <span class="card-hdr-title">Synastry Bi-Wheel</span>
               <span class="syn-legend"><span class="syn-leg-a">&#9679;</span> <span id="syn-leg-a-name">A</span> &nbsp; <span class="syn-leg-b">&#9679;</span> <span id="syn-leg-b-name">B</span></span>
               <button type="button" class="gear-btn" id="syn-gear-btn" title="Toggle filters">&#9881;</button>
+              <button class="copy-btn" id="syn-copy-asp-btn" onclick="copySynAspects()">Copy Aspects</button>
             </div>
             <div class="chart-row syn-biwheel-row">
               <div class="canvas-wrap syn-biwheel-wrap">
@@ -341,7 +342,7 @@
             <div class="card-hdr">
               <span class="card-hdr-title">Composite Chart</span>
               <button type="button" class="gear-btn" id="comp-gear-btn" title="Toggle filters">&#9881;</button>
-              <button class="copy-btn" id="comp-copy-asp-btn" onclick="copyCompAspects()">Copy</button>
+              <button class="copy-btn" id="comp-copy-asp-btn" onclick="copyCompAspects()">Copy Aspects</button>
             </div>
             <div class="chart-row syn-biwheel-row">
               <div class="canvas-wrap syn-biwheel-wrap">
@@ -447,7 +448,6 @@
             <div class="card-hdr">
               <span class="card-hdr-title">Cross-Aspects</span>
               <span style="font-size:10px;color:#9b9185" id="syn-asp-count"></span>
-              <button class="copy-btn" id="syn-copy-asp-btn" onclick="copySynAspects()">Copy</button>
             </div>
             <div class="card-body" style="overflow-y:auto;max-height:320px">
               <table class="vib-table" id="syn-cross-asp-table">
