@@ -1772,10 +1772,10 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
   }
   function lon2a(lon) { return -((lon - descA) * Math.PI / 180); }
 
-  var SIGN_COLS = ['#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e'];
-  var SIGN_ABB  = ['Ari','Tau','Gem','Can','Leo','Vir','Lib','Sco','Sag','Cap','Aqu','Pis'];
+  // White background (natal style)
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
 
-  // Zodiac band
+  // Zodiac band — white cells, hairline separators, element-colored sign names (natal style)
   for (var s = 0; s < 12; s++) {
     var aStart = lon2a(s * 30), aEnd = lon2a(s * 30 + 30);
     ctx.beginPath();
@@ -1783,24 +1783,40 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.arc(cx, cy, rZodOut, aStart, aEnd, true);
     ctx.arc(cx, cy, rZodIn, aEnd, aStart, false);
     ctx.closePath();
-    ctx.fillStyle = SIGN_COLS[s] + '18'; ctx.fill();
-    ctx.strokeStyle = '#c8bfad'; ctx.lineWidth = 0.5; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.strokeStyle = '#888'; ctx.lineWidth = 0.6; ctx.stroke();
     var midA = lon2a(s * 30 + 15);
     var tr = (rZodIn + rZodOut) / 2;
     ctx.save();
     ctx.translate(cx + tr * Math.cos(midA), cy + tr * Math.sin(midA));
     ctx.rotate(midA + Math.PI / 2);
-    ctx.fillStyle = SIGN_COLS[s]; ctx.font = 'bold 9px serif'; ctx.textAlign = 'center';
-    ctx.fillText(SIGN_ABB[s], 0, 4);
+    ctx.fillStyle = SIGN_GLYPH_COLS[s];
+    ctx.font = '600 ' + Math.round(R * 0.055) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(SIGN_ABBR_W[s], 0, 0);
     ctx.restore();
   }
 
+  // Degree tick marks (natal style — every degree, heavier at 5° and 10°)
+  for (var dt = 0; dt < 360; dt++) {
+    var ta = lon2a(dt);
+    var inner = (dt % 10 === 0) ? rZodOut - R*0.025
+              : (dt % 5  === 0) ? rZodOut - R*0.014
+                                 : rZodOut - R*0.007;
+    ctx.beginPath();
+    ctx.moveTo(cx + inner * Math.cos(ta), cy + inner * Math.sin(ta));
+    ctx.lineTo(cx + rZodOut * Math.cos(ta), cy + rZodOut * Math.sin(ta));
+    ctx.strokeStyle = (dt % 10 === 0) ? '#444' : (dt % 5 === 0 ? '#888' : '#ccc');
+    ctx.lineWidth   = (dt % 10 === 0) ? 0.7   : 0.4;
+    ctx.stroke();
+  }
+
   // Ring borders
-  ctx.beginPath(); ctx.arc(cx, cy, rZodOut, 0, 2*Math.PI); ctx.strokeStyle = '#a0927c'; ctx.lineWidth = 1.2; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rZodIn,  0, 2*Math.PI); ctx.strokeStyle = '#c8bfad'; ctx.lineWidth = 0.8; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rBOuter, 0, 2*Math.PI); ctx.strokeStyle = '#d4c9b8'; ctx.lineWidth = 0.6; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rBInner, 0, 2*Math.PI); ctx.strokeStyle = '#d4c9b8'; ctx.lineWidth = 0.5; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rAspOut, 0, 2*Math.PI); ctx.strokeStyle = '#e8e0d4'; ctx.lineWidth = 0.4; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rZodOut, 0, 2*Math.PI); ctx.strokeStyle = '#666'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rZodIn,  0, 2*Math.PI); ctx.strokeStyle = '#999'; ctx.lineWidth = 0.7; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rBOuter, 0, 2*Math.PI); ctx.strokeStyle = '#bbb'; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rBInner, 0, 2*Math.PI); ctx.strokeStyle = '#bbb'; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rAspOut, 0, 2*Math.PI); ctx.strokeStyle = '#ccc'; ctx.lineWidth = 0.4; ctx.stroke();
 
   // House cusps (Person A, dashed)
   var houseCusps = bodiesA.filter(function(b){ return b.Body && b.Body.indexOf('House Cusp') === 0; });
@@ -1809,7 +1825,7 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.beginPath();
     ctx.moveTo(cx + rZodIn * Math.cos(a), cy + rZodIn * Math.sin(a));
     ctx.lineTo(cx + rBInner * 0.85 * Math.cos(a), cy + rBInner * 0.85 * Math.sin(a));
-    ctx.strokeStyle = '#c8bfad'; ctx.lineWidth = 0.5; ctx.setLineDash([2,3]); ctx.stroke();
+    ctx.strokeStyle = '#bbb'; ctx.lineWidth = 0.5; ctx.setLineDash([2,3]); ctx.stroke();
     ctx.setLineDash([]);
   });
 
@@ -1950,10 +1966,9 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
   });
   function lon2a(lon) { return -((lon - descLon) * Math.PI / 180); }
 
-  var SIGN_COLS = ['#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e'];
-  var SIGN_ABB  = ['Ari','Tau','Gem','Can','Leo','Vir','Lib','Sco','Sag','Cap','Aqu','Pis'];
+  // White background + natal-style zodiac band
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
 
-  // Zodiac band
   for (var s = 0; s < 12; s++) {
     var aStart = lon2a(s * 30), aEnd = lon2a(s * 30 + 30);
     ctx.beginPath();
@@ -1961,21 +1976,35 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
     ctx.arc(cx, cy, rZodOut, aStart, aEnd, true);
     ctx.arc(cx, cy, rZodIn, aEnd, aStart, false);
     ctx.closePath();
-    ctx.fillStyle = SIGN_COLS[s] + '18'; ctx.fill();
-    ctx.strokeStyle = '#c8bfad'; ctx.lineWidth = 0.5; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.strokeStyle = '#888'; ctx.lineWidth = 0.6; ctx.stroke();
     var midA = lon2a(s * 30 + 15);
     var tr = (rZodIn + rZodOut) / 2;
     ctx.save();
     ctx.translate(cx + tr * Math.cos(midA), cy + tr * Math.sin(midA));
     ctx.rotate(midA + Math.PI/2);
-    ctx.fillStyle = SIGN_COLS[s]; ctx.font = 'bold 9px serif'; ctx.textAlign = 'center';
-    ctx.fillText(SIGN_ABB[s], 0, 4);
+    ctx.fillStyle = SIGN_GLYPH_COLS[s];
+    ctx.font = '600 ' + Math.round(R * 0.055) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(SIGN_ABBR_W[s], 0, 0);
     ctx.restore();
   }
 
-  ctx.beginPath(); ctx.arc(cx, cy, rZodOut, 0, 2*Math.PI); ctx.strokeStyle = '#a0927c'; ctx.lineWidth = 1.2; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rZodIn,  0, 2*Math.PI); ctx.strokeStyle = '#c8bfad'; ctx.lineWidth = 0.8; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rAsp,    0, 2*Math.PI); ctx.strokeStyle = '#e8e0d4'; ctx.lineWidth = 0.5; ctx.stroke();
+  // Degree tick marks
+  for (var dt = 0; dt < 360; dt++) {
+    var ta = lon2a(dt);
+    var inner = (dt % 10 === 0) ? rZodOut - R*0.025 : (dt % 5 === 0) ? rZodOut - R*0.014 : rZodOut - R*0.007;
+    ctx.beginPath();
+    ctx.moveTo(cx + inner * Math.cos(ta), cy + inner * Math.sin(ta));
+    ctx.lineTo(cx + rZodOut * Math.cos(ta), cy + rZodOut * Math.sin(ta));
+    ctx.strokeStyle = (dt % 10 === 0) ? '#444' : (dt % 5 === 0 ? '#888' : '#ccc');
+    ctx.lineWidth = (dt % 10 === 0) ? 0.7 : 0.4;
+    ctx.stroke();
+  }
+
+  ctx.beginPath(); ctx.arc(cx, cy, rZodOut, 0, 2*Math.PI); ctx.strokeStyle = '#666'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rZodIn,  0, 2*Math.PI); ctx.strokeStyle = '#999'; ctx.lineWidth = 0.7; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rAsp,    0, 2*Math.PI); ctx.strokeStyle = '#ccc'; ctx.lineWidth = 0.4; ctx.stroke();
 
   function compBodyVis(name) {
     if (name === 'Desc') return COMP_BODY['Asc'] !== false;
