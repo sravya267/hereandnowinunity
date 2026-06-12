@@ -219,7 +219,10 @@ canvas{display:block;width:100%;height:100%}
   flex: 1 1 260px;
   min-width: 240px;
 }
-.syn-score-card, .syn-harm-card { flex: 0 0 auto; }
+.syn-sh-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; margin-bottom: 10px; }
+.syn-score-card { flex: 0 0 auto; max-width: 180px; }
+.syn-harm-card { flex: 1 1 180px; min-width: 0; }
+.syn-harm-card .card-body { padding: 4px 8px; overflow-y: auto; }
 
 .syn-score-wrap { display: flex; align-items: center; gap: 14px; }
 .syn-score-circle {
@@ -257,5 +260,5 @@ canvas{display:block;width:100%;height:100%}
 .syn-leg-a { color: #8b4513; }
 .syn-leg-b { color: #2471a3; }
 
-.syn-harm-card .card-body { padding: 4px 8px; max-height: 220px; overflow-y: auto; }
+
 

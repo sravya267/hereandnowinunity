@@ -1564,6 +1564,8 @@ document.addEventListener('DOMContentLoaded', function() {
       if (LAST_SYN_HARM_PARAMS) synFetchHarmonics(parseFloat(sl2.value));
     });
   }
+  var synRankSel = document.getElementById('syn-harm-rank-by');
+  if (synRankSel) synRankSel.addEventListener('change', synRenderHarmonicsList);
   initSynFilters();
   initCompFilters();
 });
@@ -1713,27 +1715,125 @@ function synFetchHarmonics(baseOrb) {
     .finally(function(){ document.getElementById('syn-harm-loading').style.display = 'none'; });
 }
 
+var LAST_SYN_HARMONICS = null;
+var SELECTED_SYN_HARMONIC = null;
+
 function synRenderHarmonics(data) {
-  var ranked = (data.ranked || []).filter(function(r){ return r.PairCount > 0; });
+  LAST_SYN_HARMONICS = (data.ranked || []).filter(function(r){ return r.PairCount > 0; });
+  SELECTED_SYN_HARMONIC = null;
   document.getElementById('syn-harm-empty').style.display = 'none';
   document.getElementById('syn-harm-content').style.display = 'block';
-  var list = document.getElementById('syn-harm-list');
-  list.innerHTML = '';
-  if (!ranked.length) {
-    list.innerHTML = '<div class="harm-empty" style="font-size:11px">No cross-chart harmonic resonances found.</div>';
+  synRenderHarmonicsList();
+}
+
+function synRenderHarmonicsList() {
+  if (!LAST_SYN_HARMONICS) return;
+  var listEl = document.getElementById('syn-harm-list');
+  var hdrEl  = document.getElementById('syn-harm-list-hdr');
+  var detailEl = document.getElementById('syn-harm-detail');
+  var rankBy = (document.getElementById('syn-harm-rank-by') || {}).value || 'pairs';
+
+  var LABELS = {
+    pairs:    'Ranked by pair count',
+    sumclose: 'Ranked by total resonance',
+    adjusted: 'Ranked by noise-adjusted score',
+  };
+  if (hdrEl) hdrEl.textContent = (LABELS[rankBy] || LABELS.pairs) + ' · click for meaning';
+  if (detailEl) detailEl.innerHTML = '<div class="harm-hint">Select a harmonic to see its meaning.</div>';
+
+  if (!LAST_SYN_HARMONICS.length) {
+    listEl.innerHTML = '<div class="harm-empty" style="font-size:11px">No cross-chart resonances found.</div>';
     return;
   }
-  var maxPairs = ranked[0].PairCount || 1;
-  ranked.slice(0, 20).forEach(function(row) {
-    var w = Math.round((row.PairCount / maxPairs) * 100);
-    var el = document.createElement('div');
-    el.className = 'harm-row';
-    el.innerHTML =
-      '<div class="harm-h">H' + row.Harmonic + '</div>' +
-      '<div class="harm-name">' + (row.Name || row.Factors || '') + '</div>' +
-      '<div class="harm-bar-wrap"><div class="harm-bar" style="width:' + w + '%"></div></div>' +
-      '<div class="harm-pairs">' + row.PairCount + '</div>';
-    list.appendChild(el);
+
+  var sorted = sortHarmonics(LAST_SYN_HARMONICS, rankBy);
+  var metricKey = { pairs: 'PairCount', sumclose: 'SumClose', adjusted: 'SumCloseAdj' }[rankBy];
+  var maxVal = sorted.length ? (sorted[0][metricKey] || 1) : 1;
+
+  listEl.innerHTML = sorted.map(function(r, i) {
+    var val = r[metricKey] || 0;
+    var barW = Math.max(4, Math.round((val / maxVal) * 100));
+    var label = 'H' + r.Harmonic + (r.Name && r.Name !== '—' ? ' · ' + r.Name : '');
+    var metaStr = rankBy === 'pairs'
+      ? r.PairCount + ' pairs · ' + (r.Tightest || 0).toFixed(3) + '°'
+      : (rankBy === 'sumclose' ? 'Σ' : 'adj') + ' ' + val.toFixed(2) + ' · ' + r.PairCount + ' pairs';
+    return (
+      '<div class="harm-row' + (SELECTED_SYN_HARMONIC === r.Harmonic ? ' sel' : '') +
+           '" data-harm="' + r.Harmonic + '" style="cursor:pointer">' +
+        '<div class="harm-row-num">' + (i+1) + '</div>' +
+        '<div class="harm-row-name">' + label + '</div>' +
+        '<div class="harm-row-bar-bg"><div class="harm-row-bar" style="width:' + barW + '%"></div></div>' +
+        '<div class="harm-row-meta">' + metaStr + '</div>' +
+      '</div>'
+    );
+  }).join('');
+
+  listEl.querySelectorAll('.harm-row').forEach(function(row) {
+    row.addEventListener('click', function() {
+      synRenderHarmDetail(parseInt(row.dataset.harm, 10));
+    });
+  });
+}
+
+function synRenderHarmDetail(harmonic) {
+  if (!LAST_SYN_HARMONICS) return;
+  SELECTED_SYN_HARMONIC = harmonic;
+
+  document.querySelectorAll('#syn-harm-list .harm-row').forEach(function(r) {
+    r.classList.toggle('sel', parseInt(r.dataset.harm, 10) === harmonic);
+  });
+
+  var row = LAST_SYN_HARMONICS.find(function(r) { return r.Harmonic === harmonic; });
+  var detailEl = document.getElementById('syn-harm-detail');
+  if (!row || !detailEl) return;
+
+  var name = row.Name && row.Name !== '—' ? row.Name : 'H' + harmonic;
+  var factors = row.Factors ? ' <span style="font-size:10px;color:#9b9185;font-weight:400">(' + row.Factors + ')</span>' : '';
+  var html = '<div class="harm-title">H' + harmonic + ' · ' + name + factors + '</div>';
+
+  var meaning = row.NatalMeaning && row.NatalMeaning !== 'nan' ? row.NatalMeaning : '';
+  if (meaning) html += '<div class="harm-meaning">' + meaning + '</div>';
+
+  if (row.Pairs) {
+    var pairs = row.Pairs.split(',  ').map(function(p){ return p.trim(); }).filter(Boolean);
+    html += '<div class="harm-asp-label">' + row.PairCount + ' resonating pair' + (row.PairCount===1?'':'s') + '</div>';
+    html += pairs.map(function(p) {
+      var m = p.match(/^(.*?)\s+([\d.]+)°?$/);
+      var pairName = m ? m[1] : p;
+      var orb = m ? m[2] + '°' : '';
+      return '<div class="harm-asp-item"><div class="harm-asp-head">' + pairName +
+        (orb ? ' <span class="asp-close">&middot; ' + orb + ' off exact</span>' : '') +
+        '</div></div>';
+    }).join('');
+  }
+
+  if (row.Source && row.Source !== 'nan') {
+    html += '<div style="font-size:9px;color:#b09e82;margin-top:8px;font-style:italic">' + row.Source + '</div>';
+  }
+
+  detailEl.innerHTML = html;
+}
+
+function copySynAspects() {
+  var rows = Array.from(document.querySelectorAll('#syn-cross-asp-tbody tr'));
+  var txt = rows.map(function(tr) {
+    return Array.from(tr.querySelectorAll('td')).map(function(td){ return td.textContent.trim(); }).join('\t');
+  }).join('\n');
+  navigator.clipboard.writeText(txt).then(function() {
+    var b = document.getElementById('syn-copy-asp-btn');
+    if (b) { b.textContent = 'Copied!'; setTimeout(function(){ b.textContent = 'Copy'; }, 1500); }
+  });
+}
+
+function copyCompAspects() {
+  if (!LAST_SYN_DATA || !LAST_SYN_DATA.composite_aspects) return;
+  var txt = LAST_SYN_DATA.composite_aspects.map(function(a) {
+    var orb = (a.Angle != null && a.Degrees != null) ? Math.abs(a.Angle - a.Degrees).toFixed(2) + '°' : '';
+    return [a.Body1, (a.aspect_symbol || a.Aspect), a.Body2, a.Aspect, orb ? 'orb ' + orb : ''].filter(Boolean).join('\t');
+  }).join('\n');
+  navigator.clipboard.writeText(txt).then(function() {
+    var b = document.getElementById('comp-copy-asp-btn');
+    if (b) { b.textContent = 'Copied!'; setTimeout(function(){ b.textContent = 'Copy'; }, 1500); }
   });
 }
 

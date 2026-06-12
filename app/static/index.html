@@ -341,6 +341,7 @@
             <div class="card-hdr">
               <span class="card-hdr-title">Composite Chart</span>
               <button type="button" class="gear-btn" id="comp-gear-btn" title="Toggle filters">&#9881;</button>
+              <button class="copy-btn" id="comp-copy-asp-btn" onclick="copyCompAspects()">Copy</button>
             </div>
             <div class="chart-row syn-biwheel-row">
               <div class="canvas-wrap syn-biwheel-wrap">
@@ -399,8 +400,11 @@
           <!-- Col 3: score + harmonics + cross-aspects -->
           <div class="syn-3col-right">
 
+          <!-- Score + Harmonics row -->
+          <div class="syn-sh-row">
+
           <div class="card syn-score-card">
-            <div class="card-hdr"><span class="card-hdr-title">Compatibility Score</span></div>
+            <div class="card-hdr"><span class="card-hdr-title">Compatibility</span></div>
             <div class="card-body">
               <div class="syn-score-wrap">
                 <div class="syn-score-circle" id="syn-score-circle">—</div>
@@ -424,18 +428,28 @@
                   <span class="harm-orb-label">Orb</span>
                   <input type="range" id="syn-harm-orb" class="orb-slider" min="1" max="16" step="0.5" value="8">
                   <span id="syn-harm-orb-val" class="harm-orb-readout">8&deg;</span>
+                  <select id="syn-harm-rank-by" class="harm-rank-select">
+                    <option value="pairs" selected>Pair Count</option>
+                    <option value="sumclose">Total Resonance</option>
+                    <option value="adjusted">Noise-Adjusted</option>
+                  </select>
                 </div>
+                <div class="harm-list-hdr" id="syn-harm-list-hdr">Ranked by pair count &middot; click for meaning</div>
                 <div id="syn-harm-list" class="harm-list"></div>
+                <div id="syn-harm-detail" class="harm-detail-right" style="margin-top:8px;border-top:1px solid #f0ece7;padding-top:6px"></div>
               </div>
             </div>
           </div>
+
+          </div><!-- /syn-sh-row -->
 
           <div class="card syn-cross-asp-card">
             <div class="card-hdr">
               <span class="card-hdr-title">Cross-Aspects</span>
               <span style="font-size:10px;color:#9b9185" id="syn-asp-count"></span>
+              <button class="copy-btn" id="syn-copy-asp-btn" onclick="copySynAspects()">Copy</button>
             </div>
-            <div class="card-body" style="overflow-y:auto;max-height:360px">
+            <div class="card-body" style="overflow-y:auto;max-height:320px">
               <table class="vib-table" id="syn-cross-asp-table">
                 <thead><tr>
                   <th>Person A</th><th>Aspect</th><th>Person B</th>
