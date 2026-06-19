@@ -37,6 +37,8 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;
 .toolbar input[type="time"]{width:115px}
 .toolbar input[type="text"]{width:160px}
 .toolbar select{width:90px}
+.unknown-time-lbl{display:flex;align-items:center;gap:4px;font-size:11px;color:#9b9185;white-space:nowrap;cursor:pointer;flex-shrink:0}
+.unknown-time-lbl input{width:auto;padding:0;border:none;background:none;accent-color:#8b7355}
 .btn-calc{padding:5px 16px;border:none;border-radius:3px;background:#8b7355;color:#fff;font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;white-space:nowrap}
 .btn-calc:hover{background:#7a644a}
 .btn-calc:disabled{opacity:.4;cursor:not-allowed}

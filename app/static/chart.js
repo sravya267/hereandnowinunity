@@ -194,6 +194,7 @@ ASP_TYPES.forEach(function(a){ ASP_FILTER[a.name] = a.defaultOn; });
 var LAST_DATA = null;
 var LAST_HARM_PARAMS = null; // params used for the last /harmonics fetch
 var PAT_SEGMENTS = []; // aspect segments belonging to active patterns, set by drawWheel
+var UNKNOWN_TIME_MOON_RANGE = null; // {start: lon°, end: lon°} when unknown-time is active
 
 function drawWheel(data) {
   if (!data) return;
@@ -490,6 +491,52 @@ function drawWheel(data) {
     }
     ctx.globalAlpha = 1;
   });
+
+  // ── Moon day-range arc (unknown birth time) ──────────────────────────────
+  if (UNKNOWN_TIME_MOON_RANGE) {
+    var mr = UNKNOWN_TIME_MOON_RANGE;
+    var rArc = rPl_sym;  // same ring as planet symbols
+
+    // Convert longitudes to canvas angles
+    function moonLon2a(lon) { return -(lon - rotLon) * Math.PI / 180; }
+
+    var aStart2 = moonLon2a(mr.start);
+    var aEnd2   = moonLon2a(mr.end);
+
+    // Draw arc (moon moves counter-clockwise when drawn this way → use anticlockwise=true)
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, rArc, aEnd2, aStart2, false);
+    ctx.strokeStyle = '#2471a3';
+    ctx.lineWidth = 5;
+    ctx.globalAlpha = 0.22;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // Tick marks at start and end
+    [aStart2, aEnd2].forEach(function(aa) {
+      var ip2 = pt(rArc - R*0.04, aa), op2 = pt(rArc + R*0.04, aa);
+      ctx.beginPath();
+      ctx.moveTo(ip2[0], ip2[1]); ctx.lineTo(op2[0], op2[1]);
+      ctx.strokeStyle = '#2471a3'; ctx.lineWidth = 1.2; ctx.globalAlpha = 0.7;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    });
+
+    // Label at midpoint of arc
+    var span = ((mr.end - mr.start) + 360) % 360;
+    var midLon = (mr.start + span / 2) % 360;
+    var aMid = moonLon2a(midLon);
+    var lp2 = pt(rArc + R * 0.12, aMid);
+    ctx.save();
+    ctx.translate(lp2[0], lp2[1]);
+    ctx.rotate(aMid + Math.PI / 2);
+    ctx.font = '600 ' + Math.round(R * 0.036) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#2471a3';
+    ctx.fillText('☽ ±' + (span / 2).toFixed(1) + '°', 0, 0);
+    ctx.restore();
+  }
 }
 
 // ─── Info box ─────────────────────────────────────────────────────────────────
@@ -1300,8 +1347,17 @@ function fetchNatalHarmonics(d, chartParams) {
     spinner.style.display = 'block';
     btn.disabled = true;
 
+    // Unknown-time mode: assume noon, hide Angles/Points
+    var unknownTime = document.getElementById('unknown-time') && document.getElementById('unknown-time').checked;
+    var timeVal = unknownTime ? '12:00' : document.getElementById('birth-time').value;
+    if (unknownTime) {
+      BODY_DISPLAY.Angles = false;
+      BODY_DISPLAY.Points = false;
+      UNKNOWN_TIME_MOON_RANGE = null;
+    }
+
     // Shared location/time fields used by both requests below.
-    var birth_datetime = document.getElementById('birth-date').value + 'T' + document.getElementById('birth-time').value + ':00';
+    var birth_datetime = document.getElementById('birth-date').value + 'T' + timeVal + ':00';
     var location       = document.getElementById('location').value.trim();
     var zodiac_system  = document.getElementById('zodiac').value;
     var house_system   = document.getElementById('house-system').value;
@@ -1344,7 +1400,34 @@ function fetchNatalHarmonics(d, chartParams) {
         buildInfoBox(d);
         renderWordCloud(d);
         if (natalCont) natalCont.style.display = 'block';
-        requestAnimationFrame(redrawAll);
+
+        if (unknownTime) {
+          // Fetch midnight chart to get moon range for the full day
+          var dateStr = document.getElementById('birth-date').value;
+          var midnightDt = dateStr + 'T00:00:00';
+          var midnightReq = { birth_datetime: midnightDt, location: location,
+            zodiac_system: zodiac_system, house_system: house_system,
+            base_orb: 10.0, orb_formula: 'fixed', website: '' };
+          fetch('/chart', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(midnightReq) })
+            .then(function(r){ return r.ok ? r.json() : null; })
+            .then(function(md) {
+              if (md) {
+                var moonNoon = (d.bodies.find(function(b){ return b.Body === 'Moon'; }) || {})['Longitude (°)'] || 0;
+                var moonMid  = (md.bodies.find(function(b){ return b.Body === 'Moon'; }) || {})['Longitude (°)'] || 0;
+                // Linear: noon is 12h after midnight; project to 24h end
+                var span = ((moonNoon - moonMid) + 360) % 360;
+                if (span > 180) span -= 360; // handle wrap
+                var moonEnd = (moonNoon + span + 360) % 360;
+                UNKNOWN_TIME_MOON_RANGE = { start: moonMid, end: moonEnd };
+              }
+              requestAnimationFrame(redrawAll);
+            })
+            .catch(function(){ requestAnimationFrame(redrawAll); });
+        } else {
+          UNKNOWN_TIME_MOON_RANGE = null;
+          requestAnimationFrame(redrawAll);
+        }
+
         fetchNatalHarmonics(d, harmParams);
       })
       .catch(function(ex){
@@ -1551,6 +1634,23 @@ function synRedrawBiWheel() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Unknown birth time toggle
+  var unknownCb = document.getElementById('unknown-time');
+  var timeInput = document.getElementById('birth-time');
+  if (unknownCb && timeInput) {
+    unknownCb.addEventListener('change', function() {
+      timeInput.disabled = unknownCb.checked;
+      if (unknownCb.checked) {
+        timeInput.dataset.savedVal = timeInput.value;
+        timeInput.value = '12:00';
+      } else {
+        timeInput.value = timeInput.dataset.savedVal || timeInput.value;
+        UNKNOWN_TIME_MOON_RANGE = null;
+        if (LAST_DATA) requestAnimationFrame(redrawAll);
+      }
+    });
+  }
+
   // Toolbar orb slider readout for synastry
   var sl = document.getElementById('syn-orb-val');
   var rd = document.getElementById('syn-orb-readout');
