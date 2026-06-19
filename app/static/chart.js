@@ -603,13 +603,19 @@ function copyNatalAspects() {
   if (!LAST_DATA) return;
   var lines = [];
   (LAST_DATA.aspects || []).forEach(function(a) {
-    var isMajor = ['Conjunction','Opposition','Trine','Square','Sextile'].indexOf(a.Aspect) !== -1;
-    var orb = ASPECT_FILTER[a.Aspect] !== false && Math.abs(a.Orb) <= (isMajor ? MAJOR_ORB_VAL : MINOR_ORB_VAL);
-    if (!orb) return;
+    if (!ASP_FILTER[a.Aspect]) return;
+    if (BODY_DISPLAY.hasOwnProperty(a.Body1) && !BODY_DISPLAY[a.Body1]) return;
+    if (BODY_DISPLAY.hasOwnProperty(a.Body2) && !BODY_DISPLAY[a.Body2]) return;
     var g1 = bodyGroup(a.Body1), g2 = bodyGroup(a.Body2);
-    if (g1 && !BODY_DISPLAY[g1]) return;
-    if (g2 && !BODY_DISPLAY[g2]) return;
-    lines.push(a.Body1 + ' ' + (a.aspect_symbol||a.Aspect) + ' ' + a.Body2 + '  orb ' + a.Orb.toFixed(1) + '°');
+    if ((g1 && !ASPECT_TO[g1]) || (g2 && !ASPECT_TO[g2])) return;
+    var meta2 = ASP_TYPES.find(function(t){ return t.name === a.Aspect; });
+    var isMajor = meta2 ? meta2.major : true;
+    var val = isMajor ? MAJOR_ORB_VAL : MINOR_ORB_VAL;
+    var orbDelta = (a.OrbLimit != null && a.Closeness != null)
+      ? (1 - a.Closeness) * a.OrbLimit
+      : Math.abs((a.Angle || 0) - (a.Degrees || 0));
+    if (orbDelta > val) return;
+    lines.push(a.Body1 + ' ' + (a.aspect_symbol || a.Aspect) + ' ' + a.Body2 + '  orb ' + orbDelta.toFixed(1) + '°');
   });
   var txt = lines.join('\n');
   navigator.clipboard.writeText(txt).then(function(){
@@ -1117,9 +1123,10 @@ function drawCurrentWheel() { redrawAll(); }
              '><span class="fp-asp-glyph">' + t.sym + '</span>' + t.name + '</label>';
     }).join('');
 
-  // Build pattern toggle buttons inline (rendered next to All/None pattern bulk buttons)
   function renderPatFilter() {
-    document.getElementById('pat-filter-list').innerHTML = PAT_TYPES.map(function(t){
+    var el = document.getElementById('pat-filter-list');
+    if (!el) return;
+    el.innerHTML = PAT_TYPES.map(function(t){
       var cls = PAT_FILTER[t] ? 'pat-btn on' : 'pat-btn';
       var label = (PAT_ICONS[t] || '') + ' ' + t;
       return '<button type="button" class="' + cls + '" data-pat="' + t + '" title="' + t + '">' + label + '</button>';
