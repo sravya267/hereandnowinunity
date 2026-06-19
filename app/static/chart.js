@@ -1515,6 +1515,7 @@ function initCompFilters() {
 
   var aspList = document.getElementById('comp-asp-list');
   if (aspList) {
+    aspList.style.cssText += ';display:grid;grid-template-columns:1fr 1fr;gap:1px 4px';
     ASP_TYPES.filter(function(a) { return a.inAspPanel; }).forEach(function(a) {
       var lbl = document.createElement('label');
       var cb  = document.createElement('input');
@@ -1613,6 +1614,7 @@ function initSynFilters() {
   // Build aspect checkboxes in #syn-asp-list
   var aspList = document.getElementById('syn-asp-list');
   if (aspList) {
+    aspList.style.cssText += ';display:grid;grid-template-columns:1fr 1fr;gap:1px 4px';
     ASP_TYPES.filter(function(a) { return a.inAspPanel; }).forEach(function(a) {
       var lbl = document.createElement('label');
       var cb  = document.createElement('input');
@@ -1948,25 +1950,58 @@ function synRenderHarmDetail(harmonic) {
 }
 
 function copySynAspects() {
-  var rows = Array.from(document.querySelectorAll('#syn-cross-asp-tbody tr'));
-  var txt = rows.map(function(tr) {
-    return Array.from(tr.querySelectorAll('td')).map(function(td){ return td.textContent.trim(); }).join('\t');
-  }).join('\n');
+  if (!LAST_SYN_DATA) return;
+  var lines = [];
+  (LAST_SYN_DATA.cross_aspects || []).forEach(function(asp) {
+    if (!SYN_ASP_FILTER[asp.Aspect]) return;
+    var visA = (function(name) {
+      if (name === 'Desc') return SYN_BODY_A['Asc'] !== false;
+      if (name === 'IC')   return SYN_BODY_A['MC']  !== false;
+      if (name === 'South Node') return SYN_BODY_A['North Node'] !== false;
+      return SYN_BODY_A[name] !== false;
+    })(asp.Body1);
+    var visB = (function(name) {
+      if (name === 'Desc') return SYN_BODY_B['Asc'] !== false;
+      if (name === 'IC')   return SYN_BODY_B['MC']  !== false;
+      if (name === 'South Node') return SYN_BODY_B['North Node'] !== false;
+      return SYN_BODY_B[name] !== false;
+    })(asp.Body2);
+    if (!visA || !visB) return;
+    var aspMeta = ASP_TYPES.find(function(x){ return x.name === asp.Aspect; });
+    var orbLimit = (aspMeta && aspMeta.major) ? SYN_MAJOR_ORB : SYN_MINOR_ORB;
+    var orb = Math.abs((asp.Angle || 0) - (asp.Degrees || 0));
+    if (orb > orbLimit) return;
+    lines.push(asp.Body1 + ' ' + (asp.aspect_symbol || asp.Aspect) + ' ' + asp.Body2 + '  orb ' + orb.toFixed(1) + '°');
+  });
+  var txt = lines.join('\n');
   navigator.clipboard.writeText(txt).then(function() {
     var b = document.getElementById('syn-copy-asp-btn');
-    if (b) { b.textContent = 'Copied!'; setTimeout(function(){ b.textContent = 'Copy'; }, 1500); }
+    if (b) { b.textContent = 'Copied!'; setTimeout(function(){ b.textContent = 'Copy Aspects'; }, 1500); }
   });
 }
 
 function copyCompAspects() {
   if (!LAST_SYN_DATA || !LAST_SYN_DATA.composite_aspects) return;
-  var txt = LAST_SYN_DATA.composite_aspects.map(function(a) {
-    var orb = (a.Angle != null && a.Degrees != null) ? Math.abs(a.Angle - a.Degrees).toFixed(2) + '°' : '';
-    return [a.Body1, (a.aspect_symbol || a.Aspect), a.Body2, a.Aspect, orb ? 'orb ' + orb : ''].filter(Boolean).join('\t');
-  }).join('\n');
+  var lines = [];
+  (LAST_SYN_DATA.composite_aspects || []).forEach(function(asp) {
+    if (!COMP_ASP_FILTER[asp.Aspect]) return;
+    var compBV = function(name) {
+      if (name === 'Desc') return COMP_BODY['Asc'] !== false;
+      if (name === 'IC')   return COMP_BODY['MC']  !== false;
+      if (name === 'South Node') return COMP_BODY['North Node'] !== false;
+      return COMP_BODY[name] !== false;
+    };
+    if (!compBV(asp.Body1) || !compBV(asp.Body2)) return;
+    var aspMeta = ASP_TYPES.find(function(x){ return x.name === asp.Aspect; });
+    var orbLimit = (aspMeta && aspMeta.major) ? COMP_MAJOR_ORB : COMP_MINOR_ORB;
+    var orb = Math.abs((asp.Angle || 0) - (asp.Degrees || 0));
+    if (orb > orbLimit) return;
+    lines.push(asp.Body1 + ' ' + (asp.aspect_symbol || asp.Aspect) + ' ' + asp.Body2 + '  orb ' + orb.toFixed(1) + '°');
+  });
+  var txt = lines.join('\n');
   navigator.clipboard.writeText(txt).then(function() {
     var b = document.getElementById('comp-copy-asp-btn');
-    if (b) { b.textContent = 'Copied!'; setTimeout(function(){ b.textContent = 'Copy'; }, 1500); }
+    if (b) { b.textContent = 'Copied!'; setTimeout(function(){ b.textContent = 'Copy Aspects'; }, 1500); }
   });
 }
 
