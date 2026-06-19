@@ -1686,6 +1686,26 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  // Synastry unknown birth time toggles
+  function wireSynUnknown(cbId, timeId, dispClass) {
+    var cb = document.getElementById(cbId);
+    var ti = document.getElementById(timeId);
+    if (!cb || !ti) return;
+    cb.addEventListener('change', function() {
+      ti.disabled = cb.checked;
+      if (cb.checked) {
+        ti.dataset.savedVal = ti.value;
+        ti.value = '12:00';
+        document.querySelectorAll('.' + dispClass + '[data-body="Asc"],.' + dispClass + '[data-body="MC"],.' + dispClass + '[data-body="Vertex"],.' + dispClass + '[data-body="Fortune"]').forEach(function(el){ el.checked = false; el.disabled = true; });
+      } else {
+        ti.value = ti.dataset.savedVal || ti.value;
+        document.querySelectorAll('.' + dispClass + '[data-body="Asc"],.' + dispClass + '[data-body="MC"],.' + dispClass + '[data-body="Vertex"],.' + dispClass + '[data-body="Fortune"]').forEach(function(el){ el.disabled = false; });
+      }
+    });
+  }
+  wireSynUnknown('syn-a-unknown', 'syn-a-time', 'syn-disp-a');
+  wireSynUnknown('syn-b-unknown', 'syn-b-time', 'syn-disp-b');
+
   // Toolbar orb slider readout for synastry
   var sl = document.getElementById('syn-orb-val');
   var rd = document.getElementById('syn-orb-readout');
@@ -1707,15 +1727,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function synCompute() {
   var aDate = document.getElementById('syn-a-date').value;
-  var aTime = document.getElementById('syn-a-time').value;
+  var aUnknown = document.getElementById('syn-a-unknown') && document.getElementById('syn-a-unknown').checked;
+  var aTime = aUnknown ? '12:00' : document.getElementById('syn-a-time').value;
   var aLoc  = document.getElementById('syn-a-loc').value.trim();
   var bDate = document.getElementById('syn-b-date').value;
-  var bTime = document.getElementById('syn-b-time').value;
+  var bUnknown = document.getElementById('syn-b-unknown') && document.getElementById('syn-b-unknown').checked;
+  var bTime = bUnknown ? '12:00' : document.getElementById('syn-b-time').value;
   var bLoc  = document.getElementById('syn-b-loc').value.trim();
 
   if (!aDate || !aTime || !aLoc || !bDate || !bTime || !bLoc) {
     alert('Please fill in all birth details for both people.');
     return;
+  }
+
+  // Hide angles/points for person whose time is unknown
+  var ANGLE_PT_BODIES = ['Asc', 'MC', 'Vertex', 'Fortune'];
+  ANGLE_PT_BODIES.forEach(function(k) {
+    if (aUnknown) SYN_BODY_A[k] = false;
+    if (bUnknown) SYN_BODY_B[k] = false;
+  });
+  // Sync filter panel checkboxes
+  if (aUnknown) {
+    document.querySelectorAll('.syn-disp-a[data-body="Asc"],.syn-disp-a[data-body="MC"],.syn-disp-a[data-body="Vertex"],.syn-disp-a[data-body="Fortune"]').forEach(function(cb){ cb.checked = false; cb.disabled = true; });
+  }
+  if (bUnknown) {
+    document.querySelectorAll('.syn-disp-b[data-body="Asc"],.syn-disp-b[data-body="MC"],.syn-disp-b[data-body="Vertex"],.syn-disp-b[data-body="Fortune"]').forEach(function(cb){ cb.checked = false; cb.disabled = true; });
   }
 
   var aName = document.getElementById('syn-a-name').value.trim() || 'Person A';
