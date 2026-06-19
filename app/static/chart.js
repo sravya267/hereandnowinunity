@@ -599,6 +599,25 @@ function buildInfoBox(d) {
   document.getElementById('info-box').innerHTML = html;
 }
 
+function copyNatalAspects() {
+  if (!LAST_DATA) return;
+  var lines = [];
+  (LAST_DATA.aspects || []).forEach(function(a) {
+    var isMajor = ['Conjunction','Opposition','Trine','Square','Sextile'].indexOf(a.Aspect) !== -1;
+    var orb = ASPECT_FILTER[a.Aspect] !== false && Math.abs(a.Orb) <= (isMajor ? MAJOR_ORB_VAL : MINOR_ORB_VAL);
+    if (!orb) return;
+    var g1 = bodyGroup(a.Body1), g2 = bodyGroup(a.Body2);
+    if (g1 && !BODY_DISPLAY[g1]) return;
+    if (g2 && !BODY_DISPLAY[g2]) return;
+    lines.push(a.Body1 + ' ' + (a.aspect_symbol||a.Aspect) + ' ' + a.Body2 + '  orb ' + a.Orb.toFixed(1) + '°');
+  });
+  var txt = lines.join('\n');
+  navigator.clipboard.writeText(txt).then(function(){
+    var b = document.getElementById('natal-copy-asp-btn');
+    if (b) { b.textContent = 'Copied!'; setTimeout(function(){ b.textContent = 'Copy Aspects'; }, 1500); }
+  });
+}
+
 function copyInfo() {
   var txt = document.getElementById('info-box').innerText;
   navigator.clipboard.writeText(txt).then(function(){
@@ -1640,11 +1659,18 @@ document.addEventListener('DOMContentLoaded', function() {
   if (unknownCb && timeInput) {
     unknownCb.addEventListener('change', function() {
       timeInput.disabled = unknownCb.checked;
+      // Sync filter-panel checkboxes for Angles and Points
+      var angCb = document.querySelector('[data-disp="Angles"]');
+      var ptCb  = document.querySelector('[data-disp="Points"]');
       if (unknownCb.checked) {
         timeInput.dataset.savedVal = timeInput.value;
         timeInput.value = '12:00';
+        if (angCb) { angCb.checked = false; angCb.disabled = true; BODY_DISPLAY.Angles = false; }
+        if (ptCb)  { ptCb.checked  = false; ptCb.disabled  = true; BODY_DISPLAY.Points = false; }
       } else {
         timeInput.value = timeInput.dataset.savedVal || timeInput.value;
+        if (angCb) { angCb.disabled = false; }
+        if (ptCb)  { ptCb.disabled  = false; }
         UNKNOWN_TIME_MOON_RANGE = null;
         if (LAST_DATA) requestAnimationFrame(redrawAll);
       }

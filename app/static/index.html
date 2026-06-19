@@ -101,6 +101,7 @@
       <div class="card card-wheel">
         <div class="card-hdr">
           <span class="card-hdr-title">Natal Chart</span>
+          <button class="copy-btn" id="natal-copy-asp-btn" onclick="copyNatalAspects()">Copy Aspects</button>
           <button type="button" class="gear-btn" id="gear-btn" title="Toggle filters">&#9881;</button>
         </div>
         <div class="chart-note" id="chart-note">
@@ -224,16 +225,7 @@
         </div>
       </div>
     </div>
-    <!-- Bottom row: Positions/Aspects -->
-    <div style="padding-bottom:10px">
-      <div class="card card-info">
-        <div class="card-hdr">
-          <span class="card-hdr-title">Positions &amp; Aspects</span>
-          <button class="copy-btn" onclick="copyInfo()">Copy</button>
-        </div>
-        <div class="card-body"><div class="info-box" id="info-box"></div></div>
-      </div>
-    </div>
+    <div id="info-box" style="display:none"></div>
   </div>
   </div><!-- /natal-content -->
   </div>
