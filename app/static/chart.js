@@ -648,27 +648,6 @@ function buildMeta(d) {
 }
 
 // ─── Tab switcher ────────────────────────────────────────────────────────────
-// Auto-collapse the welcome quotes banner after a few seconds.
-// Clicking the banner collapses it immediately; clicking the peek bar re-opens it.
-(function initIntroBanner(){
-  var banner = document.getElementById('intro-banner');
-  var peek = document.getElementById('intro-peek');
-  if (!banner || !peek) return;
-
-  function collapse() {
-    banner.classList.add('collapsed');
-    peek.classList.add('show');
-  }
-  function expand() {
-    banner.classList.remove('collapsed');
-    peek.classList.remove('show');
-  }
-
-  setTimeout(collapse, 6000);
-  banner.addEventListener('click', collapse);
-  peek.addEventListener('click', expand);
-})();
-
 (function initTabs(){
   var tabs = document.querySelectorAll('.tab');
   var chartFormEl   = document.getElementById('chart-form');

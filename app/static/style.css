@@ -1,14 +1,8 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f5f3f0;color:#3d3a36;font-size:13px;line-height:1.5}
 
-.intro{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:18px;padding:10px 20px;background:#faf6ee;border-bottom:1px solid #e8e4df;font-size:11px;line-height:1.5;color:#7a6e65;max-height:300px;overflow:hidden;transition:max-height .6s ease,padding .6s ease,opacity .4s ease;position:relative;cursor:pointer}
-.intro.collapsed{max-height:0;padding-top:0;padding-bottom:0;opacity:0;border-bottom:none}
-.intro-peek{display:none;text-align:center;padding:3px 0;background:#faf6ee;border-bottom:1px solid #e8e4df;font-size:10px;color:#b09e82;cursor:pointer;font-style:italic}
-.intro-peek:hover{color:#5a4e3c;background:#f5efe6}
-.intro-peek.show{display:block}
-.intro em{font-style:italic;color:#5a4e3c}
-.intro .attr{display:block;margin-top:3px;color:#9b9185;font-size:10px;font-style:normal}
-.intro-note{color:#7a6e65}
+.contact-btn{margin-left:6px;padding:3px 10px;background:none;border:1px solid #c4b49a;border-radius:4px;color:#7a6e65;font-size:11px;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.contact-btn:hover{background:#f0ebe3;color:#3d3a36}
 
 .toolbar{display:flex;align-items:center;background:#fff;border-bottom:1px solid #e8e4df;padding:0 16px;height:44px;gap:0}
 .toolbar--synastry{height:auto;padding:6px 16px;align-items:flex-start;gap:8px}
@@ -191,7 +185,7 @@ canvas{display:block;width:100%;height:100%}
 .loading::before{content:'';display:inline-block;width:16px;height:16px;border:2px solid #e8e4df;border-top-color:#8b7355;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes sp{to{transform:rotate(360deg)}}
 
-@media(max-width:900px){.row{grid-template-columns:1fr}.right-2x2{grid-template-columns:1fr;grid-template-rows:repeat(4,260px);height:auto}.card-wheel{height:480px}.card-info{height:320px}.intro{grid-template-columns:1fr;padding:8px 14px;gap:6px}}
+@media(max-width:900px){.row{grid-template-columns:1fr}.right-2x2{grid-template-columns:1fr;grid-template-rows:repeat(4,260px);height:auto}.card-wheel{height:480px}.card-info{height:320px}}
 @media(max-width:650px){.toolbar{height:auto;padding:8px 12px;flex-wrap:wrap;gap:6px}.toolbar form{flex-wrap:wrap}.sep{display:none}.toolbar input[type="date"],.toolbar input[type="time"],.toolbar input[type="text"],.toolbar select{width:100%}}
 
 /* ── Synastry tab ──────────────────────────────────────────────────────────── */
