@@ -9,8 +9,24 @@
 <body>
 
 <div class="toolbar" id="toolbar">
-  <div class="brand">Astro<span>Chart</span></div>
-  <button type="button" class="contact-btn" onclick="window.location.href='mailto:hereandnowinunity@gmail.com'">Contact</button>
+  <div class="brand">
+    <svg class="brand-icon" width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="13" cy="13" r="13" fill="none"/>
+      <!-- Sun -->
+      <circle cx="13" cy="13" r="2.8" fill="#FDB813"/>
+      <!-- Inner orbit + Mercury -->
+      <ellipse cx="13" cy="13" rx="5.5" ry="5.5" stroke="rgba(255,255,255,0.18)" stroke-width="0.7" fill="none"/>
+      <circle cx="18.5" cy="13" r="1" fill="#b5a59e"/>
+      <!-- Mid orbit + Earth -->
+      <ellipse cx="13" cy="13" rx="9" ry="9" stroke="rgba(255,255,255,0.12)" stroke-width="0.7" fill="none"/>
+      <circle cx="13" cy="4" r="1.3" fill="#4a8fcb"/>
+      <!-- Outer orbit + Saturn-ish -->
+      <ellipse cx="13" cy="13" rx="12.2" ry="12.2" stroke="rgba(255,255,255,0.07)" stroke-width="0.7" fill="none"/>
+      <circle cx="2" cy="10" r="1.6" fill="#c8a04a"/>
+    </svg>
+    Astro<span>Chart</span>
+  </div>
+  <a class="contact-link" href="mailto:hereandnowinunity@gmail.com">Contact Us</a>
 
   <!-- Natal / Transit / Vibrational form (single person) -->
   <form id="chart-form">
