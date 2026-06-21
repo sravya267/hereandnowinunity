@@ -241,9 +241,9 @@ function drawWheel(data) {
     ctx.arc(cx, cy, r4, sa1, sa2, true);
     ctx.arc(cx, cy, r3, sa2, sa1, false);
     ctx.closePath();
-    ctx.fillStyle = '#141414';
+    ctx.fillStyle = '#252525';
     ctx.fill();
-    ctx.strokeStyle = '#444'; ctx.lineWidth = 0.6; ctx.stroke();
+    ctx.strokeStyle = '#585858'; ctx.lineWidth = 0.6; ctx.stroke();
 
     var midA = lon2a(i * 30 + 15);
     var mr = (r4 + r3) / 2;
@@ -284,9 +284,9 @@ function drawWheel(data) {
       ctx.arc(cx, cy, nakR, na1, na2, true);
       ctx.arc(cx, cy, nakInner, na2, na1, false);
       ctx.closePath();
-      ctx.fillStyle = ni % 2 === 0 ? '#1a1a1a' : '#141414';
+      ctx.fillStyle = ni % 2 === 0 ? '#2a2a2a' : '#252525';
       ctx.fill();
-      ctx.strokeStyle = '#2a2a2a'; ctx.lineWidth = 0.3; ctx.stroke();
+      ctx.strokeStyle = '#333333'; ctx.lineWidth = 0.3; ctx.stroke();
 
       var nMid = lon2a(ni * nakSpan + nakSpan / 2);
       var nMr = (nakR + nakInner) / 2;
@@ -304,7 +304,7 @@ function drawWheel(data) {
 
   // ── merged ring inner edge (aspect circle)
   ctx.beginPath(); ctx.arc(cx, cy, r1, 0, 2*Math.PI);
-  ctx.strokeStyle = '#383838'; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.strokeStyle = '#484848'; ctx.lineWidth = 0.5; ctx.stroke();
 
   // ── house cusp tick lines (r1 -> r3)
   var cusps = data.bodies.filter(function(b){ return b.Body.indexOf('House Cusp') !== -1; });
@@ -313,7 +313,7 @@ function drawWheel(data) {
     var cp1 = pt(r1, ca), cp2 = pt(r3, ca);
     ctx.beginPath();
     ctx.moveTo(cp1[0], cp1[1]); ctx.lineTo(cp2[0], cp2[1]);
-    ctx.strokeStyle = '#383838'; ctx.lineWidth = 0.5; ctx.stroke();
+    ctx.strokeStyle = '#484848'; ctx.lineWidth = 0.5; ctx.stroke();
   });
 
   // ── house numbers in the house band
@@ -387,7 +387,7 @@ function drawWheel(data) {
   placements.forEach(function(it){
     var t1 = pt(r3, it.a), t2 = pt(it.rSym + R*0.038, it.a);
     ctx.beginPath(); ctx.moveTo(t1[0], t1[1]); ctx.lineTo(t2[0], t2[1]);
-    ctx.strokeStyle = '#2e2e2e'; ctx.lineWidth = 0.5; ctx.stroke();
+    ctx.strokeStyle = '#404040'; ctx.lineWidth = 0.5; ctx.stroke();
   });
   placements.forEach(function(it) {
     var p = it.p, a = it.a;
@@ -945,9 +945,9 @@ function drawHarmMini(data, harmonic) {
     ctx.arc(cx, cy, rSignOut, sa1, sa2, true);
     ctx.arc(cx, cy, rSignIn,  sa2, sa1, false);
     ctx.closePath();
-    ctx.fillStyle = '#141414';
+    ctx.fillStyle = '#252525';
     ctx.fill();
-    ctx.strokeStyle = '#2e2e2e'; ctx.lineWidth = 0.5; ctx.stroke();
+    ctx.strokeStyle = '#404040'; ctx.lineWidth = 0.5; ctx.stroke();
 
     var midA = lon2a(i * 30 + 15);
     var mr   = (rSignOut + rSignIn) / 2;
@@ -963,7 +963,7 @@ function drawHarmMini(data, harmonic) {
   }
 
   // ── main rings
-  ctx.strokeStyle = '#383838'; ctx.lineWidth = 1;
+  ctx.strokeStyle = '#505050'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(cx, cy, rOuter, 0, 2*Math.PI); ctx.stroke();
   ctx.beginPath(); ctx.arc(cx, cy, rInner, 0, 2*Math.PI); ctx.stroke();
 
@@ -2066,8 +2066,8 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.arc(cx, cy, rZodOut, aStart, aEnd, true);
     ctx.arc(cx, cy, rZodIn, aEnd, aStart, false);
     ctx.closePath();
-    ctx.fillStyle = '#141414'; ctx.fill();
-    ctx.strokeStyle = '#444'; ctx.lineWidth = 0.6; ctx.stroke();
+    ctx.fillStyle = '#252525'; ctx.fill();
+    ctx.strokeStyle = '#585858'; ctx.lineWidth = 0.6; ctx.stroke();
     var midA = lon2a(s * 30 + 15);
     var tr = (rZodIn + rZodOut) / 2;
     ctx.save();
@@ -2097,9 +2097,9 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
   // Ring borders
   ctx.beginPath(); ctx.arc(cx, cy, rZodOut, 0, 2*Math.PI); ctx.strokeStyle = '#666'; ctx.lineWidth = 1; ctx.stroke();
   ctx.beginPath(); ctx.arc(cx, cy, rZodIn,  0, 2*Math.PI); ctx.strokeStyle = '#999'; ctx.lineWidth = 0.7; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rBOuter, 0, 2*Math.PI); ctx.strokeStyle = '#383838'; ctx.lineWidth = 0.5; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rBInner, 0, 2*Math.PI); ctx.strokeStyle = '#383838'; ctx.lineWidth = 0.5; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rAspOut, 0, 2*Math.PI); ctx.strokeStyle = '#2e2e2e'; ctx.lineWidth = 0.4; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rBOuter, 0, 2*Math.PI); ctx.strokeStyle = '#484848'; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rBInner, 0, 2*Math.PI); ctx.strokeStyle = '#484848'; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rAspOut, 0, 2*Math.PI); ctx.strokeStyle = '#404040'; ctx.lineWidth = 0.4; ctx.stroke();
 
   // House cusps (Person A, dashed)
   var houseCusps = bodiesA.filter(function(b){ return b.Body && b.Body.indexOf('House Cusp') === 0; });
@@ -2108,7 +2108,7 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.beginPath();
     ctx.moveTo(cx + rZodIn * Math.cos(a), cy + rZodIn * Math.sin(a));
     ctx.lineTo(cx + rBInner * 0.85 * Math.cos(a), cy + rBInner * 0.85 * Math.sin(a));
-    ctx.strokeStyle = '#383838'; ctx.lineWidth = 0.5; ctx.setLineDash([2,3]); ctx.stroke();
+    ctx.strokeStyle = '#484848'; ctx.lineWidth = 0.5; ctx.setLineDash([2,3]); ctx.stroke();
     ctx.setLineDash([]);
   });
 
@@ -2259,8 +2259,8 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
     ctx.arc(cx, cy, rZodOut, aStart, aEnd, true);
     ctx.arc(cx, cy, rZodIn, aEnd, aStart, false);
     ctx.closePath();
-    ctx.fillStyle = '#141414'; ctx.fill();
-    ctx.strokeStyle = '#444'; ctx.lineWidth = 0.6; ctx.stroke();
+    ctx.fillStyle = '#252525'; ctx.fill();
+    ctx.strokeStyle = '#585858'; ctx.lineWidth = 0.6; ctx.stroke();
     var midA = lon2a(s * 30 + 15);
     var tr = (rZodIn + rZodOut) / 2;
     ctx.save();
@@ -2287,7 +2287,7 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
 
   ctx.beginPath(); ctx.arc(cx, cy, rZodOut, 0, 2*Math.PI); ctx.strokeStyle = '#666'; ctx.lineWidth = 1; ctx.stroke();
   ctx.beginPath(); ctx.arc(cx, cy, rZodIn,  0, 2*Math.PI); ctx.strokeStyle = '#999'; ctx.lineWidth = 0.7; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rAsp,    0, 2*Math.PI); ctx.strokeStyle = '#2e2e2e'; ctx.lineWidth = 0.4; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rAsp,    0, 2*Math.PI); ctx.strokeStyle = '#404040'; ctx.lineWidth = 0.4; ctx.stroke();
 
   function compBodyVis(name) {
     if (name === 'Desc') return COMP_BODY['Asc'] !== false;
