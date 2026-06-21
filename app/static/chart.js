@@ -126,7 +126,7 @@ function vibRender(data) {
 var SIGN_NAMES_W = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 var SIGN_ABBR_W  = ['Ari','Tau','Gem','Can','Leo','Vir','Lib','Sco','Sag','Cap','Aqu','Pis'];
 // Element-tinted glyphs: Fire=red, Earth=green, Air=amber, Water=blue
-var SIGN_GLYPH_COLS = ['#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e','#c0392b','#3a8a3a','#d4a017','#2e7e9e'];
+var SIGN_GLYPH_COLS = ['#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0'];
 var NAK_NAMES = ['Ashw','Bhar','Krit','Rohi','Mrig','Ardr','Puna','Push','Ashl','Magh','PPha','UPha','Hast','Chit','Swat','Vish','Anur','Jyes','Mool','PAsh','UAsh','Shra','Dhan','Shat','PBha','UBha','Reva'];
 
 // Aspect catalog. major=true for the 5 major aspects, positive=true for harmonious.
@@ -157,11 +157,7 @@ var ASP_TYPES = [
 ];
 // major-neg=red, major-pos=green, minor-neg=orange, minor-pos=seagreen
 function aspLineColor(meta) {
-  if (!meta) return '#999';
-  if (meta.major  && !meta.positive) return '#c0392b';
-  if (meta.major  &&  meta.positive) return '#27ae60';
-  if (!meta.major && !meta.positive) return '#e67e22';
-  return '#1e8449';
+  return '#c8c8c8';
 }
 
 // Display toggles. Per-planet keys default to true; group keys default to false.
@@ -296,7 +292,7 @@ function drawWheel(data) {
       ctx.rotate(nMid + Math.PI / 2);
       ctx.font = Math.round(R * 0.042) + 'px sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#8b7355';
+      ctx.fillStyle = '#787878';
       ctx.fillText(NAK_NAMES[ni], 0, 0);
       ctx.restore();
     }
@@ -474,19 +470,19 @@ function drawWheel(data) {
     var inPattern = patternEdges[edgeKey(asp.Body1, asp.Body2)];
     ctx.beginPath();
     ctx.moveTo(ep1[0], ep1[1]); ctx.lineTo(ep2[0], ep2[1]);
-    ctx.strokeStyle = aspLineColor(meta);
+    ctx.strokeStyle = '#d8d8d8';
     var hasActivePatterns = Object.keys(patternEdges).length > 0;
     if (inPattern) {
-      ctx.lineWidth = Math.max(2.5, closeness * 4);
-      ctx.globalAlpha = 1;
-      ctx.shadowColor = aspLineColor(meta);
-      ctx.shadowBlur = 6;
+      ctx.lineWidth = Math.max(1.5, closeness * 3);
+      ctx.globalAlpha = 0.3 + closeness * 0.7;
+      ctx.shadowColor = '#ffffff';
+      ctx.shadowBlur = 4;
       ctx.stroke();
       ctx.shadowBlur = 0;
       PAT_SEGMENTS.push({x1:ep1[0], y1:ep1[1], x2:ep2[0], y2:ep2[1], pats: inPattern});
     } else {
-      ctx.lineWidth = Math.max(0.4, closeness * 2.5);
-      ctx.globalAlpha = hasActivePatterns ? 0.08 : 0.25 + closeness * 0.75;
+      ctx.lineWidth = Math.max(0.3, closeness * 1.8);
+      ctx.globalAlpha = hasActivePatterns ? 0.05 : 0.1 + closeness * 0.55;
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
@@ -1824,13 +1820,13 @@ function synRender(data, nameA, nameB) {
     var tr = document.createElement('tr');
     tr.innerHTML =
       '<td><b>' + asp.Body1 + '</b></td>' +
-      '<td style="text-align:center;color:' + (asp.Color || '#888') + '">' +
+      '<td style="text-align:center;color:' + '#a0a0a0' + '">' +
         (asp.aspect_symbol || '') + ' <span style="font-size:10px">' + asp.Aspect + '</span></td>' +
       '<td><b>' + asp.Body2 + '</b></td>' +
       '<td class="num">' + orb + '°</td>' +
       '<td class="num"><div style="display:flex;align-items:center;gap:4px;justify-content:flex-end">' +
         '<div style="width:36px;height:5px;background:#1e1e1e;border-radius:2px;overflow:hidden">' +
-          '<div style="width:' + closePct + '%;height:100%;background:' + (asp.Color || '#8b7355') + '"></div>' +
+          '<div style="width:' + closePct + '%;height:100%;background:' + '#b8882a' + '"></div>' +
         '</div>' + closePct + '%</div></td>';
     tbody.appendChild(tr);
   });
@@ -2159,9 +2155,11 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.beginPath();
     ctx.moveTo(posA.x, posA.y);
     ctx.lineTo(posB.x, posB.y);
-    ctx.strokeStyle = asp.Color || '#aaa';
-    ctx.lineWidth = 0.5 + (asp.Closeness || 0) * 1.5;
+    ctx.strokeStyle = '#c8c8c8';
+    ctx.globalAlpha = 0.1 + (asp.Closeness || 0) * 0.6;
+    ctx.lineWidth = 0.4 + (asp.Closeness || 0) * 1.5;
     ctx.stroke();
+    ctx.globalAlpha = 1;
     ctx.restore();
   });
 
@@ -2316,9 +2314,11 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
     ctx.beginPath();
     ctx.moveTo(cx + rAsp * Math.cos(aA), cy + rAsp * Math.sin(aA));
     ctx.lineTo(cx + rAsp * Math.cos(aB), cy + rAsp * Math.sin(aB));
-    ctx.strokeStyle = asp.Color || '#aaa';
-    ctx.lineWidth = 0.5 + (asp.Closeness || 0) * 1.0;
+    ctx.strokeStyle = '#c8c8c8';
+    ctx.globalAlpha = 0.1 + (asp.Closeness || 0) * 0.6;
+    ctx.lineWidth = 0.4 + (asp.Closeness || 0) * 1.0;
     ctx.stroke();
+    ctx.globalAlpha = 1;
     ctx.restore();
   });
 
@@ -2332,11 +2332,11 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
       ctx.beginPath();
       ctx.moveTo(cx + rZodIn * Math.cos(a), cy + rZodIn * Math.sin(a));
       ctx.lineTo(cx + rAsp * 0.96 * Math.cos(a), cy + rAsp * 0.96 * Math.sin(a));
-      ctx.strokeStyle = '#8b7355'; ctx.lineWidth = 0.8; ctx.stroke();
+      ctx.strokeStyle = '#888888'; ctx.lineWidth = 0.8; ctx.stroke();
       ctx.save();
       ctx.translate(cx + (rZodIn - 8) * Math.cos(a), cy + (rZodIn - 8) * Math.sin(a));
       ctx.rotate(a + Math.PI/2);
-      ctx.fillStyle = '#c0b090'; ctx.font = 'bold 7px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = '#b0b0b0'; ctx.font = 'bold 7px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(b.Body, 0, 3);
       ctx.restore();
       return;
@@ -2351,7 +2351,7 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
   });
 
   // Title
-  ctx.font = 'bold 10px sans-serif'; ctx.fillStyle = '#8b7355'; ctx.textAlign = 'center';
+  ctx.font = 'bold 10px sans-serif'; ctx.fillStyle = '#a0a0a0'; ctx.textAlign = 'center';
   ctx.fillText('Composite', cx, 14);
 }
 
