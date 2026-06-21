@@ -83,7 +83,7 @@ function vibRender(data) {
         '<span class="vib-factors">' + (row.Factors || '') + '</span></td>' +
       '<td class="num">' +
         '<div style="display:flex;align-items:center;gap:4px;justify-content:flex-end">' +
-          '<div style="width:40px;height:6px;background:#f5efe6;border-radius:3px;overflow:hidden">' +
+          '<div style="width:40px;height:6px;background:#1e1e1e;border-radius:3px;overflow:hidden">' +
             '<div style="width:' + barW + '%;height:100%;background:#8b7355"></div>' +
           '</div>' +
           row.PairCount +
@@ -230,7 +230,7 @@ function drawWheel(data) {
   function pt(r, a) { return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
 
   // ── canvas background
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = '#0a0a0a';
   ctx.fillRect(0, 0, W, H);
 
   // ── zodiac sign band (white cells, hairline separators, element-tinted names)
@@ -241,9 +241,9 @@ function drawWheel(data) {
     ctx.arc(cx, cy, r4, sa1, sa2, true);
     ctx.arc(cx, cy, r3, sa2, sa1, false);
     ctx.closePath();
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = '#141414';
     ctx.fill();
-    ctx.strokeStyle = '#888'; ctx.lineWidth = 0.6; ctx.stroke();
+    ctx.strokeStyle = '#444'; ctx.lineWidth = 0.6; ctx.stroke();
 
     var midA = lon2a(i * 30 + 15);
     var mr = (r4 + r3) / 2;
@@ -267,7 +267,7 @@ function drawWheel(data) {
     var tp1 = pt(inner, ta), tp2 = pt(rTickOut, ta);
     ctx.beginPath();
     ctx.moveTo(tp1[0], tp1[1]); ctx.lineTo(tp2[0], tp2[1]);
-    ctx.strokeStyle = (dt % 10 === 0) ? '#444' : (dt % 5 === 0 ? '#888' : '#bbb');
+    ctx.strokeStyle = (dt % 10 === 0) ? '#444' : (dt % 5 === 0 ? '#666' : '#333');
     ctx.lineWidth   = (dt % 10 === 0) ? 0.7   : 0.4;
     ctx.stroke();
   }
@@ -284,9 +284,9 @@ function drawWheel(data) {
       ctx.arc(cx, cy, nakR, na1, na2, true);
       ctx.arc(cx, cy, nakInner, na2, na1, false);
       ctx.closePath();
-      ctx.fillStyle = ni % 2 === 0 ? '#fdf8f2' : '#f5efe6';
+      ctx.fillStyle = ni % 2 === 0 ? '#1a1a1a' : '#141414';
       ctx.fill();
-      ctx.strokeStyle = '#e8e0d5'; ctx.lineWidth = 0.3; ctx.stroke();
+      ctx.strokeStyle = '#2a2a2a'; ctx.lineWidth = 0.3; ctx.stroke();
 
       var nMid = lon2a(ni * nakSpan + nakSpan / 2);
       var nMr = (nakR + nakInner) / 2;
@@ -304,7 +304,7 @@ function drawWheel(data) {
 
   // ── merged ring inner edge (aspect circle)
   ctx.beginPath(); ctx.arc(cx, cy, r1, 0, 2*Math.PI);
-  ctx.strokeStyle = '#bbb'; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.strokeStyle = '#383838'; ctx.lineWidth = 0.5; ctx.stroke();
 
   // ── house cusp tick lines (r1 -> r3)
   var cusps = data.bodies.filter(function(b){ return b.Body.indexOf('House Cusp') !== -1; });
@@ -313,7 +313,7 @@ function drawWheel(data) {
     var cp1 = pt(r1, ca), cp2 = pt(r3, ca);
     ctx.beginPath();
     ctx.moveTo(cp1[0], cp1[1]); ctx.lineTo(cp2[0], cp2[1]);
-    ctx.strokeStyle = '#bbb'; ctx.lineWidth = 0.5; ctx.stroke();
+    ctx.strokeStyle = '#383838'; ctx.lineWidth = 0.5; ctx.stroke();
   });
 
   // ── house numbers in the house band
@@ -354,10 +354,10 @@ function drawWheel(data) {
     ctx.translate(lp[0], lp[1]);
     ctx.rotate(rot);
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.lineWidth = 3; ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 3; ctx.strokeStyle = '#0a0a0a';
     ctx.font = 'bold ' + fs + 'px sans-serif';
     ctx.strokeText(name, 0, -fs * 0.65);
-    ctx.fillStyle = '#222';
+    ctx.fillStyle = '#c0c0c0';
     ctx.fillText(name, 0, -fs * 0.65);
     ctx.font = (fs - 1) + 'px sans-serif';
     ctx.strokeText(degStr, 0, fs * 0.65);
@@ -387,7 +387,7 @@ function drawWheel(data) {
   placements.forEach(function(it){
     var t1 = pt(r3, it.a), t2 = pt(it.rSym + R*0.038, it.a);
     ctx.beginPath(); ctx.moveTo(t1[0], t1[1]); ctx.lineTo(t2[0], t2[1]);
-    ctx.strokeStyle = '#ccc'; ctx.lineWidth = 0.5; ctx.stroke();
+    ctx.strokeStyle = '#2e2e2e'; ctx.lineWidth = 0.5; ctx.stroke();
   });
   placements.forEach(function(it) {
     var p = it.p, a = it.a;
@@ -397,7 +397,7 @@ function drawWheel(data) {
     ctx.rotate(a + Math.PI / 2);
     ctx.font = 'bold ' + Math.round(R * 0.088) + 'px serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = '#d0d0d0';
     ctx.fillText(p.Symbol, 0, 0);
     ctx.restore();
     var dd = p['Longitude (°)'] % 30;
@@ -918,7 +918,7 @@ function drawHarmMini(data, harmonic) {
   ctx.setTransform(1,0,0,1,0,0);
   ctx.scale(dpr, dpr);
 
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = '#0a0a0a';
   ctx.fillRect(0, 0, W, H);
 
   var cx = W/2, cy = H/2;
@@ -945,9 +945,9 @@ function drawHarmMini(data, harmonic) {
     ctx.arc(cx, cy, rSignOut, sa1, sa2, true);
     ctx.arc(cx, cy, rSignIn,  sa2, sa1, false);
     ctx.closePath();
-    ctx.fillStyle = '#fafaf7';
+    ctx.fillStyle = '#141414';
     ctx.fill();
-    ctx.strokeStyle = '#ccc'; ctx.lineWidth = 0.5; ctx.stroke();
+    ctx.strokeStyle = '#2e2e2e'; ctx.lineWidth = 0.5; ctx.stroke();
 
     var midA = lon2a(i * 30 + 15);
     var mr   = (rSignOut + rSignIn) / 2;
@@ -963,7 +963,7 @@ function drawHarmMini(data, harmonic) {
   }
 
   // ── main rings
-  ctx.strokeStyle = '#bbb'; ctx.lineWidth = 1;
+  ctx.strokeStyle = '#383838'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(cx, cy, rOuter, 0, 2*Math.PI); ctx.stroke();
   ctx.beginPath(); ctx.arc(cx, cy, rInner, 0, 2*Math.PI); ctx.stroke();
 
@@ -1032,9 +1032,9 @@ function drawHarmMini(data, harmonic) {
     var sym = b.Symbol || it.name.substring(0, 2);
     ctx.font = 'bold ' + Math.round(R * 0.11) + 'px serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.lineWidth = 3.5; ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 3.5; ctx.strokeStyle = '#0a0a0a';
     ctx.strokeText(sym, p[0], p[1]);
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = '#c0c0c0';
     ctx.fillText(sym, p[0], p[1]);
   });
 
@@ -1058,15 +1058,15 @@ function drawHarmMini(data, harmonic) {
     ctx.rotate(rot);
     ctx.font = 'bold ' + Math.round(R * 0.085) + 'px sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.lineWidth = 3; ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 3; ctx.strokeStyle = '#0a0a0a';
     ctx.strokeText(ANGLE_ABBR[name], 0, 0);
-    ctx.fillStyle = '#333';
+    ctx.fillStyle = '#b0b0b0';
     ctx.fillText(ANGLE_ABBR[name], 0, 0);
     ctx.restore();
   });
 
   // "Hn" label in the centre so the user knows which harmonic chart this is.
-  ctx.fillStyle = '#b09e82';
+  ctx.fillStyle = '#b8882a';
   ctx.font = 'bold ' + Math.round(R * 0.22) + 'px sans-serif';
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText('H' + h, cx, cy);
@@ -1829,7 +1829,7 @@ function synRender(data, nameA, nameB) {
       '<td><b>' + asp.Body2 + '</b></td>' +
       '<td class="num">' + orb + '°</td>' +
       '<td class="num"><div style="display:flex;align-items:center;gap:4px;justify-content:flex-end">' +
-        '<div style="width:36px;height:5px;background:#f5efe6;border-radius:2px;overflow:hidden">' +
+        '<div style="width:36px;height:5px;background:#1e1e1e;border-radius:2px;overflow:hidden">' +
           '<div style="width:' + closePct + '%;height:100%;background:' + (asp.Color || '#8b7355') + '"></div>' +
         '</div>' + closePct + '%</div></td>';
     tbody.appendChild(tr);
@@ -2056,7 +2056,7 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
   function lon2a(lon) { return -((lon - descA) * Math.PI / 180); }
 
   // White background (natal style)
-  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, W, H);
 
   // Zodiac band — white cells, hairline separators, element-colored sign names (natal style)
   for (var s = 0; s < 12; s++) {
@@ -2066,8 +2066,8 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.arc(cx, cy, rZodOut, aStart, aEnd, true);
     ctx.arc(cx, cy, rZodIn, aEnd, aStart, false);
     ctx.closePath();
-    ctx.fillStyle = '#fff'; ctx.fill();
-    ctx.strokeStyle = '#888'; ctx.lineWidth = 0.6; ctx.stroke();
+    ctx.fillStyle = '#141414'; ctx.fill();
+    ctx.strokeStyle = '#444'; ctx.lineWidth = 0.6; ctx.stroke();
     var midA = lon2a(s * 30 + 15);
     var tr = (rZodIn + rZodOut) / 2;
     ctx.save();
@@ -2089,7 +2089,7 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.beginPath();
     ctx.moveTo(cx + inner * Math.cos(ta), cy + inner * Math.sin(ta));
     ctx.lineTo(cx + rZodOut * Math.cos(ta), cy + rZodOut * Math.sin(ta));
-    ctx.strokeStyle = (dt % 10 === 0) ? '#444' : (dt % 5 === 0 ? '#888' : '#ccc');
+    ctx.strokeStyle = (dt % 10 === 0) ? '#444' : (dt % 5 === 0 ? '#666' : '#333');
     ctx.lineWidth   = (dt % 10 === 0) ? 0.7   : 0.4;
     ctx.stroke();
   }
@@ -2097,9 +2097,9 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
   // Ring borders
   ctx.beginPath(); ctx.arc(cx, cy, rZodOut, 0, 2*Math.PI); ctx.strokeStyle = '#666'; ctx.lineWidth = 1; ctx.stroke();
   ctx.beginPath(); ctx.arc(cx, cy, rZodIn,  0, 2*Math.PI); ctx.strokeStyle = '#999'; ctx.lineWidth = 0.7; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rBOuter, 0, 2*Math.PI); ctx.strokeStyle = '#bbb'; ctx.lineWidth = 0.5; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rBInner, 0, 2*Math.PI); ctx.strokeStyle = '#bbb'; ctx.lineWidth = 0.5; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rAspOut, 0, 2*Math.PI); ctx.strokeStyle = '#ccc'; ctx.lineWidth = 0.4; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rBOuter, 0, 2*Math.PI); ctx.strokeStyle = '#383838'; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rBInner, 0, 2*Math.PI); ctx.strokeStyle = '#383838'; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rAspOut, 0, 2*Math.PI); ctx.strokeStyle = '#2e2e2e'; ctx.lineWidth = 0.4; ctx.stroke();
 
   // House cusps (Person A, dashed)
   var houseCusps = bodiesA.filter(function(b){ return b.Body && b.Body.indexOf('House Cusp') === 0; });
@@ -2108,7 +2108,7 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.beginPath();
     ctx.moveTo(cx + rZodIn * Math.cos(a), cy + rZodIn * Math.sin(a));
     ctx.lineTo(cx + rBInner * 0.85 * Math.cos(a), cy + rBInner * 0.85 * Math.sin(a));
-    ctx.strokeStyle = '#bbb'; ctx.lineWidth = 0.5; ctx.setLineDash([2,3]); ctx.stroke();
+    ctx.strokeStyle = '#383838'; ctx.lineWidth = 0.5; ctx.setLineDash([2,3]); ctx.stroke();
     ctx.setLineDash([]);
   });
 
@@ -2250,7 +2250,7 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
   function lon2a(lon) { return -((lon - descLon) * Math.PI / 180); }
 
   // White background + natal-style zodiac band
-  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, W, H);
 
   for (var s = 0; s < 12; s++) {
     var aStart = lon2a(s * 30), aEnd = lon2a(s * 30 + 30);
@@ -2259,8 +2259,8 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
     ctx.arc(cx, cy, rZodOut, aStart, aEnd, true);
     ctx.arc(cx, cy, rZodIn, aEnd, aStart, false);
     ctx.closePath();
-    ctx.fillStyle = '#fff'; ctx.fill();
-    ctx.strokeStyle = '#888'; ctx.lineWidth = 0.6; ctx.stroke();
+    ctx.fillStyle = '#141414'; ctx.fill();
+    ctx.strokeStyle = '#444'; ctx.lineWidth = 0.6; ctx.stroke();
     var midA = lon2a(s * 30 + 15);
     var tr = (rZodIn + rZodOut) / 2;
     ctx.save();
@@ -2280,14 +2280,14 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
     ctx.beginPath();
     ctx.moveTo(cx + inner * Math.cos(ta), cy + inner * Math.sin(ta));
     ctx.lineTo(cx + rZodOut * Math.cos(ta), cy + rZodOut * Math.sin(ta));
-    ctx.strokeStyle = (dt % 10 === 0) ? '#444' : (dt % 5 === 0 ? '#888' : '#ccc');
+    ctx.strokeStyle = (dt % 10 === 0) ? '#444' : (dt % 5 === 0 ? '#666' : '#333');
     ctx.lineWidth = (dt % 10 === 0) ? 0.7 : 0.4;
     ctx.stroke();
   }
 
   ctx.beginPath(); ctx.arc(cx, cy, rZodOut, 0, 2*Math.PI); ctx.strokeStyle = '#666'; ctx.lineWidth = 1; ctx.stroke();
   ctx.beginPath(); ctx.arc(cx, cy, rZodIn,  0, 2*Math.PI); ctx.strokeStyle = '#999'; ctx.lineWidth = 0.7; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rAsp,    0, 2*Math.PI); ctx.strokeStyle = '#ccc'; ctx.lineWidth = 0.4; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rAsp,    0, 2*Math.PI); ctx.strokeStyle = '#2e2e2e'; ctx.lineWidth = 0.4; ctx.stroke();
 
   function compBodyVis(name) {
     if (name === 'Desc') return COMP_BODY['Asc'] !== false;
@@ -2336,7 +2336,7 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
       ctx.save();
       ctx.translate(cx + (rZodIn - 8) * Math.cos(a), cy + (rZodIn - 8) * Math.sin(a));
       ctx.rotate(a + Math.PI/2);
-      ctx.fillStyle = '#5a4e3c'; ctx.font = 'bold 7px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = '#c0b090'; ctx.font = 'bold 7px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(b.Body, 0, 3);
       ctx.restore();
       return;
@@ -2344,7 +2344,7 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
     ctx.save();
     ctx.translate(cx + rPlanet * Math.cos(a), cy + rPlanet * Math.sin(a));
     ctx.rotate(a + Math.PI/2);
-    ctx.fillStyle = '#111';
+    ctx.fillStyle = '#c0c0c0';
     ctx.font = 'bold 12px serif'; ctx.textAlign = 'center';
     ctx.fillText(b.Symbol || b.Body[0], 0, 4);
     ctx.restore();
