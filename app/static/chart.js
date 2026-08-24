@@ -155,9 +155,23 @@ var ASP_TYPES = [
   {name:'Tri-Decile',   sym:'tD', major:false, positive:true,  harmonic:10, defaultOn:false, inAspPanel:true},
   {name:'Undecile',     sym:'U',  major:false, positive:true,  harmonic:11, defaultOn:false, inAspPanel:true}
 ];
-// major-neg=red, major-pos=green, minor-neg=orange, minor-pos=seagreen
-function aspLineColor(meta) {
-  return '#c3a05a';
+// Each major aspect gets its own hue; minor aspects are colored by nature
+// (harmonious vs tense) in a softer, more muted version of the same family
+// so major/minor read apart even before the dash pattern kicks in.
+var MAJOR_ASP_COLORS = {
+  'Conjunction': '#8fbf9a',  // sage green — neutral/blending
+  'Opposition':  '#d38a80',  // coral red — tension
+  'Square':      '#e0b17a',  // peach/amber — tension
+  'Trine':       '#7fa6c4',  // sky blue — harmony
+  'Sextile':     '#b79bcf'   // lavender — harmony
+};
+var MINOR_ASP_COLOR_POS = '#a8c9b0';  // muted seafoam
+var MINOR_ASP_COLOR_NEG = '#d9bc95';  // muted tan
+
+function aspLineColor(name) {
+  if (MAJOR_ASP_COLORS[name]) return MAJOR_ASP_COLORS[name];
+  var meta = ASP_TYPES.find(function(t){ return t.name === name; });
+  return (meta && meta.positive) ? MINOR_ASP_COLOR_POS : MINOR_ASP_COLOR_NEG;
 }
 
 // Display toggles. Per-planet keys default to true; group keys default to false.
@@ -465,27 +479,30 @@ function drawWheel(data) {
     var a1 = posMap[asp.Body1], a2 = posMap[asp.Body2];
     if (a1 == null || a2 == null) return;
     var meta = ASP_TYPES.find(function(t){ return t.name === asp.Aspect; });
+    var isMajor = meta ? meta.major : true;
     var closeness = asp.Closeness || 0.5;
     var ep1 = pt(r1, a1), ep2 = pt(r1, a2);
     var inPattern = patternEdges[edgeKey(asp.Body1, asp.Body2)];
     ctx.beginPath();
     ctx.moveTo(ep1[0], ep1[1]); ctx.lineTo(ep2[0], ep2[1]);
-    ctx.strokeStyle = '#c3a05a';
+    ctx.strokeStyle = aspLineColor(asp.Aspect);
+    ctx.setLineDash(isMajor ? [] : [3, 2]);
     var hasActivePatterns = Object.keys(patternEdges).length > 0;
     if (inPattern) {
-      ctx.lineWidth = Math.max(1.5, closeness * 3);
-      ctx.globalAlpha = 0.3 + closeness * 0.7;
+      ctx.lineWidth = Math.max(1.5, closeness * 3.5);
+      ctx.globalAlpha = 0.35 + closeness * 0.65;
       ctx.shadowColor = '#f3e0b8';
       ctx.shadowBlur = 4;
       ctx.stroke();
       ctx.shadowBlur = 0;
       PAT_SEGMENTS.push({x1:ep1[0], y1:ep1[1], x2:ep2[0], y2:ep2[1], pats: inPattern});
     } else {
-      ctx.lineWidth = Math.max(0.3, closeness * 1.8);
-      ctx.globalAlpha = hasActivePatterns ? 0.05 : 0.1 + closeness * 0.55;
+      ctx.lineWidth = Math.max(0.4, closeness * 2.6);
+      ctx.globalAlpha = hasActivePatterns ? 0.06 : 0.15 + closeness * 0.7;
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
+    ctx.setLineDash([]);
   });
 
   // ── Moon day-range arc (unknown birth time) ──────────────────────────────
@@ -2171,18 +2188,20 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     if (!posA || !posB) return;
     // Orb filter: major aspects use SYN_MAJOR_ORB, minor use SYN_MINOR_ORB
     var aspMeta = ASP_TYPES.find(function(x){ return x.name === asp.Aspect; });
-    var orbLimit = (aspMeta && aspMeta.major) ? SYN_MAJOR_ORB : SYN_MINOR_ORB;
+    var isMajor = aspMeta ? aspMeta.major : true;
+    var orbLimit = isMajor ? SYN_MAJOR_ORB : SYN_MINOR_ORB;
     var orb = Math.abs((asp.Angle || 0) - (asp.Degrees || 0));
     if (orb > orbLimit) return;
+    var closeness = asp.Closeness || 0;
 
     ctx.save();
-    ctx.globalAlpha = 0.12 + (asp.Closeness || 0) * 0.55;
     ctx.beginPath();
     ctx.moveTo(posA.x, posA.y);
     ctx.lineTo(posB.x, posB.y);
-    ctx.strokeStyle = '#c3a05a';
-    ctx.globalAlpha = 0.1 + (asp.Closeness || 0) * 0.6;
-    ctx.lineWidth = 0.4 + (asp.Closeness || 0) * 1.5;
+    ctx.strokeStyle = aspLineColor(asp.Aspect);
+    ctx.setLineDash(isMajor ? [] : [3, 2]);
+    ctx.globalAlpha = 0.15 + closeness * 0.7;
+    ctx.lineWidth = 0.5 + closeness * 2.2;
     ctx.stroke();
     ctx.globalAlpha = 1;
     ctx.restore();
@@ -2331,17 +2350,19 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
     var aA = posMap[asp.Body1], aB = posMap[asp.Body2];
     if (aA == null || aB == null) return;
     var aspMeta = ASP_TYPES.find(function(x){ return x.name === asp.Aspect; });
-    var orbLimit = (aspMeta && aspMeta.major) ? COMP_MAJOR_ORB : COMP_MINOR_ORB;
+    var isMajor = aspMeta ? aspMeta.major : true;
+    var orbLimit = isMajor ? COMP_MAJOR_ORB : COMP_MINOR_ORB;
     var orb = Math.abs((asp.Angle || 0) - (asp.Degrees || 0));
     if (orb > orbLimit) return;
+    var closeness = asp.Closeness || 0;
     ctx.save();
-    ctx.globalAlpha = 0.2 + (asp.Closeness || 0) * 0.5;
     ctx.beginPath();
     ctx.moveTo(cx + rAsp * Math.cos(aA), cy + rAsp * Math.sin(aA));
     ctx.lineTo(cx + rAsp * Math.cos(aB), cy + rAsp * Math.sin(aB));
-    ctx.strokeStyle = '#c3a05a';
-    ctx.globalAlpha = 0.1 + (asp.Closeness || 0) * 0.6;
-    ctx.lineWidth = 0.4 + (asp.Closeness || 0) * 1.0;
+    ctx.strokeStyle = aspLineColor(asp.Aspect);
+    ctx.setLineDash(isMajor ? [] : [3, 2]);
+    ctx.globalAlpha = 0.15 + closeness * 0.65;
+    ctx.lineWidth = 0.5 + closeness * 1.6;
     ctx.stroke();
     ctx.globalAlpha = 1;
     ctx.restore();
