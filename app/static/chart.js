@@ -1962,7 +1962,11 @@ function synRenderHarmDetail(harmonic) {
 
 function copySynAspects() {
   if (!LAST_SYN_DATA) return;
-  var lines = [];
+  var bodiesA = {}, bodiesB = {};
+  (LAST_SYN_DATA.chart_a.bodies || []).forEach(function(b){ bodiesA[b.Body] = b; });
+  (LAST_SYN_DATA.chart_b.bodies || []).forEach(function(b){ bodiesB[b.Body] = b; });
+
+  var rows = [];
   (LAST_SYN_DATA.cross_aspects || []).forEach(function(asp) {
     if (!SYN_ASP_FILTER[asp.Aspect]) return;
     var visA = (function(name) {
@@ -1982,9 +1986,18 @@ function copySynAspects() {
     var orbLimit = (aspMeta && aspMeta.major) ? SYN_MAJOR_ORB : SYN_MINOR_ORB;
     var orb = Math.abs((asp.Angle || 0) - (asp.Degrees || 0));
     if (orb > orbLimit) return;
-    lines.push(asp.Body1 + ' ' + (asp.aspect_symbol || asp.Aspect) + ' ' + asp.Body2 + '  orb ' + orb.toFixed(1) + '°');
+    var bA = bodiesA[asp.Body1], bB = bodiesB[asp.Body2];
+    if (!bA || !bB) return;
+    rows.push({
+      closeness: asp.Closeness || 0,
+      text: bA.Body + ' in ' + bA.Sign + ' ' + signDeg(bA['Longitude (°)']) + ' ' +
+            asp.Aspect + ' ' +
+            bB.Body + ' in ' + bB.Sign + ' ' + signDeg(bB['Longitude (°)']) +
+            ' (Orb: ' + fmtDeg(orb) + ')'
+    });
   });
-  var txt = lines.join('\n');
+  rows.sort(function(a, b) { return b.closeness - a.closeness; });
+  var txt = rows.map(function(r) { return r.text; }).join('\n');
   navigator.clipboard.writeText(txt).then(function() {
     var b = document.getElementById('syn-copy-asp-btn');
     if (b) { b.textContent = 'Copied!'; setTimeout(function(){ b.textContent = 'Copy Aspects'; }, 1500); }
