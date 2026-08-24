@@ -597,7 +597,10 @@ function buildInfoBox(d) {
 
 function copyNatalAspects() {
   if (!LAST_DATA) return;
-  var lines = [];
+  var bodies = {};
+  (LAST_DATA.bodies || []).forEach(function(b){ bodies[b.Body] = b; });
+
+  var rows = [];
   (LAST_DATA.aspects || []).forEach(function(a) {
     if (!ASP_FILTER[a.Aspect]) return;
     if (BODY_DISPLAY.hasOwnProperty(a.Body1) && !BODY_DISPLAY[a.Body1]) return;
@@ -611,9 +614,18 @@ function copyNatalAspects() {
       ? (1 - a.Closeness) * a.OrbLimit
       : Math.abs((a.Angle || 0) - (a.Degrees || 0));
     if (orbDelta > val) return;
-    lines.push(a.Body1 + ' ' + (a.aspect_symbol || a.Aspect) + ' ' + a.Body2 + '  orb ' + orbDelta.toFixed(1) + '°');
+    var b1 = bodies[a.Body1], b2 = bodies[a.Body2];
+    if (!b1 || !b2) return;
+    rows.push({
+      closeness: a.Closeness || 0,
+      text: b1.Body + ' in ' + b1.Sign + ' ' + signDeg(b1['Longitude (°)']) + ' ' +
+            a.Aspect + ' ' +
+            b2.Body + ' in ' + b2.Sign + ' ' + signDeg(b2['Longitude (°)']) +
+            ' (Orb: ' + fmtDeg(orbDelta) + ')'
+    });
   });
-  var txt = lines.join('\n');
+  rows.sort(function(a, b) { return b.closeness - a.closeness; });
+  var txt = rows.map(function(r) { return r.text; }).join('\n');
   navigator.clipboard.writeText(txt).then(function(){
     var b = document.getElementById('natal-copy-asp-btn');
     if (b) { b.textContent = 'Copied!'; setTimeout(function(){ b.textContent = 'Copy Aspects'; }, 1500); }
