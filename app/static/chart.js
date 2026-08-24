@@ -83,8 +83,8 @@ function vibRender(data) {
         '<span class="vib-factors">' + (row.Factors || '') + '</span></td>' +
       '<td class="num">' +
         '<div style="display:flex;align-items:center;gap:4px;justify-content:flex-end">' +
-          '<div style="width:40px;height:6px;background:#1e1e1e;border-radius:3px;overflow:hidden">' +
-            '<div style="width:' + barW + '%;height:100%;background:#8b7355"></div>' +
+          '<div style="width:40px;height:6px;background:#ecdfc8;border-radius:3px;overflow:hidden">' +
+            '<div style="width:' + barW + '%;height:100%;background:#a8734a"></div>' +
           '</div>' +
           row.PairCount +
         '</div>' +
@@ -126,7 +126,7 @@ function vibRender(data) {
 var SIGN_NAMES_W = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 var SIGN_ABBR_W  = ['Ari','Tau','Gem','Can','Leo','Vir','Lib','Sco','Sag','Cap','Aqu','Pis'];
 // Element-tinted glyphs: Fire=red, Earth=green, Air=amber, Water=blue
-var SIGN_GLYPH_COLS = ['#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0','#a0a0a0'];
+var SIGN_GLYPH_COLS = ['#8a7368','#8a7368','#8a7368','#8a7368','#8a7368','#8a7368','#8a7368','#8a7368','#8a7368','#8a7368','#8a7368','#8a7368'];
 var NAK_NAMES = ['Ashw','Bhar','Krit','Rohi','Mrig','Ardr','Puna','Push','Ashl','Magh','PPha','UPha','Hast','Chit','Swat','Vish','Anur','Jyes','Mool','PAsh','UAsh','Shra','Dhan','Shat','PBha','UBha','Reva'];
 
 // Aspect catalog. major=true for the 5 major aspects, positive=true for harmonious.
@@ -157,7 +157,7 @@ var ASP_TYPES = [
 ];
 // major-neg=red, major-pos=green, minor-neg=orange, minor-pos=seagreen
 function aspLineColor(meta) {
-  return '#c8c8c8';
+  return '#c3a05a';
 }
 
 // Display toggles. Per-planet keys default to true; group keys default to false.
@@ -226,7 +226,7 @@ function drawWheel(data) {
   function pt(r, a) { return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
 
   // ── canvas background
-  ctx.fillStyle = '#0a0a0a';
+  ctx.fillStyle = '#fbf3ea';
   ctx.fillRect(0, 0, W, H);
 
   // ── zodiac sign band (white cells, hairline separators, element-tinted names)
@@ -237,9 +237,9 @@ function drawWheel(data) {
     ctx.arc(cx, cy, r4, sa1, sa2, true);
     ctx.arc(cx, cy, r3, sa2, sa1, false);
     ctx.closePath();
-    ctx.fillStyle = '#252525';
+    ctx.fillStyle = '#f6e8d6';
     ctx.fill();
-    ctx.strokeStyle = '#585858'; ctx.lineWidth = 0.6; ctx.stroke();
+    ctx.strokeStyle = '#c9a24d'; ctx.lineWidth = 0.6; ctx.stroke();
 
     var midA = lon2a(i * 30 + 15);
     var mr = (r4 + r3) / 2;
@@ -263,7 +263,7 @@ function drawWheel(data) {
     var tp1 = pt(inner, ta), tp2 = pt(rTickOut, ta);
     ctx.beginPath();
     ctx.moveTo(tp1[0], tp1[1]); ctx.lineTo(tp2[0], tp2[1]);
-    ctx.strokeStyle = (dt % 10 === 0) ? '#444' : (dt % 5 === 0 ? '#666' : '#333');
+    ctx.strokeStyle = (dt % 10 === 0) ? '#a67c3d' : (dt % 5 === 0 ? '#c9a24d' : '#e3d0b0');
     ctx.lineWidth   = (dt % 10 === 0) ? 0.7   : 0.4;
     ctx.stroke();
   }
@@ -280,9 +280,9 @@ function drawWheel(data) {
       ctx.arc(cx, cy, nakR, na1, na2, true);
       ctx.arc(cx, cy, nakInner, na2, na1, false);
       ctx.closePath();
-      ctx.fillStyle = ni % 2 === 0 ? '#2a2a2a' : '#252525';
+      ctx.fillStyle = ni % 2 === 0 ? '#eee6f5' : '#f6e8d6';
       ctx.fill();
-      ctx.strokeStyle = '#333333'; ctx.lineWidth = 0.3; ctx.stroke();
+      ctx.strokeStyle = '#d8c3ac'; ctx.lineWidth = 0.3; ctx.stroke();
 
       var nMid = lon2a(ni * nakSpan + nakSpan / 2);
       var nMr = (nakR + nakInner) / 2;
@@ -292,7 +292,7 @@ function drawWheel(data) {
       ctx.rotate(nMid + Math.PI / 2);
       ctx.font = Math.round(R * 0.042) + 'px sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#787878';
+      ctx.fillStyle = '#9c8577';
       ctx.fillText(NAK_NAMES[ni], 0, 0);
       ctx.restore();
     }
@@ -300,7 +300,7 @@ function drawWheel(data) {
 
   // ── merged ring inner edge (aspect circle)
   ctx.beginPath(); ctx.arc(cx, cy, r1, 0, 2*Math.PI);
-  ctx.strokeStyle = '#484848'; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.strokeStyle = '#d3b78e'; ctx.lineWidth = 0.5; ctx.stroke();
 
   // ── house cusp tick lines (r1 -> r3)
   var cusps = data.bodies.filter(function(b){ return b.Body.indexOf('House Cusp') !== -1; });
@@ -309,7 +309,7 @@ function drawWheel(data) {
     var cp1 = pt(r1, ca), cp2 = pt(r3, ca);
     ctx.beginPath();
     ctx.moveTo(cp1[0], cp1[1]); ctx.lineTo(cp2[0], cp2[1]);
-    ctx.strokeStyle = '#484848'; ctx.lineWidth = 0.5; ctx.stroke();
+    ctx.strokeStyle = '#d3b78e'; ctx.lineWidth = 0.5; ctx.stroke();
   });
 
   // ── house numbers in the house band
@@ -324,7 +324,7 @@ function drawWheel(data) {
     var hp = pt(hR, hMid);
     ctx.font = Math.round(R * 0.05) + 'px sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#888';
+    ctx.fillStyle = '#8a6f57';
     ctx.fillText(String(houseNum), hp[0], hp[1]);
   }
 
@@ -339,7 +339,7 @@ function drawWheel(data) {
     var ap = pt(r3, aa);
     ctx.beginPath();
     ctx.moveTo(ip[0], ip[1]); ctx.lineTo(ap[0], ap[1]);
-    ctx.strokeStyle = '#222'; ctx.lineWidth = 1.0; ctx.stroke();
+    ctx.strokeStyle = '#d8c3ac'; ctx.lineWidth = 1.0; ctx.stroke();
 
     var lp = pt(r3 - R * 0.06, aa);
     var rot = aa;
@@ -350,14 +350,14 @@ function drawWheel(data) {
     ctx.translate(lp[0], lp[1]);
     ctx.rotate(rot);
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.lineWidth = 3; ctx.strokeStyle = '#0a0a0a';
+    ctx.lineWidth = 3; ctx.strokeStyle = '#fbf3ea';
     ctx.font = 'bold ' + fs + 'px sans-serif';
     ctx.strokeText(name, 0, -fs * 0.65);
-    ctx.fillStyle = '#c0c0c0';
+    ctx.fillStyle = '#4a3c3f';
     ctx.fillText(name, 0, -fs * 0.65);
     ctx.font = (fs - 1) + 'px sans-serif';
     ctx.strokeText(degStr, 0, fs * 0.65);
-    ctx.fillStyle = '#555';
+    ctx.fillStyle = '#5c4c50';
     ctx.fillText(degStr, 0, fs * 0.65);
     ctx.restore();
   });
@@ -383,7 +383,7 @@ function drawWheel(data) {
   placements.forEach(function(it){
     var t1 = pt(r3, it.a), t2 = pt(it.rSym + R*0.038, it.a);
     ctx.beginPath(); ctx.moveTo(t1[0], t1[1]); ctx.lineTo(t2[0], t2[1]);
-    ctx.strokeStyle = '#404040'; ctx.lineWidth = 0.5; ctx.stroke();
+    ctx.strokeStyle = '#e4d3b6'; ctx.lineWidth = 0.5; ctx.stroke();
   });
   placements.forEach(function(it) {
     var p = it.p, a = it.a;
@@ -393,7 +393,7 @@ function drawWheel(data) {
     ctx.rotate(a + Math.PI / 2);
     ctx.font = 'bold ' + Math.round(R * 0.088) + 'px serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#d0d0d0';
+    ctx.fillStyle = '#4a3c3f';
     ctx.fillText(p.Symbol, 0, 0);
     ctx.restore();
     var dd = p['Longitude (°)'] % 30;
@@ -408,7 +408,7 @@ function drawWheel(data) {
     ctx.rotate(a + flip);
     ctx.font = Math.round(R * 0.032) + 'px sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = p.Motion === 'R' ? '#c0392b' : '#444';
+    ctx.fillStyle = p.Motion === 'R' ? '#c17a68' : '#a67c3d';
     ctx.fillText(lbl, 0, 0);
     ctx.restore();
   });
@@ -470,12 +470,12 @@ function drawWheel(data) {
     var inPattern = patternEdges[edgeKey(asp.Body1, asp.Body2)];
     ctx.beginPath();
     ctx.moveTo(ep1[0], ep1[1]); ctx.lineTo(ep2[0], ep2[1]);
-    ctx.strokeStyle = '#d8d8d8';
+    ctx.strokeStyle = '#c3a05a';
     var hasActivePatterns = Object.keys(patternEdges).length > 0;
     if (inPattern) {
       ctx.lineWidth = Math.max(1.5, closeness * 3);
       ctx.globalAlpha = 0.3 + closeness * 0.7;
-      ctx.shadowColor = '#ffffff';
+      ctx.shadowColor = '#f3e0b8';
       ctx.shadowBlur = 4;
       ctx.stroke();
       ctx.shadowBlur = 0;
@@ -503,7 +503,7 @@ function drawWheel(data) {
     ctx.save();
     ctx.beginPath();
     ctx.arc(cx, cy, rArc, aEnd2, aStart2, false);
-    ctx.strokeStyle = '#2471a3';
+    ctx.strokeStyle = '#7fa6c4';
     ctx.lineWidth = 5;
     ctx.globalAlpha = 0.22;
     ctx.stroke();
@@ -514,7 +514,7 @@ function drawWheel(data) {
       var ip2 = pt(rArc - R*0.04, aa), op2 = pt(rArc + R*0.04, aa);
       ctx.beginPath();
       ctx.moveTo(ip2[0], ip2[1]); ctx.lineTo(op2[0], op2[1]);
-      ctx.strokeStyle = '#2471a3'; ctx.lineWidth = 1.2; ctx.globalAlpha = 0.7;
+      ctx.strokeStyle = '#7fa6c4'; ctx.lineWidth = 1.2; ctx.globalAlpha = 0.7;
       ctx.stroke();
       ctx.globalAlpha = 1;
     });
@@ -529,7 +529,7 @@ function drawWheel(data) {
     ctx.rotate(aMid + Math.PI / 2);
     ctx.font = '600 ' + Math.round(R * 0.036) + 'px sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#2471a3';
+    ctx.fillStyle = '#7fa6c4';
     ctx.fillText('☽ ±' + (span / 2).toFixed(1) + '°', 0, 0);
     ctx.restore();
   }
@@ -722,7 +722,7 @@ function renderWordCloud(d) {
   }
   var sorted = traits.slice().sort(function(a,b){ return (b.weight||1) - (a.weight||1); });
   var nCore = Math.min(6, sorted.length);
-  var palette = ['#5a4e3c','#7a644a','#8b7355','#3a8a3a','#c0392b','#2e7e9e','#d4a017','#7d3c98'];
+  var palette = ['#6b5847','#8a6f57','#a8734a','#8fbf9a','#c17a68','#7fb8b0','#c9a24d','#b79bcf'];
   el.innerHTML = sorted.map(function(t, i){
     var isCore = i < nCore;
     var size = isCore ? 12.5 : 9.5;
@@ -863,7 +863,7 @@ function renderHarmDetail(harmonic) {
   if (!row) return;
 
   var name = row.Name && row.Name !== '—' ? row.Name : 'H' + harmonic;
-  var factors = row.Factors ? ' <span style="font-size:10px;color:#9b9185;font-weight:400">(' + row.Factors + ')</span>' : '';
+  var factors = row.Factors ? ' <span style="font-size:10px;color:#9c8b7e;font-weight:400">(' + row.Factors + ')</span>' : '';
 
   var html = '<div class="harm-title">H' + harmonic + ' · ' + name + factors + '</div>';
 
@@ -888,7 +888,7 @@ function renderHarmDetail(harmonic) {
   }
 
   if (row.Source && row.Source !== 'nan') {
-    html += '<div style="font-size:9px;color:#b09e82;margin-top:10px;font-style:italic">' + row.Source + '</div>';
+    html += '<div style="font-size:9px;color:#9c8268;margin-top:10px;font-style:italic">' + row.Source + '</div>';
   }
 
   document.getElementById('harm-detail-right').innerHTML = html;
@@ -914,7 +914,7 @@ function drawHarmMini(data, harmonic) {
   ctx.setTransform(1,0,0,1,0,0);
   ctx.scale(dpr, dpr);
 
-  ctx.fillStyle = '#0a0a0a';
+  ctx.fillStyle = '#fbf3ea';
   ctx.fillRect(0, 0, W, H);
 
   var cx = W/2, cy = H/2;
@@ -941,9 +941,9 @@ function drawHarmMini(data, harmonic) {
     ctx.arc(cx, cy, rSignOut, sa1, sa2, true);
     ctx.arc(cx, cy, rSignIn,  sa2, sa1, false);
     ctx.closePath();
-    ctx.fillStyle = '#252525';
+    ctx.fillStyle = '#f6e8d6';
     ctx.fill();
-    ctx.strokeStyle = '#404040'; ctx.lineWidth = 0.5; ctx.stroke();
+    ctx.strokeStyle = '#e4d3b6'; ctx.lineWidth = 0.5; ctx.stroke();
 
     var midA = lon2a(i * 30 + 15);
     var mr   = (rSignOut + rSignIn) / 2;
@@ -959,7 +959,7 @@ function drawHarmMini(data, harmonic) {
   }
 
   // ── main rings
-  ctx.strokeStyle = '#505050'; ctx.lineWidth = 1;
+  ctx.strokeStyle = '#d3b78e'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(cx, cy, rOuter, 0, 2*Math.PI); ctx.stroke();
   ctx.beginPath(); ctx.arc(cx, cy, rInner, 0, 2*Math.PI); ctx.stroke();
 
@@ -977,11 +977,11 @@ function drawHarmMini(data, harmonic) {
   // Draw aspects in the h-chart. Each planet is at its harmonic-chart
   // position (lon × h mod 360); we check standard aspect angles between them.
   var MINI_ASPECTS = [
-    { deg: 0,   orb: 8, color: '#27ae60' },  // conjunction
-    { deg: 180, orb: 6, color: '#e74c3c' },  // opposition
-    { deg: 120, orb: 5, color: '#3498db' },  // trine
-    { deg: 90,  orb: 4, color: '#e67e22' },  // square
-    { deg: 60,  orb: 3, color: '#9b59b6' },  // sextile
+    { deg: 0,   orb: 8, color: '#8fbf9a' },  // conjunction
+    { deg: 180, orb: 6, color: '#d38a80' },  // opposition
+    { deg: 120, orb: 5, color: '#7fa6c4' },  // trine
+    { deg: 90,  orb: 4, color: '#e0b17a' },  // square
+    { deg: 60,  orb: 3, color: '#b79bcf' },  // sextile
   ];
   var names = Object.keys(bodyLonH);
   for (var i = 0; i < names.length; i++) {
@@ -1028,9 +1028,9 @@ function drawHarmMini(data, harmonic) {
     var sym = b.Symbol || it.name.substring(0, 2);
     ctx.font = 'bold ' + Math.round(R * 0.11) + 'px serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.lineWidth = 3.5; ctx.strokeStyle = '#0a0a0a';
+    ctx.lineWidth = 3.5; ctx.strokeStyle = '#fbf3ea';
     ctx.strokeText(sym, p[0], p[1]);
-    ctx.fillStyle = '#c0c0c0';
+    ctx.fillStyle = '#4a3c3f';
     ctx.fillText(sym, p[0], p[1]);
   });
 
@@ -1044,7 +1044,7 @@ function drawHarmMini(data, harmonic) {
     var ip   = pt(rLine, aa), ap = pt(rSignIn, aa);
     ctx.beginPath();
     ctx.moveTo(ip[0], ip[1]); ctx.lineTo(ap[0], ap[1]);
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.strokeStyle = '#e3d0b0'; ctx.lineWidth = 1.5; ctx.stroke();
 
     var lp  = pt(rOuter - R * 0.035, aa);
     var rot = aa;
@@ -1054,15 +1054,15 @@ function drawHarmMini(data, harmonic) {
     ctx.rotate(rot);
     ctx.font = 'bold ' + Math.round(R * 0.085) + 'px sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.lineWidth = 3; ctx.strokeStyle = '#0a0a0a';
+    ctx.lineWidth = 3; ctx.strokeStyle = '#fbf3ea';
     ctx.strokeText(ANGLE_ABBR[name], 0, 0);
-    ctx.fillStyle = '#b0b0b0';
+    ctx.fillStyle = '#5c4c50';
     ctx.fillText(ANGLE_ABBR[name], 0, 0);
     ctx.restore();
   });
 
   // "Hn" label in the centre so the user knows which harmonic chart this is.
-  ctx.fillStyle = '#b8882a';
+  ctx.fillStyle = '#c3a05a';
   ctx.font = 'bold ' + Math.round(R * 0.22) + 'px sans-serif';
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText('H' + h, cx, cy);
@@ -1258,7 +1258,7 @@ function drawCurrentWheel() { redrawAll(); }
              '<div class="pt-bodies">' + p.bodies.join(' · ') + (p.apex ? ' — apex: '+p.apex : '') + '</div>' +
              '<div class="pt-score">' + Math.round(p.score*100) + '% tight</div>' +
              '<div class="pt-desc">' + p.description + '</div>';
-    }).join('<div style="border-top:1px solid #f0ece7;margin:5px 0"></div>');
+    }).join('<div style="border-top:1px solid #e8dcc9;margin:5px 0"></div>');
     if (!html){ tip.classList.remove('vis'); return; }
     tip.innerHTML = html;
     var cw = cvs.offsetWidth, ch = cvs.offsetHeight;
@@ -1801,7 +1801,7 @@ function synRender(data, nameA, nameB) {
   var overall = sc.overall != null ? sc.overall : 50;
   var circle = document.getElementById('syn-score-circle');
   circle.textContent = Math.round(overall) + '%';
-  circle.style.background = overall >= 65 ? '#27ae60' : overall >= 45 ? '#e67e22' : '#c0392b';
+  circle.style.background = overall >= 65 ? '#8fbf9a' : overall >= 45 ? '#e0b17a' : '#c17a68';
   document.getElementById('syn-score-summary').textContent = sc.summary || '';
   document.getElementById('syn-score-breakdown').innerHTML =
     '<div class="syn-score-row"><span>Harmonious</span><span>' + (sc.harmony || 0).toFixed(1) + '</span></div>' +
@@ -1820,13 +1820,13 @@ function synRender(data, nameA, nameB) {
     var tr = document.createElement('tr');
     tr.innerHTML =
       '<td><b>' + asp.Body1 + '</b></td>' +
-      '<td style="text-align:center;color:' + '#a0a0a0' + '">' +
+      '<td style="text-align:center;color:' + '#8a7368' + '">' +
         (asp.aspect_symbol || '') + ' <span style="font-size:10px">' + asp.Aspect + '</span></td>' +
       '<td><b>' + asp.Body2 + '</b></td>' +
       '<td class="num">' + orb + '°</td>' +
       '<td class="num"><div style="display:flex;align-items:center;gap:4px;justify-content:flex-end">' +
-        '<div style="width:36px;height:5px;background:#1e1e1e;border-radius:2px;overflow:hidden">' +
-          '<div style="width:' + closePct + '%;height:100%;background:' + '#b8882a' + '"></div>' +
+        '<div style="width:36px;height:5px;background:#ecdfc8;border-radius:2px;overflow:hidden">' +
+          '<div style="width:' + closePct + '%;height:100%;background:' + '#c3a05a' + '"></div>' +
         '</div>' + closePct + '%</div></td>';
     tbody.appendChild(tr);
   });
@@ -1934,7 +1934,7 @@ function synRenderHarmDetail(harmonic) {
   if (!row || !detailEl) return;
 
   var name = row.Name && row.Name !== '—' ? row.Name : 'H' + harmonic;
-  var factors = row.Factors ? ' <span style="font-size:10px;color:#9b9185;font-weight:400">(' + row.Factors + ')</span>' : '';
+  var factors = row.Factors ? ' <span style="font-size:10px;color:#9c8b7e;font-weight:400">(' + row.Factors + ')</span>' : '';
   var html = '<div class="harm-title">H' + harmonic + ' · ' + name + factors + '</div>';
 
   var meaning = row.NatalMeaning && row.NatalMeaning !== 'nan' ? row.NatalMeaning : '';
@@ -1954,7 +1954,7 @@ function synRenderHarmDetail(harmonic) {
   }
 
   if (row.Source && row.Source !== 'nan') {
-    html += '<div style="font-size:9px;color:#b09e82;margin-top:8px;font-style:italic">' + row.Source + '</div>';
+    html += '<div style="font-size:9px;color:#9c8268;margin-top:8px;font-style:italic">' + row.Source + '</div>';
   }
 
   detailEl.innerHTML = html;
@@ -2052,7 +2052,7 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
   function lon2a(lon) { return -((lon - descA) * Math.PI / 180); }
 
   // White background (natal style)
-  ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#fbf3ea'; ctx.fillRect(0, 0, W, H);
 
   // Zodiac band — white cells, hairline separators, element-colored sign names (natal style)
   for (var s = 0; s < 12; s++) {
@@ -2062,8 +2062,8 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.arc(cx, cy, rZodOut, aStart, aEnd, true);
     ctx.arc(cx, cy, rZodIn, aEnd, aStart, false);
     ctx.closePath();
-    ctx.fillStyle = '#252525'; ctx.fill();
-    ctx.strokeStyle = '#585858'; ctx.lineWidth = 0.6; ctx.stroke();
+    ctx.fillStyle = '#f6e8d6'; ctx.fill();
+    ctx.strokeStyle = '#c9a24d'; ctx.lineWidth = 0.6; ctx.stroke();
     var midA = lon2a(s * 30 + 15);
     var tr = (rZodIn + rZodOut) / 2;
     ctx.save();
@@ -2085,17 +2085,17 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.beginPath();
     ctx.moveTo(cx + inner * Math.cos(ta), cy + inner * Math.sin(ta));
     ctx.lineTo(cx + rZodOut * Math.cos(ta), cy + rZodOut * Math.sin(ta));
-    ctx.strokeStyle = (dt % 10 === 0) ? '#444' : (dt % 5 === 0 ? '#666' : '#333');
+    ctx.strokeStyle = (dt % 10 === 0) ? '#a67c3d' : (dt % 5 === 0 ? '#c9a24d' : '#e3d0b0');
     ctx.lineWidth   = (dt % 10 === 0) ? 0.7   : 0.4;
     ctx.stroke();
   }
 
   // Ring borders
-  ctx.beginPath(); ctx.arc(cx, cy, rZodOut, 0, 2*Math.PI); ctx.strokeStyle = '#666'; ctx.lineWidth = 1; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rZodIn,  0, 2*Math.PI); ctx.strokeStyle = '#999'; ctx.lineWidth = 0.7; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rBOuter, 0, 2*Math.PI); ctx.strokeStyle = '#484848'; ctx.lineWidth = 0.5; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rBInner, 0, 2*Math.PI); ctx.strokeStyle = '#484848'; ctx.lineWidth = 0.5; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rAspOut, 0, 2*Math.PI); ctx.strokeStyle = '#404040'; ctx.lineWidth = 0.4; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rZodOut, 0, 2*Math.PI); ctx.strokeStyle = '#c9a24d'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rZodIn,  0, 2*Math.PI); ctx.strokeStyle = '#d3b78e'; ctx.lineWidth = 0.7; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rBOuter, 0, 2*Math.PI); ctx.strokeStyle = '#d3b78e'; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rBInner, 0, 2*Math.PI); ctx.strokeStyle = '#d3b78e'; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rAspOut, 0, 2*Math.PI); ctx.strokeStyle = '#e4d3b6'; ctx.lineWidth = 0.4; ctx.stroke();
 
   // House cusps (Person A, dashed)
   var houseCusps = bodiesA.filter(function(b){ return b.Body && b.Body.indexOf('House Cusp') === 0; });
@@ -2104,7 +2104,7 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.beginPath();
     ctx.moveTo(cx + rZodIn * Math.cos(a), cy + rZodIn * Math.sin(a));
     ctx.lineTo(cx + rBInner * 0.85 * Math.cos(a), cy + rBInner * 0.85 * Math.sin(a));
-    ctx.strokeStyle = '#484848'; ctx.lineWidth = 0.5; ctx.setLineDash([2,3]); ctx.stroke();
+    ctx.strokeStyle = '#d3b78e'; ctx.lineWidth = 0.5; ctx.setLineDash([2,3]); ctx.stroke();
     ctx.setLineDash([]);
   });
 
@@ -2155,7 +2155,7 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.beginPath();
     ctx.moveTo(posA.x, posA.y);
     ctx.lineTo(posB.x, posB.y);
-    ctx.strokeStyle = '#c8c8c8';
+    ctx.strokeStyle = '#c3a05a';
     ctx.globalAlpha = 0.1 + (asp.Closeness || 0) * 0.6;
     ctx.lineWidth = 0.4 + (asp.Closeness || 0) * 1.5;
     ctx.stroke();
@@ -2173,7 +2173,7 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.save();
     ctx.translate(cx + r * Math.cos(a), cy + r * Math.sin(a));
     ctx.rotate(a + Math.PI / 2);
-    ctx.fillStyle = '#8b4513';
+    ctx.fillStyle = '#c68f52';
     ctx.font = 'bold 14px serif'; ctx.textAlign = 'center';
     ctx.fillText(b.Symbol || b.Body[0], 0, 5);
     ctx.restore();
@@ -2188,11 +2188,11 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.beginPath();
     ctx.moveTo(cx + rZodIn * Math.cos(a), cy + rZodIn * Math.sin(a));
     ctx.lineTo(cx + rAspOut * 0.9 * Math.cos(a), cy + rAspOut * 0.9 * Math.sin(a));
-    ctx.strokeStyle = '#8b4513'; ctx.lineWidth = 0.8; ctx.stroke();
+    ctx.strokeStyle = '#c68f52'; ctx.lineWidth = 0.8; ctx.stroke();
     ctx.save();
     ctx.translate(cx + rAOuter * 0.97 * Math.cos(a), cy + rAOuter * 0.97 * Math.sin(a));
     ctx.rotate(a + Math.PI/2);
-    ctx.fillStyle = '#8b4513'; ctx.font = 'bold 7px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#c68f52'; ctx.font = 'bold 7px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(ang, 0, 3);
     ctx.restore();
   });
@@ -2206,7 +2206,7 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.save();
     ctx.translate(cx + r * Math.cos(a), cy + r * Math.sin(a));
     ctx.rotate(a + Math.PI / 2);
-    ctx.fillStyle = '#2471a3';
+    ctx.fillStyle = '#7fa6c4';
     ctx.font = 'bold 13px serif'; ctx.textAlign = 'center';
     ctx.fillText(b.Symbol || b.Body[0], 0, 5);
     ctx.restore();
@@ -2214,8 +2214,8 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
 
   // Name labels
   ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'left';
-  ctx.fillStyle = '#8b4513'; ctx.fillText(nameA, 8, 16);
-  ctx.fillStyle = '#2471a3'; ctx.fillText(nameB, 8, 30);
+  ctx.fillStyle = '#c68f52'; ctx.fillText(nameA, 8, 16);
+  ctx.fillStyle = '#7fa6c4'; ctx.fillText(nameB, 8, 30);
 }
 
 // ─── Composite wheel ──────────────────────────────────────────────────────────
@@ -2248,7 +2248,7 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
   function lon2a(lon) { return -((lon - descLon) * Math.PI / 180); }
 
   // White background + natal-style zodiac band
-  ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#fbf3ea'; ctx.fillRect(0, 0, W, H);
 
   for (var s = 0; s < 12; s++) {
     var aStart = lon2a(s * 30), aEnd = lon2a(s * 30 + 30);
@@ -2257,8 +2257,8 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
     ctx.arc(cx, cy, rZodOut, aStart, aEnd, true);
     ctx.arc(cx, cy, rZodIn, aEnd, aStart, false);
     ctx.closePath();
-    ctx.fillStyle = '#252525'; ctx.fill();
-    ctx.strokeStyle = '#585858'; ctx.lineWidth = 0.6; ctx.stroke();
+    ctx.fillStyle = '#f6e8d6'; ctx.fill();
+    ctx.strokeStyle = '#c9a24d'; ctx.lineWidth = 0.6; ctx.stroke();
     var midA = lon2a(s * 30 + 15);
     var tr = (rZodIn + rZodOut) / 2;
     ctx.save();
@@ -2278,14 +2278,14 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
     ctx.beginPath();
     ctx.moveTo(cx + inner * Math.cos(ta), cy + inner * Math.sin(ta));
     ctx.lineTo(cx + rZodOut * Math.cos(ta), cy + rZodOut * Math.sin(ta));
-    ctx.strokeStyle = (dt % 10 === 0) ? '#444' : (dt % 5 === 0 ? '#666' : '#333');
+    ctx.strokeStyle = (dt % 10 === 0) ? '#a67c3d' : (dt % 5 === 0 ? '#c9a24d' : '#e3d0b0');
     ctx.lineWidth = (dt % 10 === 0) ? 0.7 : 0.4;
     ctx.stroke();
   }
 
-  ctx.beginPath(); ctx.arc(cx, cy, rZodOut, 0, 2*Math.PI); ctx.strokeStyle = '#666'; ctx.lineWidth = 1; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rZodIn,  0, 2*Math.PI); ctx.strokeStyle = '#999'; ctx.lineWidth = 0.7; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, rAsp,    0, 2*Math.PI); ctx.strokeStyle = '#404040'; ctx.lineWidth = 0.4; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rZodOut, 0, 2*Math.PI); ctx.strokeStyle = '#c9a24d'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rZodIn,  0, 2*Math.PI); ctx.strokeStyle = '#d3b78e'; ctx.lineWidth = 0.7; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rAsp,    0, 2*Math.PI); ctx.strokeStyle = '#e4d3b6'; ctx.lineWidth = 0.4; ctx.stroke();
 
   function compBodyVis(name) {
     if (name === 'Desc') return COMP_BODY['Asc'] !== false;
@@ -2314,7 +2314,7 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
     ctx.beginPath();
     ctx.moveTo(cx + rAsp * Math.cos(aA), cy + rAsp * Math.sin(aA));
     ctx.lineTo(cx + rAsp * Math.cos(aB), cy + rAsp * Math.sin(aB));
-    ctx.strokeStyle = '#c8c8c8';
+    ctx.strokeStyle = '#c3a05a';
     ctx.globalAlpha = 0.1 + (asp.Closeness || 0) * 0.6;
     ctx.lineWidth = 0.4 + (asp.Closeness || 0) * 1.0;
     ctx.stroke();
@@ -2332,11 +2332,11 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
       ctx.beginPath();
       ctx.moveTo(cx + rZodIn * Math.cos(a), cy + rZodIn * Math.sin(a));
       ctx.lineTo(cx + rAsp * 0.96 * Math.cos(a), cy + rAsp * 0.96 * Math.sin(a));
-      ctx.strokeStyle = '#888888'; ctx.lineWidth = 0.8; ctx.stroke();
+      ctx.strokeStyle = '#d3b78e'; ctx.lineWidth = 0.8; ctx.stroke();
       ctx.save();
       ctx.translate(cx + (rZodIn - 8) * Math.cos(a), cy + (rZodIn - 8) * Math.sin(a));
       ctx.rotate(a + Math.PI/2);
-      ctx.fillStyle = '#b0b0b0'; ctx.font = 'bold 7px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = '#5c4c50'; ctx.font = 'bold 7px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(b.Body, 0, 3);
       ctx.restore();
       return;
@@ -2344,14 +2344,14 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
     ctx.save();
     ctx.translate(cx + rPlanet * Math.cos(a), cy + rPlanet * Math.sin(a));
     ctx.rotate(a + Math.PI/2);
-    ctx.fillStyle = '#c0c0c0';
+    ctx.fillStyle = '#4a3c3f';
     ctx.font = 'bold 12px serif'; ctx.textAlign = 'center';
     ctx.fillText(b.Symbol || b.Body[0], 0, 4);
     ctx.restore();
   });
 
   // Title
-  ctx.font = 'bold 10px sans-serif'; ctx.fillStyle = '#a0a0a0'; ctx.textAlign = 'center';
+  ctx.font = 'bold 10px sans-serif'; ctx.fillStyle = '#8a7368'; ctx.textAlign = 'center';
   ctx.fillText('Composite', cx, 14);
 }
 
