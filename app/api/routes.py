@@ -12,7 +12,7 @@ from fastapi.responses import HTMLResponse, Response
 from app.api.schemas import BirthMomentResponse, ChartRequest, ChartResponse, HarmonicsRequest, SynastryRequest, SynastryHarmonicsRequest, SynastryResponse
 from app.core.chart import compute_chart
 from app.core.geocoding import LocationNotFound
-from app.core.notify import notify_new_chart
+from app.core.notify import notify_new_chart, notify_new_synastry
 from app.core.visualization import generate_wordclouds, generate_zodiac_chart
 
 logger = logging.getLogger(__name__)
@@ -248,7 +248,7 @@ def chart_wordcloud(req: ChartRequest) -> Response:
 
 
 @router.post("/synastry", response_model=SynastryResponse)
-def compute_synastry(req: SynastryRequest) -> SynastryResponse:
+def compute_synastry(req: SynastryRequest, background: BackgroundTasks) -> SynastryResponse:
     """Compute synastry: cross-aspects, composite chart, and compatibility score."""
     try:
         chart_a = compute_chart(
@@ -291,6 +291,15 @@ def compute_synastry(req: SynastryRequest) -> SynastryResponse:
 
     comp_aspects = calculate_aspects(comp_bodies, base_orb=req.base_orb, orb_formula=req.orb_formula)
     score = synastry_score(cross_df)
+
+    # Owner notification (no-ops if env vars unset)
+    background.add_task(
+        notify_new_synastry,
+        person_a_datetime=req.person_a.birth_datetime.isoformat(),
+        person_a_location=req.person_a.location,
+        person_b_datetime=req.person_b.birth_datetime.isoformat(),
+        person_b_location=req.person_b.location,
+    )
 
     def _chart_resp(chart):
         return ChartResponse(

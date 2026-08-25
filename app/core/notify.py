@@ -31,16 +31,26 @@ def notify_new_chart(
     zodiac_system: str | None = None,
     house_system: str | None = None,
 ) -> None:
-    if settings.NOTIFY_PROVIDER == "gmail":
-        _send_gmail(birth_datetime, location, zodiac_system, house_system)
-    elif settings.NOTIFY_PROVIDER == "resend":
-        _send_resend(birth_datetime, location, zodiac_system, house_system)
-    elif settings.NOTIFY_PROVIDER in {"slack", "discord", "webhook"}:
-        _send_webhook(birth_datetime, location, zodiac_system, house_system)
-    # Else: notifications disabled — quietly skip.
+    lines = _format_lines(birth_datetime, location, zodiac_system, house_system)
+    _dispatch("New chart calculated", lines)
 
 
-def _format_lines(birth_datetime, location, zodiac_system, house_system) -> list[str]:
+def notify_new_synastry(
+    person_a_datetime: str,
+    person_a_location: str,
+    person_b_datetime: str,
+    person_b_location: str,
+) -> None:
+    lines = [
+        "Person A:",
+        *("  " + line for line in _format_lines(person_a_datetime, person_a_location)),
+        "Person B:",
+        *("  " + line for line in _format_lines(person_b_datetime, person_b_location)),
+    ]
+    _dispatch("New synastry chart calculated", lines)
+
+
+def _format_lines(birth_datetime, location, zodiac_system=None, house_system=None) -> list[str]:
     lines = [f"Date / time: {birth_datetime}", f"Location: {location}"]
     if zodiac_system:
         lines.append(f"Zodiac: {zodiac_system}")
@@ -49,31 +59,41 @@ def _format_lines(birth_datetime, location, zodiac_system, house_system) -> list
     return lines
 
 
-def _send_gmail(birth_datetime, location, zodiac_system, house_system) -> None:
+def _dispatch(subject: str, lines: list[str]) -> None:
+    if settings.NOTIFY_PROVIDER == "gmail":
+        _send_gmail(subject, lines)
+    elif settings.NOTIFY_PROVIDER == "resend":
+        _send_resend(subject, lines)
+    elif settings.NOTIFY_PROVIDER in {"slack", "discord", "webhook"}:
+        _send_webhook(subject, lines)
+    # Else: notifications disabled — quietly skip.
+
+
+def _send_gmail(subject: str, lines: list[str]) -> None:
     if not (settings.GMAIL_USER and settings.GMAIL_APP_PASSWORD and settings.OWNER_EMAIL):
         return
     msg = EmailMessage()
     msg["From"] = settings.GMAIL_USER
     msg["To"] = settings.OWNER_EMAIL
-    msg["Subject"] = "New chart calculated"
-    msg.set_content("\n".join(_format_lines(birth_datetime, location, zodiac_system, house_system)))
+    msg["Subject"] = subject
+    msg.set_content("\n".join(lines))
     try:
         with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as smtp:
             smtp.starttls()
             smtp.login(settings.GMAIL_USER, settings.GMAIL_APP_PASSWORD)
             smtp.send_message(msg)
     except Exception as exc:  # noqa: BLE001
-        logger.warning("notify_new_chart gmail exception: %s", exc)
+        logger.warning("notify gmail exception: %s", exc)
 
 
-def _send_resend(birth_datetime, location, zodiac_system, house_system) -> None:
+def _send_resend(subject: str, lines: list[str]) -> None:
     if not (settings.RESEND_API_KEY and settings.OWNER_EMAIL):
         return
     payload = {
         "from": settings.NOTIFY_FROM,
         "to": settings.OWNER_EMAIL,
-        "subject": "New chart calculated",
-        "text": "\n".join(_format_lines(birth_datetime, location, zodiac_system, house_system)),
+        "subject": subject,
+        "text": "\n".join(lines),
     }
     _post_json(
         "https://api.resend.com/emails",
@@ -82,12 +102,10 @@ def _send_resend(birth_datetime, location, zodiac_system, house_system) -> None:
     )
 
 
-def _send_webhook(birth_datetime, location, zodiac_system, house_system) -> None:
+def _send_webhook(subject: str, lines: list[str]) -> None:
     if not settings.NOTIFY_WEBHOOK_URL:
         return
-    text = "New chart calculated\n" + "\n".join(
-        _format_lines(birth_datetime, location, zodiac_system, house_system)
-    )
+    text = subject + "\n" + "\n".join(lines)
     # Slack and Discord both accept {"text": ...} on incoming webhooks.
     _post_json(settings.NOTIFY_WEBHOOK_URL, {"text": text}, {})
 
@@ -100,8 +118,8 @@ def _post_json(url: str, body: dict, extra_headers: dict) -> None:
     try:
         with urllib.request.urlopen(req, timeout=5) as resp:
             if resp.status >= 400:
-                logger.warning("notify_new_chart non-2xx: %s", resp.status)
+                logger.warning("notify non-2xx: %s", resp.status)
     except urllib.error.HTTPError as exc:
-        logger.warning("notify_new_chart http error: %s %s", exc.code, exc.reason)
+        logger.warning("notify http error: %s %s", exc.code, exc.reason)
     except Exception as exc:  # noqa: BLE001
-        logger.warning("notify_new_chart exception: %s", exc)
+        logger.warning("notify exception: %s", exc)
