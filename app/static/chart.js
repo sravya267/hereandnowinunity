@@ -153,8 +153,13 @@ function vibRender(data) {
 // ─── Wheel drawing ────────────────────────────────────────────────────────────
 var SIGN_NAMES_W = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 var SIGN_ABBR_W  = ['Ari','Tau','Gem','Can','Leo','Vir','Lib','Sco','Sag','Cap','Aqu','Pis'];
-// Element-tinted glyphs: Fire=red, Earth=green, Air=amber, Water=blue
-var SIGN_GLYPH_COLS = ['#6b6b6b','#6b6b6b','#6b6b6b','#6b6b6b','#6b6b6b','#6b6b6b','#6b6b6b','#6b6b6b','#6b6b6b','#6b6b6b','#6b6b6b','#6b6b6b'];
+// Element-tinted glyphs: Fire=red, Earth=green, Air=orange, Water=blue
+var EL_FIRE = '#c0574c', EL_EARTH = '#5f9e6f', EL_AIR = '#d68a3e', EL_WATER = '#4a80ad';
+var SIGN_GLYPH_COLS = [
+  EL_FIRE, EL_EARTH, EL_AIR, EL_WATER,   // Aries, Taurus, Gemini, Cancer
+  EL_FIRE, EL_EARTH, EL_AIR, EL_WATER,   // Leo, Virgo, Libra, Scorpio
+  EL_FIRE, EL_EARTH, EL_AIR, EL_WATER    // Sagittarius, Capricorn, Aquarius, Pisces
+];
 var NAK_NAMES = ['Ashw','Bhar','Krit','Rohi','Mrig','Ardr','Puna','Push','Ashl','Magh','PPha','UPha','Hast','Chit','Swat','Vish','Anur','Jyes','Mool','PAsh','UAsh','Shra','Dhan','Shat','PBha','UBha','Reva'];
 
 // Aspect catalog. major=true for the 5 major aspects, positive=true for harmonious.
