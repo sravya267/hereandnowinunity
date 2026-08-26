@@ -1091,7 +1091,7 @@ function drawHarmMini(data, harmonic) {
   });
 
   // "Hn" label in the centre so the user knows which harmonic chart this is.
-  ctx.fillStyle = '#c3a05a';
+  ctx.fillStyle = '#3a6da0';
   ctx.font = 'bold ' + Math.round(R * 0.22) + 'px sans-serif';
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText('H' + h, cx, cy);
@@ -1855,7 +1855,7 @@ function synRender(data, nameA, nameB) {
       '<td class="num">' + orb + '°</td>' +
       '<td class="num"><div style="display:flex;align-items:center;gap:4px;justify-content:flex-end">' +
         '<div style="width:36px;height:5px;background:#ecdfc8;border-radius:2px;overflow:hidden">' +
-          '<div style="width:' + closePct + '%;height:100%;background:' + '#c3a05a' + '"></div>' +
+          '<div style="width:' + closePct + '%;height:100%;background:' + '#3a6da0' + '"></div>' +
         '</div>' + closePct + '%</div></td>';
     tbody.appendChild(tr);
   });
