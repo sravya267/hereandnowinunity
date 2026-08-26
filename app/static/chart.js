@@ -686,20 +686,6 @@ function copyInfo() {
   });
 }
 
-// ─── Tab meta caption ────────────────────────────────────────────────────────
-function buildMeta(d) {
-  var items = [
-    ['Location', d.location],
-    ['Coords', d.moment.latitude.toFixed(2) + ', ' + d.moment.longitude.toFixed(2)],
-    ['Tz', d.moment.timezone],
-    ['Sys', d.zodiac_system]
-  ];
-  if (d.ayanamsa != null) items.push(['Ayan', fmtDeg(d.ayanamsa)]);
-  document.getElementById('tab-meta').innerHTML = items.map(function(x){
-    return '<span>' + x[0] + ': <b>' + x[1] + '</b></span>';
-  }).join('');
-}
-
 // ─── Tab switcher ────────────────────────────────────────────────────────────
 (function initTabs(){
   var tabs = document.querySelectorAll('.tab');
@@ -1445,7 +1431,6 @@ function fetchNatalHarmonics(d, chartParams) {
         spinner.style.display = 'none'; btn.disabled = false;
         LAST_DATA = d;
         LAST_HARM_PARAMS = harmParams;
-        buildMeta(d);
         buildInfoBox(d);
         renderWordCloud(d);
         if (natalCont) natalCont.style.display = 'block';
