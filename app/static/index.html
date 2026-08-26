@@ -212,7 +212,7 @@
         <div class="card card-quad">
           <div class="card-hdr">
             <span class="card-hdr-title">Harmonic Resonance</span>
-            <span id="harm-loading" style="font-size:10px;color:#9c8268;display:none">computing&hellip;</span>
+            <span id="harm-loading" style="font-size:10px;color:#767676;display:none">computing&hellip;</span>
           </div>
           <div class="card-body" id="harm-body">
             <div id="harm-empty" class="harm-empty">Calculate a chart to see resonant harmonics.</div>
@@ -292,7 +292,7 @@
           <div class="syn-tb-sep"></div>
           <label>Orb</label>
           <input type="range" class="orb-slider" id="syn-orb-val" value="8" min="0.5" max="10" step="0.5" style="width:80px">
-          <span id="syn-orb-readout" style="font-size:11px;color:#9c8b7e;min-width:28px">8.0°</span>
+          <span id="syn-orb-readout" style="font-size:11px;color:#8a8a8a;min-width:28px">8.0°</span>
           <button type="button" class="btn-calc" id="syn-compute-btn" onclick="synCompute()">Compare</button>
         </div>
       </div>
@@ -479,7 +479,7 @@
           <div class="card syn-harm-card">
             <div class="card-hdr">
               <span class="card-hdr-title">Cross-Chart Harmonics</span>
-              <span id="syn-harm-loading" style="font-size:10px;color:#9c8268;display:none">computing&hellip;</span>
+              <span id="syn-harm-loading" style="font-size:10px;color:#767676;display:none">computing&hellip;</span>
             </div>
             <div class="card-body" id="syn-harm-body">
               <div id="syn-harm-empty" class="harm-empty">Loading&hellip;</div>
@@ -496,7 +496,7 @@
                 </div>
                 <div class="harm-list-hdr" id="syn-harm-list-hdr">Ranked by pair count &middot; click for meaning</div>
                 <div id="syn-harm-list" class="harm-list"></div>
-                <div id="syn-harm-detail" class="harm-detail-right" style="margin-top:8px;border-top:1px solid #e8dcc9;padding-top:6px"></div>
+                <div id="syn-harm-detail" class="harm-detail-right" style="margin-top:8px;border-top:1px solid #dcdcdc;padding-top:6px"></div>
               </div>
             </div>
           </div>
@@ -506,7 +506,7 @@
           <div class="card syn-cross-asp-card">
             <div class="card-hdr">
               <span class="card-hdr-title">Cross-Aspects</span>
-              <span style="font-size:10px;color:#9c8b7e" id="syn-asp-count"></span>
+              <span style="font-size:10px;color:#8a8a8a" id="syn-asp-count"></span>
             </div>
             <div class="card-body" style="overflow-y:auto;max-height:320px">
               <table class="vib-table" id="syn-cross-asp-table">
@@ -534,13 +534,13 @@
 
         <div class="fp-hdr" style="margin-top:0">Orb settings</div>
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-          <span style="font-size:11px;color:#6b5847;flex:0 0 36px">Base</span>
-          <input type="number" id="vib-base-orb" value="8" min="0.5" max="30" step="0.5" style="width:52px;padding:2px 4px;border:1px solid #e8dcc9;border-radius:3px;font-family:inherit;font-size:11px">
-          <span style="font-size:10px;color:#9c8b7e">&deg;</span>
+          <span style="font-size:11px;color:#6b6b6b;flex:0 0 36px">Base</span>
+          <input type="number" id="vib-base-orb" value="8" min="0.5" max="30" step="0.5" style="width:52px;padding:2px 4px;border:1px solid #dcdcdc;border-radius:3px;font-family:inherit;font-size:11px">
+          <span style="font-size:10px;color:#8a8a8a">&deg;</span>
         </div>
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-          <span style="font-size:11px;color:#6b5847;flex:0 0 36px">Formula</span>
-          <select id="vib-orb-formula" style="flex:1;padding:2px 4px;border:1px solid #e8dcc9;border-radius:3px;font-family:inherit;font-size:11px;background:#fffdfa;color:#6b5847">
+          <span style="font-size:11px;color:#6b6b6b;flex:0 0 36px">Formula</span>
+          <select id="vib-orb-formula" style="flex:1;padding:2px 4px;border:1px solid #dcdcdc;border-radius:3px;font-family:inherit;font-size:11px;background:#ffffff;color:#6b6b6b">
             <option value="sqrt">/ &radic;h  (default)</option>
             <option value="linear">/ h  (strict)</option>
             <option value="fixed">fixed</option>
@@ -593,7 +593,7 @@
                 <th>Name &middot; Factors</th>
                 <th class="num">Pairs</th>
                 <th class="num">Tightest</th>
-                <th>Planet pairs  <span style="font-weight:400;color:#9c8b7e">(natal orb&deg;)</span></th>
+                <th>Planet pairs  <span style="font-weight:400;color:#8a8a8a">(natal orb&deg;)</span></th>
               </tr>
             </thead>
             <tbody id="vib-tbody"></tbody>
