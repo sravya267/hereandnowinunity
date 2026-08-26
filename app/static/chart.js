@@ -162,6 +162,56 @@ var SIGN_GLYPH_COLS = [
 ];
 var NAK_NAMES = ['Ashw','Bhar','Krit','Rohi','Mrig','Ardr','Puna','Push','Ashl','Magh','PPha','UPha','Hast','Chit','Swat','Vish','Anur','Jyes','Mool','PAsh','UAsh','Shra','Dhan','Shat','PBha','UBha','Reva'];
 
+// ─── Essential dignity: exalted / own sign / fall ──────────────────────────────
+// Classical exaltations & falls apply only to the 7 traditional planets.
+// Domicile includes both the traditional and modern ruler where they differ
+// (e.g. Mars & Pluto both "own" Scorpio).
+var PLANET_DOMICILE = {
+  Sun: ['Leo'], Moon: ['Cancer'],
+  Mercury: ['Gemini','Virgo'], Venus: ['Taurus','Libra'],
+  Mars: ['Aries','Scorpio'], Jupiter: ['Sagittarius','Pisces'],
+  Saturn: ['Capricorn','Aquarius'],
+  Uranus: ['Aquarius'], Neptune: ['Pisces'], Pluto: ['Scorpio']
+};
+var PLANET_EXALTED = {
+  Sun:'Aries', Moon:'Taurus', Mercury:'Virgo', Venus:'Pisces',
+  Mars:'Capricorn', Jupiter:'Cancer', Saturn:'Libra'
+};
+var PLANET_FALL = {
+  Sun:'Libra', Moon:'Scorpio', Mercury:'Pisces', Venus:'Virgo',
+  Mars:'Cancer', Jupiter:'Capricorn', Saturn:'Aries'
+};
+var DIGNITY_STYLE = {
+  exalted:  { color:'#c9a24d', dash:[] },
+  domicile: { color:'#5a86ab', dash:[] },
+  fall:     { color:'#c9a0a0', dash:[3,2] }
+};
+var DIGNITY_LABEL = { exalted:'Exalted', domicile:'Own Sign', fall:'Fall' };
+var DIGNITY_DESC = {
+  exalted:  'Exceptionally strong here — expresses its energy with confidence and ease.',
+  domicile: 'At home in this sign — expresses its natural energy directly and comfortably.',
+  fall:     "Weakened here — this placement's energy comes with more difficulty or discomfort."
+};
+function getDignity(body, sign) {
+  if (!sign) return null;
+  if (PLANET_EXALTED[body] === sign) return 'exalted';
+  if (PLANET_DOMICILE[body] && PLANET_DOMICILE[body].indexOf(sign) !== -1) return 'domicile';
+  if (PLANET_FALL[body] === sign) return 'fall';
+  return null;
+}
+function drawDignityRing(ctx, x, y, r, status) {
+  var st = DIGNITY_STYLE[status];
+  if (!st) return;
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, 2 * Math.PI);
+  ctx.setLineDash(st.dash);
+  ctx.strokeStyle = st.color;
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+  ctx.restore();
+}
+
 // Aspect catalog. major=true for the 5 major aspects, positive=true for harmonious.
 // inAspPanel=false aspects are computed by the backend and used by the
 // Vibrational Resonance card, but they don't appear as checkboxes in the
@@ -237,11 +287,13 @@ ASP_TYPES.forEach(function(a){ ASP_FILTER[a.name] = a.defaultOn; });
 var LAST_DATA = null;
 var LAST_HARM_PARAMS = null; // params used for the last /harmonics fetch
 var PAT_SEGMENTS = []; // aspect segments belonging to active patterns, set by drawWheel
+var DIGNITY_POINTS = []; // {x,y,r,body,sign,status} for hover tooltips, set by drawWheel
 var UNKNOWN_TIME_MOON_RANGE = null; // {start: lon°, end: lon°} when unknown-time is active
 
 function drawWheel(data) {
   if (!data) return;
   PAT_SEGMENTS = [];
+  DIGNITY_POINTS = [];
   var cvs = document.getElementById('wheel-canvas');
   var parent = cvs.parentElement;
   var dpr = window.devicePixelRatio || 1;
@@ -435,6 +487,12 @@ function drawWheel(data) {
   placements.forEach(function(it) {
     var p = it.p, a = it.a;
     var ssp = pt(it.rSym, a);
+    var dig = getDignity(p.Body, p.Sign);
+    if (dig) {
+      var ringR = R * 0.066;
+      drawDignityRing(ctx, ssp[0], ssp[1], ringR, dig);
+      DIGNITY_POINTS.push({ x: ssp[0], y: ssp[1], r: ringR + 3, body: p.Body, sign: p.Sign, status: dig });
+    }
     ctx.save();
     ctx.translate(ssp[0], ssp[1]);
     ctx.rotate(a + Math.PI / 2);
@@ -614,7 +672,9 @@ function buildInfoBox(d) {
     var motion = p.Motion === 'R' ? '<span class="retro"> (R)</span>' : ' (D)';
     var house  = p.House ? ' &bull; H' + p.House : '';
     var nak    = (isSid && p.Nakshatra) ? ' &bull; ' + p.Nakshatra + ' P' + p.Pada : '';
-    html += sym + ' ' + p.Body + motion + '  ' + p.Sign + ' ' + signDeg(p['Longitude (°)']) + house + nak + '\n';
+    var dig    = getDignity(p.Body, p.Sign);
+    var digTxt = dig ? ' &bull; ' + DIGNITY_LABEL[dig] : '';
+    html += sym + ' ' + p.Body + motion + '  ' + p.Sign + ' ' + signDeg(p['Longitude (°)']) + house + nak + digTxt + '\n';
   });
 
   if (angles.length) {
@@ -1282,22 +1342,40 @@ function drawCurrentWheel() { redrawAll(); }
   }
 
   cvs.addEventListener('mousemove', function(e){
-    if (!PAT_SEGMENTS.length){ tip.classList.remove('vis'); return; }
     var mx = e.offsetX, my = e.offsetY;
-    var best = null, bd = 14;
-    for (var i = 0; i < PAT_SEGMENTS.length; i++){
-      var s = PAT_SEGMENTS[i];
-      var d = distSeg(mx, my, s.x1, s.y1, s.x2, s.y2);
-      if (d < bd){ bd = d; best = s; }
+    var html = null;
+
+    // Dignity rings are small, precise targets — check them first.
+    for (var j = 0; j < DIGNITY_POINTS.length; j++) {
+      var dp = DIGNITY_POINTS[j];
+      var dd = Math.sqrt((mx-dp.x)*(mx-dp.x) + (my-dp.y)*(my-dp.y));
+      if (dd < dp.r) {
+        html = '<div class="pt-type"><span style="color:' + DIGNITY_STYLE[dp.status].color + '">●</span> ' +
+               dp.body + ' — ' + DIGNITY_LABEL[dp.status] + '</div>' +
+               '<div class="pt-bodies">' + dp.sign + '</div>' +
+               '<div class="pt-desc">' + DIGNITY_DESC[dp.status] + '</div>';
+        break;
+      }
     }
-    if (!best){ tip.classList.remove('vis'); return; }
-    var pats = best.pats || [];
-    var html = pats.map(function(p){
-      return '<div class="pt-type">' + (PAT_ICONS[p.type]||'◉') + ' ' + p.type + '</div>' +
-             '<div class="pt-bodies">' + p.bodies.join(' · ') + (p.apex ? ' — apex: '+p.apex : '') + '</div>' +
-             '<div class="pt-score">' + Math.round(p.score*100) + '% tight</div>' +
-             '<div class="pt-desc">' + p.description + '</div>';
-    }).join('<div style="border-top:1px solid #e2e2e2;margin:5px 0"></div>');
+
+    if (!html && PAT_SEGMENTS.length) {
+      var best = null, bd = 14;
+      for (var i = 0; i < PAT_SEGMENTS.length; i++){
+        var s = PAT_SEGMENTS[i];
+        var d = distSeg(mx, my, s.x1, s.y1, s.x2, s.y2);
+        if (d < bd){ bd = d; best = s; }
+      }
+      if (best) {
+        var pats = best.pats || [];
+        html = pats.map(function(p){
+          return '<div class="pt-type">' + (PAT_ICONS[p.type]||'◉') + ' ' + p.type + '</div>' +
+                 '<div class="pt-bodies">' + p.bodies.join(' · ') + (p.apex ? ' — apex: '+p.apex : '') + '</div>' +
+                 '<div class="pt-score">' + Math.round(p.score*100) + '% tight</div>' +
+                 '<div class="pt-desc">' + p.description + '</div>';
+        }).join('<div style="border-top:1px solid #e2e2e2;margin:5px 0"></div>');
+      }
+    }
+
     if (!html){ tip.classList.remove('vis'); return; }
     tip.innerHTML = html;
     var cw = cvs.offsetWidth, ch = cvs.offsetHeight;
@@ -2226,6 +2304,8 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.save();
     ctx.translate(cx + r * Math.cos(a), cy + r * Math.sin(a));
     ctx.rotate(a + Math.PI / 2);
+    var digA = getDignity(b.Body, b.Sign);
+    if (digA) drawDignityRing(ctx, 0, 5, 9, digA);
     ctx.fillStyle = '#c68f52';
     ctx.font = 'bold 14px serif'; ctx.textAlign = 'center';
     ctx.fillText(b.Symbol || b.Body[0], 0, 5);
@@ -2259,6 +2339,8 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
     ctx.save();
     ctx.translate(cx + r * Math.cos(a), cy + r * Math.sin(a));
     ctx.rotate(a + Math.PI / 2);
+    var digB = getDignity(b.Body, b.Sign);
+    if (digB) drawDignityRing(ctx, 0, 5, 8.5, digB);
     ctx.fillStyle = '#7fa6c4';
     ctx.font = 'bold 13px serif'; ctx.textAlign = 'center';
     ctx.fillText(b.Symbol || b.Body[0], 0, 5);
