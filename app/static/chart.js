@@ -1,4 +1,30 @@
 
+// ─── Brand row: star scatter over the watercolor wash ─────────────────────────
+(function initBrandStars() {
+  var starsEl = document.getElementById('brand-stars');
+  if (!starsEl) return;
+  for (var s = 0; s < 26; s++) {
+    var x = Math.random() * 70, y = Math.random() * 48;
+    var el = document.createElement('span');
+    var size = Math.random() * 1.3 + 0.5;
+    el.style.position = 'absolute';
+    el.style.left = x + '%'; el.style.top = y + '%';
+    el.style.width = size + 'px'; el.style.height = size + 'px';
+    el.style.background = '#ffffff';
+    el.style.borderRadius = '50%';
+    el.style.opacity = (Math.random() * 0.5 + 0.2).toFixed(2);
+    starsEl.appendChild(el);
+  }
+  var sparkPositions = [[4, 15], [38, 10], [46, 70]];
+  sparkPositions.forEach(function(p) {
+    var el = document.createElement('div');
+    el.style.position = 'absolute';
+    el.style.left = p[0] + '%'; el.style.top = p[1] + '%';
+    el.innerHTML = '<svg width="10" height="10" viewBox="0 0 14 14"><path d="M7 0 L8.3 5.7 L14 7 L8.3 8.3 L7 14 L5.7 8.3 L0 7 L5.7 5.7 Z" fill="#ffffff" opacity="0.6"/></svg>';
+    starsEl.appendChild(el);
+  });
+})();
+
 // ─── Vibrational tab ─────────────────────────────────────────────────────────
 
 function vibSetAll(on) {
@@ -675,9 +701,6 @@ function buildMeta(d) {
 // ─── Tab switcher ────────────────────────────────────────────────────────────
 (function initTabs(){
   var tabs = document.querySelectorAll('.tab');
-  var chartFormEl   = document.getElementById('chart-form');
-  var synTbFormEl   = document.getElementById('syn-toolbar-form');
-  var toolbarEl     = document.getElementById('toolbar');
 
   tabs.forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -686,12 +709,6 @@ function buildMeta(d) {
       document.querySelectorAll('.tab-page').forEach(function(p){
         p.classList.toggle('active', p.id === 'tab-' + name);
       });
-
-      // Swap toolbar form: synastry gets its own two-person form
-      var isSyn = name === 'synastry';
-      if (chartFormEl) chartFormEl.style.display = isSyn ? 'none' : '';
-      if (synTbFormEl) synTbFormEl.style.display  = isSyn ? '' : 'none';
-      if (toolbarEl)   toolbarEl.classList.toggle('toolbar--synastry', isSyn);
 
       // On the Natal tab, show empty state if no chart loaded yet.
       if (name === 'natal') {

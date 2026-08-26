@@ -8,128 +8,122 @@
 </head>
 <body>
 
-<div class="toolbar" id="toolbar">
-  <div class="brand">
-    <svg class="brand-icon" width="26" height="26" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<div class="brandrow" id="brandrow">
+  <div class="stars" id="brand-stars"></div>
+
+  <div class="emblem-wrap">
+    <svg class="emblem" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="brand-sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"  stop-color="#8fa8c9"/>
-          <stop offset="45%" stop-color="#d9b9c9"/>
-          <stop offset="75%" stop-color="#f0c9a8"/>
-          <stop offset="100%" stop-color="#f5d9a8"/>
-        </linearGradient>
-        <radialGradient id="brand-sun" cx="50%" cy="50%" r="50%">
-          <stop offset="0%"  stop-color="#fff3d6"/>
-          <stop offset="55%" stop-color="#f0b878"/>
-          <stop offset="100%" stop-color="#e8a55c" stop-opacity="0"/>
+        <radialGradient id="paperSun" cx="32%" cy="26%" r="80%">
+          <stop offset="0%"  stop-color="#ffffff"/>
+          <stop offset="45%" stop-color="#fef8e8"/>
+          <stop offset="78%" stop-color="#e8d3a0"/>
+          <stop offset="100%" stop-color="#c9a655"/>
         </radialGradient>
-        <radialGradient id="brand-moon" cx="35%" cy="35%" r="65%">
-          <stop offset="0%"  stop-color="#fdfaf3"/>
-          <stop offset="70%" stop-color="#dce6ee"/>
-          <stop offset="100%" stop-color="#c9d6e2" stop-opacity="0"/>
+        <radialGradient id="paperMoon" cx="30%" cy="26%" r="85%">
+          <stop offset="0%"  stop-color="#ffffff"/>
+          <stop offset="50%" stop-color="#eef1f4"/>
+          <stop offset="80%" stop-color="#c7ccd4"/>
+          <stop offset="100%" stop-color="#9aa2ae"/>
         </radialGradient>
-        <filter id="brand-watercolor" x="-50%" y="-50%" width="200%" height="200%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="2" seed="7" result="noise"/>
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" xChannelSelector="R" yChannelSelector="G"/>
-          <feGaussianBlur stdDeviation="0.6"/>
+        <mask id="brand-crescentMask">
+          <rect x="0" y="0" width="200" height="200" fill="black"/>
+          <circle cx="128" cy="100" r="42" fill="white"/>
+          <circle cx="114" cy="100" r="40" fill="black"/>
+        </mask>
+        <filter id="brand-paperShadow" x="-60%" y="-60%" width="220%" height="220%">
+          <feDropShadow dx="1.5" dy="4" stdDeviation="4" flood-color="#0d1f38" flood-opacity="0.38"/>
         </filter>
-        <filter id="brand-soften" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="0.5"/>
+        <filter id="brand-paperShadowSm" x="-60%" y="-60%" width="220%" height="220%">
+          <feDropShadow dx="1" dy="2.5" stdDeviation="2.5" flood-color="#0d1f38" flood-opacity="0.3"/>
         </filter>
-        <clipPath id="brand-clip"><circle cx="32" cy="32" r="30"/></clipPath>
       </defs>
-      <!-- Watercolor sky: dusk-to-dawn wash behind sun + crescent moon -->
-      <g clip-path="url(#brand-clip)">
-        <rect x="0" y="0" width="64" height="64" fill="url(#brand-sky)"/>
-        <circle cx="16" cy="14" r="20" fill="#b79bcf" opacity="0.16" filter="url(#brand-watercolor)"/>
-        <circle cx="48" cy="48" r="22" fill="#e0b17a" opacity="0.20" filter="url(#brand-watercolor)"/>
-        <ellipse cx="32" cy="46" rx="36" ry="12" fill="#f6d9b0" opacity="0.30" filter="url(#brand-watercolor)"/>
-        <!-- Sun -->
-        <circle cx="41" cy="39" r="12" fill="url(#brand-sun)" filter="url(#brand-soften)"/>
-        <circle cx="41" cy="39" r="6.5" fill="#f7c988" opacity="0.85" filter="url(#brand-soften)"/>
-        <!-- Crescent moon -->
-        <circle cx="21" cy="17" r="9" fill="url(#brand-moon)" filter="url(#brand-soften)"/>
-        <circle cx="24" cy="14.5" r="7.4" fill="url(#brand-sky)" opacity="0.92"/>
-        <!-- Stars -->
-        <circle cx="13" cy="9" r="0.7" fill="#fff" opacity="0.7"/>
-        <circle cx="9" cy="18" r="0.6" fill="#fff" opacity="0.55"/>
-        <circle cx="20" cy="6" r="0.55" fill="#fff" opacity="0.55"/>
+      <g stroke="#d8b878" stroke-width="1.6" stroke-linecap="round" opacity="0.95">
+          <line x1="118.7" y1="136.0" x2="133.0" y2="153.9" stroke-width="1.1"/>
+          <line x1="114.5" y1="138.9" x2="138.9" y2="177.9" stroke-width="1.7"/>
+          <line x1="110.0" y1="141.4" x2="124.3" y2="171.3" stroke-width="1.1"/>
+          <line x1="105.2" y1="143.4" x2="112.8" y2="165.1" stroke-width="1.1"/>
+          <line x1="100.2" y1="144.8" x2="110.5" y2="189.7" stroke-width="1.7"/>
+          <line x1="95.2" y1="145.7" x2="98.9" y2="178.6" stroke-width="1.1"/>
+          <line x1="90.0" y1="146.0" x2="90.0" y2="169.0" stroke-width="1.1"/>
+          <line x1="84.8" y1="145.7" x2="79.7" y2="191.4" stroke-width="1.7"/>
+          <line x1="79.8" y1="144.8" x2="72.4" y2="177.1" stroke-width="1.1"/>
+          <line x1="74.8" y1="143.4" x2="67.2" y2="165.1" stroke-width="1.1"/>
+          <line x1="70.0" y1="141.4" x2="50.1" y2="182.9" stroke-width="1.7"/>
+          <line x1="65.5" y1="138.9" x2="47.9" y2="167.0" stroke-width="1.1"/>
+          <line x1="61.3" y1="136.0" x2="47.0" y2="153.9" stroke-width="1.1"/>
+          <line x1="57.5" y1="132.5" x2="24.9" y2="165.1" stroke-width="1.7"/>
+          <line x1="54.0" y1="128.7" x2="28.1" y2="149.3" stroke-width="1.1"/>
+          <line x1="51.1" y1="124.5" x2="31.6" y2="136.7" stroke-width="1.1"/>
+          <line x1="48.6" y1="120.0" x2="7.1" y2="139.9" stroke-width="1.7"/>
+          <line x1="46.6" y1="115.2" x2="15.3" y2="126.1" stroke-width="1.1"/>
+          <line x1="45.2" y1="110.2" x2="22.7" y2="115.4" stroke-width="1.1"/>
+          <line x1="44.3" y1="105.2" x2="-1.4" y2="110.3" stroke-width="1.7"/>
+          <line x1="44.0" y1="100.0" x2="10.9" y2="100.0" stroke-width="1.1"/>
+          <line x1="44.3" y1="94.8" x2="21.4" y2="92.3" stroke-width="1.1"/>
+          <line x1="45.2" y1="89.8" x2="0.3" y2="79.5" stroke-width="1.7"/>
+          <line x1="46.6" y1="84.8" x2="15.3" y2="73.9" stroke-width="1.1"/>
+          <line x1="48.6" y1="80.0" x2="27.8" y2="70.1" stroke-width="1.1"/>
+          <line x1="51.1" y1="75.5" x2="12.1" y2="51.1" stroke-width="1.7"/>
+          <line x1="54.0" y1="71.3" x2="28.1" y2="50.7" stroke-width="1.1"/>
+          <line x1="57.5" y1="67.5" x2="41.2" y2="51.2" stroke-width="1.1"/>
+          <line x1="61.3" y1="64.0" x2="32.6" y2="28.1" stroke-width="1.7"/>
+          <line x1="65.5" y1="61.1" x2="47.9" y2="33.0" stroke-width="1.1"/>
+          <line x1="70.0" y1="58.6" x2="60.1" y2="37.8" stroke-width="1.1"/>
+          <line x1="74.8" y1="56.6" x2="59.6" y2="13.2" stroke-width="1.7"/>
+          <line x1="79.8" y1="55.2" x2="72.4" y2="22.9" stroke-width="1.1"/>
+          <line x1="84.8" y1="54.3" x2="82.3" y2="31.4" stroke-width="1.1"/>
+          <line x1="90.0" y1="54.0" x2="90.0" y2="8.0" stroke-width="1.7"/>
+          <line x1="95.2" y1="54.3" x2="98.9" y2="21.4" stroke-width="1.1"/>
+          <line x1="100.2" y1="55.2" x2="105.4" y2="32.7" stroke-width="1.1"/>
+          <line x1="105.2" y1="56.6" x2="120.4" y2="13.2" stroke-width="1.7"/>
+          <line x1="110.0" y1="58.6" x2="124.3" y2="28.7" stroke-width="1.1"/>
+          <line x1="114.5" y1="61.1" x2="126.7" y2="41.6" stroke-width="1.1"/>
+          <line x1="118.7" y1="64.0" x2="147.4" y2="28.1" stroke-width="1.7"/>
+          <line x1="122.5" y1="67.5" x2="145.9" y2="44.1" stroke-width="1.1"/>
+          <line x1="126.0" y1="71.3" x2="143.9" y2="57.0" stroke-width="1.1"/>
       </g>
-      <circle cx="32" cy="32" r="30" fill="none" stroke="#00000012" stroke-width="0.6"/>
+      <!-- sun: 3D sphere shading -->
+      <circle cx="90" cy="100" r="44" fill="url(#paperSun)" filter="url(#brand-paperShadow)"/>
+      <circle cx="90" cy="100" r="44" fill="none" stroke="#7a5a20" stroke-width="0.6" opacity="0.25"/>
+      <!-- moon: layered in front, its own sphere shading -->
+      <g filter="url(#brand-paperShadowSm)">
+        <rect x="0" y="0" width="200" height="200" fill="url(#paperMoon)" mask="url(#brand-crescentMask)"/>
+      </g>
     </svg>
-    Astro<span>Chart</span>
   </div>
+
+  <div class="tabs">
+    <button type="button" class="tab active" data-tab="natal">⊙ Natal</button>
+    <button type="button" class="tab" data-tab="transit">♄ Transit</button>
+    <button type="button" class="tab" data-tab="synastry">✶ Synastry</button>
+    <button type="button" class="tab" data-tab="vibrational">⚷ Vibrational Astrology</button>
+  </div>
+
   <a class="contact-link" href="mailto:hereandnowinunity@gmail.com">Contact Us</a>
-
-  <!-- Natal / Transit / Vibrational form (single person) -->
-  <form id="chart-form">
-    <label>Date</label><input type="date" id="birth-date" required>
-    <div class="sep"></div>
-    <label>Time</label><input type="time" id="birth-time" step="60" required>
-    <label class="unknown-time-lbl" title="Assume noon; hides Angles/Points and shows Moon's day range">
-      <input type="checkbox" id="unknown-time"> Unknown
-    </label>
-    <div class="sep"></div>
-    <label>Place</label><input type="text" id="location" placeholder="City, Country" required>
-    <div class="sep"></div>
-    <label>System</label>
-    <select id="zodiac"><option value="Tropical">Tropical</option><option value="Sidereal">Sidereal</option></select>
-    <button type="submit" class="btn-calc" id="submit-btn">Calculate</button>
-    <input type="text" id="hp-website" name="website" autocomplete="off" tabindex="-1" aria-hidden="true" class="hp-field">
-  </form>
-
-  <!-- Synastry form (two people) — hidden until Synastry tab active -->
-  <div id="syn-toolbar-form" class="syn-tb-form" style="display:none">
-    <div class="syn-tb-row">
-      <span class="syn-tb-lbl syn-a-lbl">A</span>
-      <label>Name</label><input type="text" id="syn-a-name" placeholder="optional" class="syn-tb-name">
-      <label>Date</label><input type="date" id="syn-a-date" required>
-      <label>Time</label><input type="time" id="syn-a-time" step="60" required>
-      <label class="unknown-time-lbl" title="Assume noon; hides Angles/Points"><input type="checkbox" id="syn-a-unknown"> Unknown</label>
-      <label>Place</label><input type="text" id="syn-a-loc" placeholder="City, Country" required class="syn-tb-place">
-      <div class="syn-tb-sep"></div>
-      <label>System</label>
-      <select id="syn-zodiac"><option value="Tropical">Tropical</option><option value="Sidereal">Sidereal</option></select>
-      <label>Houses</label>
-      <select id="syn-house">
-        <option value="Koch" selected>Koch</option>
-        <option value="Placidus">Placidus</option>
-        <option value="Whole Sign">Whole Sign</option>
-        <option value="Equal">Equal</option>
-        <option value="Porphyry">Porphyry</option>
-        <option value="Regiomontanus">Regiomontanus</option>
-        <option value="Campanus">Campanus</option>
-      </select>
-    </div>
-    <div class="syn-tb-row">
-      <span class="syn-tb-lbl syn-b-lbl">B</span>
-      <label>Name</label><input type="text" id="syn-b-name" placeholder="optional" class="syn-tb-name">
-      <label>Date</label><input type="date" id="syn-b-date" required>
-      <label>Time</label><input type="time" id="syn-b-time" step="60" required>
-      <label class="unknown-time-lbl" title="Assume noon; hides Angles/Points"><input type="checkbox" id="syn-b-unknown"> Unknown</label>
-      <label>Place</label><input type="text" id="syn-b-loc" placeholder="City, Country" required class="syn-tb-place">
-      <div class="syn-tb-sep"></div>
-      <label>Orb</label>
-      <input type="range" class="orb-slider" id="syn-orb-val" value="8" min="0.5" max="10" step="0.5" style="width:80px">
-      <span id="syn-orb-readout" style="font-size:11px;color:#9c8b7e;min-width:28px">8.0°</span>
-      <button type="button" class="btn-calc" id="syn-compute-btn" onclick="synCompute()">Compare</button>
-    </div>
-  </div>
 </div>
+
+<div class="tab-meta-row"><div class="tab-meta" id="tab-meta"></div></div>
 
 <div id="error-bar" class="error-bar"></div>
 <div class="loading" id="spinner">Calculating chart...</div>
 <div id="results" class="page">
-  <div class="tab-bar">
-    <div class="tabs">
-      <button type="button" class="tab active" data-tab="natal">Natal</button>
-      <button type="button" class="tab" data-tab="transit">Transit</button>
-      <button type="button" class="tab" data-tab="synastry">Synastry</button>
-      <button type="button" class="tab" data-tab="vibrational">Vibrational Astrology</button>
-    </div>
-    <div class="tab-meta" id="tab-meta"></div>
-  </div>
   <div id="tab-natal" class="tab-page active">
+  <div class="panel">
+    <!-- Natal / Transit / Vibrational form (single person) -->
+    <form id="chart-form" class="toolbar">
+      <label>Date</label><input type="date" id="birth-date" required>
+      <label>Time</label><input type="time" id="birth-time" step="60" required>
+      <label class="unknown-time-lbl" title="Assume noon; hides Angles/Points and shows Moon's day range">
+        <input type="checkbox" id="unknown-time"> Unknown
+      </label>
+      <label>Place</label><input type="text" id="location" placeholder="City, Country" required>
+      <label>System</label>
+      <select id="zodiac"><option value="Tropical">Tropical</option><option value="Sidereal">Sidereal</option></select>
+      <button type="submit" class="btn-calc" id="submit-btn">Calculate</button>
+      <input type="text" id="hp-website" name="website" autocomplete="off" tabindex="-1" aria-hidden="true" class="hp-field">
+    </form>
+  </div>
   <div id="natal-empty-state" class="empty-page" style="display:none">Enter birth details above to generate your natal chart</div>
   <div id="natal-content" style="padding:8px 0 0">
     <!-- Top row: H1 natal (left) + harmonics grid (right) -->
@@ -264,10 +258,49 @@
     <div class="tab-coming">Transit charts coming soon</div>
   </div>
   <div id="tab-synastry" class="tab-page">
+    <div class="panel">
+      <!-- Synastry form (two people) -->
+      <div id="syn-toolbar-form" class="syn-tb-form toolbar">
+        <div class="syn-tb-row">
+          <span class="syn-tb-lbl syn-a-lbl">A</span>
+          <label>Name</label><input type="text" id="syn-a-name" placeholder="optional" class="syn-tb-name">
+          <label>Date</label><input type="date" id="syn-a-date" required>
+          <label>Time</label><input type="time" id="syn-a-time" step="60" required>
+          <label class="unknown-time-lbl" title="Assume noon; hides Angles/Points"><input type="checkbox" id="syn-a-unknown"> Unknown</label>
+          <label>Place</label><input type="text" id="syn-a-loc" placeholder="City, Country" required class="syn-tb-place">
+          <div class="syn-tb-sep"></div>
+          <label>System</label>
+          <select id="syn-zodiac"><option value="Tropical">Tropical</option><option value="Sidereal">Sidereal</option></select>
+          <label>Houses</label>
+          <select id="syn-house">
+            <option value="Koch" selected>Koch</option>
+            <option value="Placidus">Placidus</option>
+            <option value="Whole Sign">Whole Sign</option>
+            <option value="Equal">Equal</option>
+            <option value="Porphyry">Porphyry</option>
+            <option value="Regiomontanus">Regiomontanus</option>
+            <option value="Campanus">Campanus</option>
+          </select>
+        </div>
+        <div class="syn-tb-row syn-tb-row2">
+          <span class="syn-tb-lbl syn-b-lbl">B</span>
+          <label>Name</label><input type="text" id="syn-b-name" placeholder="optional" class="syn-tb-name">
+          <label>Date</label><input type="date" id="syn-b-date" required>
+          <label>Time</label><input type="time" id="syn-b-time" step="60" required>
+          <label class="unknown-time-lbl" title="Assume noon; hides Angles/Points"><input type="checkbox" id="syn-b-unknown"> Unknown</label>
+          <label>Place</label><input type="text" id="syn-b-loc" placeholder="City, Country" required class="syn-tb-place">
+          <div class="syn-tb-sep"></div>
+          <label>Orb</label>
+          <input type="range" class="orb-slider" id="syn-orb-val" value="8" min="0.5" max="10" step="0.5" style="width:80px">
+          <span id="syn-orb-readout" style="font-size:11px;color:#9c8b7e;min-width:28px">8.0°</span>
+          <button type="button" class="btn-calc" id="syn-compute-btn" onclick="synCompute()">Compare</button>
+        </div>
+      </div>
+    </div>
     <div class="syn-layout">
 
       <!-- ── Empty / loading states ─────────────────────── -->
-      <div id="syn-empty" class="harm-empty" style="margin-top:32px">Enter birth details for both people in the toolbar above, then click Compare.</div>
+      <div id="syn-empty" class="harm-empty" style="margin-top:32px">Enter birth details for both people above, then click Compare.</div>
       <div id="syn-spinner" class="loading" style="display:none;position:relative;padding:32px 0">Calculating synastry&hellip;</div>
 
       <!-- ── Results ─────────────────────────────────────── -->
