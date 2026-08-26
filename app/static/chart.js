@@ -4,7 +4,7 @@
   var starsEl = document.getElementById('brand-stars');
   if (!starsEl) return;
   for (var s = 0; s < 26; s++) {
-    var x = Math.random() * 70, y = Math.random() * 48;
+    var x = 14 + Math.random() * 58, y = Math.random() * 48;
     var el = document.createElement('span');
     var size = Math.random() * 1.3 + 0.5;
     el.style.position = 'absolute';
@@ -15,7 +15,7 @@
     el.style.opacity = (Math.random() * 0.5 + 0.2).toFixed(2);
     starsEl.appendChild(el);
   }
-  var sparkPositions = [[4, 15], [38, 10], [46, 70]];
+  var sparkPositions = [[38, 10], [46, 70]];
   sparkPositions.forEach(function(p) {
     var el = document.createElement('div');
     el.style.position = 'absolute';
