@@ -5,20 +5,23 @@ Turns a human-readable location plus local wall-clock time into the
 """
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from functools import lru_cache
 
 import pytz
 import swisseph as swe
+from geopy.exc import GeocoderServiceError
 from geopy.geocoders import Nominatim
 from timezonefinder import TimezoneFinder
 
 from app.config import settings
 
 
-_geolocator = Nominatim(user_agent=settings.GEOCODER_USER_AGENT)
+_geolocator = Nominatim(user_agent=settings.GEOCODER_USER_AGENT, timeout=10)
 _tz_finder = TimezoneFinder()
+_GEOCODE_RETRIES = 3
 
 
 @dataclass(frozen=True)
@@ -37,7 +40,21 @@ class LocationNotFound(ValueError):
 
 @lru_cache(maxsize=512)
 def _geocode(location_name: str) -> tuple[float, float]:
-    location = _geolocator.geocode(location_name)
+    last_error: GeocoderServiceError | None = None
+    for attempt in range(_GEOCODE_RETRIES):
+        try:
+            location = _geolocator.geocode(location_name)
+            break
+        except GeocoderServiceError as exc:
+            last_error = exc
+            if attempt < _GEOCODE_RETRIES - 1:
+                time.sleep(1 + attempt)
+    else:
+        raise LocationNotFound(
+            f"Location lookup timed out after {_GEOCODE_RETRIES} attempts "
+            f"for {location_name!r}. Please try again."
+        ) from last_error
+
     if location is None:
         raise LocationNotFound(f"Could not geocode location: {location_name!r}")
     return location.latitude, location.longitude
