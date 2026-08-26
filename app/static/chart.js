@@ -1,5 +1,7 @@
 
 window.scrollTo(0, 0);
+window.addEventListener('load', function(){ window.scrollTo(0, 0); });
+setTimeout(function(){ window.scrollTo(0, 0); }, 0);
 
 // ─── Brand row: star scatter over the watercolor wash ─────────────────────────
 (function initBrandStars() {
