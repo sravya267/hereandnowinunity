@@ -1,4 +1,6 @@
 
+window.scrollTo(0, 0);
+
 // ─── Brand row: star scatter over the watercolor wash ─────────────────────────
 (function initBrandStars() {
   var starsEl = document.getElementById('brand-stars');
