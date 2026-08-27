@@ -109,8 +109,8 @@
 
 <div id="error-bar" class="error-bar"></div>
 <div class="loading" id="spinner">Calculating chart...</div>
-<div id="results" class="page">
-  <div id="tab-natal" class="tab-page active">
+<div id="results">
+  <div id="tab-natal" class="tab-page page active">
   <div class="panel">
     <!-- Natal / Transit / Vibrational form (single person) -->
     <form id="chart-form" class="toolbar">
@@ -465,19 +465,6 @@
           <!-- Score + Harmonics row -->
           <div class="syn-sh-row">
 
-          <div class="card syn-score-card">
-            <div class="card-hdr"><span class="card-hdr-title">Compatibility</span></div>
-            <div class="card-body">
-              <div class="syn-score-wrap">
-                <div class="syn-score-circle" id="syn-score-circle">—</div>
-                <div class="syn-score-detail">
-                  <div class="syn-score-summary" id="syn-score-summary"></div>
-                  <div id="syn-score-breakdown"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div class="card syn-harm-card">
             <div class="card-hdr">
               <span class="card-hdr-title">Cross-Chart Harmonics</span>
@@ -584,22 +571,24 @@
       </div>
 
       <!-- ── Right: results ────────────────────────────── -->
-      <div class="vib-main">
-        <div id="vib-empty" class="harm-empty">Select planets and click Compute to run the harmonic matrix.</div>
-        <div id="vib-spinner" style="display:none" class="harm-empty">Computing&hellip;</div>
-        <div id="vib-results" style="display:none;height:100%;overflow-y:auto">
-          <table class="vib-table" id="vib-table">
-            <thead>
-              <tr>
-                <th>H</th>
-                <th>Name &middot; Factors</th>
-                <th class="num">Pairs</th>
-                <th class="num">Tightest</th>
-                <th>Planet pairs  <span style="font-weight:400;color:#8a8a8a">(natal orb&deg;)</span></th>
-              </tr>
-            </thead>
-            <tbody id="vib-tbody"></tbody>
-          </table>
+      <div class="vib-results-row">
+        <div class="card vib-list-card">
+          <div class="card-hdr"><span class="card-hdr-title">Harmonic Matrix</span></div>
+          <div class="card-body" id="vib-body">
+            <div id="vib-empty" class="harm-empty">Select planets and click Compute to run the harmonic matrix.</div>
+            <div id="vib-spinner" style="display:none" class="harm-empty">Computing&hellip;</div>
+            <div id="vib-results" style="display:none;height:100%">
+              <div id="vib-list" class="harm-list"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card vib-meaning-card">
+          <div class="card-hdr"><span class="card-hdr-title">Meaning</span></div>
+          <div class="card-body">
+            <div id="vib-detail" class="harm-detail-right">
+              <div class="harm-hint">Select a harmonic above to see its meaning.</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

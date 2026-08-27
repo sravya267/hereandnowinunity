@@ -76,80 +76,97 @@ function vibCompute() {
     .finally(function(){ btn.disabled = false; });
 }
 
+var LAST_VIB_RANKED = null;
+var SELECTED_VIB_HARMONIC = null;
+
 function vibRender(data) {
   document.getElementById('vib-spinner').style.display = 'none';
   var ranked = data.ranked || [];
+  LAST_VIB_RANKED = ranked;
+  SELECTED_VIB_HARMONIC = null;
+
   if (!ranked.length) {
     document.getElementById('vib-empty').textContent = 'No harmonic resonances found with current settings.';
     document.getElementById('vib-empty').style.display = 'flex';
+    document.getElementById('vib-results').style.display = 'none';
     return;
   }
+  document.getElementById('vib-empty').style.display = 'none';
 
-  var maxPairs = ranked[0].PairCount || 1;
-  var tbody = document.getElementById('vib-tbody');
-  tbody.innerHTML = '';
+  vibRenderList();
+  document.getElementById('vib-detail').innerHTML = '<div class="harm-hint">Select a harmonic above to see its meaning.</div>';
+  document.getElementById('vib-results').style.display = 'block';
+}
 
-  ranked.forEach(function(row, i) {
-    var barW = Math.round((row.PairCount / maxPairs) * 100);
-    var pairHtml = (row.Pairs || '').split(',  ').map(function(p) {
-      p = p.trim();
-      var m = p.match(/^(.*?)(\s[\d.]+°.*)$/);
-      return m ? '<b>' + m[1] + '</b>' + m[2] : p;
-    }).join('<br>');
+function vibRenderList() {
+  var listEl = document.getElementById('vib-list');
+  var ranked = LAST_VIB_RANKED || [];
+  var maxPairs = ranked.length ? (ranked[0].PairCount || 1) : 1;
 
-    var name = row.Name ? ' · ' + row.Name : '';
-    var hasMeaning = row.NatalMeaning && row.NatalMeaning !== 'nan' && row.NatalMeaning !== '';
-    var detailId = 'vib-detail-' + i;
+  listEl.innerHTML = ranked.map(function(r, i) {
+    var barW = Math.max(4, Math.round((r.PairCount / maxPairs) * 100));
+    var label = 'H' + r.Harmonic + (r.Name && r.Name !== '—' ? ' · ' + r.Name : '');
+    var hasMeaning = r.NatalMeaning && r.NatalMeaning !== 'nan' && r.NatalMeaning !== '';
+    return (
+      '<div class="harm-row' + (SELECTED_VIB_HARMONIC === r.Harmonic ? ' sel' : '') +
+           '" data-harm="' + r.Harmonic + '" ' +
+           (hasMeaning ? 'style="cursor:pointer"' : '') + '>' +
+        '<div class="harm-row-num">' + (i + 1) + '</div>' +
+        '<div class="harm-row-name">' + label + '</div>' +
+        '<div class="harm-row-bar-bg"><div class="harm-row-bar" style="width:' + barW + '%"></div></div>' +
+        '<div class="harm-row-meta">' + r.PairCount + ' pairs &middot; ' + (r.Tightest || 0).toFixed(3) + '&deg;</div>' +
+      '</div>'
+    );
+  }).join('');
 
-    var tr = document.createElement('tr');
-    tr.className = 'vib-data-row';
-    tr.style.cursor = hasMeaning ? 'pointer' : 'default';
-    tr.innerHTML =
-      '<td class="vib-h">' +
-        'H' + row.Harmonic +
-        (hasMeaning ? '<span class="vib-expand-icon" id="icon-' + i + '">&#9656;</span>' : '') +
-      '</td>' +
-      '<td><span class="vib-name">' + (row.Name || '&mdash;') + '</span><br>' +
-        '<span class="vib-factors">' + (row.Factors || '') + '</span></td>' +
-      '<td class="num">' +
-        '<div style="display:flex;align-items:center;gap:4px;justify-content:flex-end">' +
-          '<div style="width:40px;height:6px;background:#eeeeee;border-radius:3px;overflow:hidden">' +
-            '<div style="width:' + barW + '%;height:100%;background:#3a6da0"></div>' +
-          '</div>' +
-          row.PairCount +
-        '</div>' +
-      '</td>' +
-      '<td class="num">' + (row.Tightest || 0).toFixed(3) + '&deg;</td>' +
-      '<td class="vib-pairs">' + pairHtml + '</td>';
+  listEl.querySelectorAll('.harm-row').forEach(function(row) {
+    row.addEventListener('click', function() {
+      renderVibDetail(parseInt(row.dataset.harm, 10));
+    });
+  });
+}
 
-    // Meaning detail row (hidden by default)
-    var trDetail = document.createElement('tr');
-    trDetail.id = detailId;
-    trDetail.className = 'vib-meaning-row';
-    trDetail.style.display = 'none';
-    if (hasMeaning) {
-      var src = (row.Source && row.Source !== 'nan') ? '<div class="vib-source">Source: ' + row.Source + '</div>' : '';
-      trDetail.innerHTML =
-        '<td colspan="5" class="vib-meaning-cell">' +
-          '<div class="vib-meaning-natal">' + row.NatalMeaning + '</div>' +
-          src +
-        '</td>';
+function renderVibDetail(harmonic) {
+  if (!LAST_VIB_RANKED) return;
+  SELECTED_VIB_HARMONIC = harmonic;
 
-      (function(tr, trDetail, iconId) {
-        tr.addEventListener('click', function() {
-          var open = trDetail.style.display !== 'none';
-          trDetail.style.display = open ? 'none' : 'table-row';
-          var icon = document.getElementById(iconId);
-          if (icon) icon.textContent = open ? '▸' : '▾';
-        });
-      })(tr, trDetail, 'icon-' + i);
-    }
-
-    tbody.appendChild(tr);
-    tbody.appendChild(trDetail);
+  document.querySelectorAll('#vib-list .harm-row').forEach(function(r) {
+    r.classList.toggle('sel', parseInt(r.dataset.harm, 10) === harmonic);
   });
 
-  document.getElementById('vib-results').style.display = 'block';
+  var row = LAST_VIB_RANKED.find(function(r) { return r.Harmonic === harmonic; });
+  if (!row) return;
+
+  var name = row.Name && row.Name !== '—' ? row.Name : 'H' + harmonic;
+  var factors = row.Factors ? ' <span style="font-size:10px;color:#8a8a8a;font-weight:400">(' + row.Factors + ')</span>' : '';
+
+  var html = '<div class="harm-title">H' + harmonic + ' &middot; ' + name + factors + '</div>';
+
+  var meaning = row.NatalMeaning && row.NatalMeaning !== 'nan' ? row.NatalMeaning : '';
+  if (meaning) {
+    html += '<div class="harm-meaning">' + meaning + '</div>';
+  }
+
+  if (row.Pairs) {
+    var pairs = row.Pairs.split(',  ').map(function(p) { return p.trim(); }).filter(Boolean);
+    html += '<div class="harm-asp-label">' + row.PairCount + ' resonating pair' + (row.PairCount === 1 ? '' : 's') + '</div>';
+    html += pairs.map(function(p) {
+      var m = p.match(/^(.*?)\s+([\d.]+°)$/);
+      var pairName = m ? m[1] : p;
+      var orb = m ? m[2] + '°' : '';
+      return '<div class="harm-asp-item">' +
+        '<div class="harm-asp-head">' + pairName +
+          (orb ? ' <span class="asp-close">&middot; ' + orb + ' off exact</span>' : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  if (row.Source && row.Source !== 'nan') {
+    html += '<div style="font-size:9px;color:#767676;margin-top:10px;font-style:italic">' + row.Source + '</div>';
+  }
+
+  document.getElementById('vib-detail').innerHTML = html;
 }
 
 // ─── Wheel drawing ────────────────────────────────────────────────────────────
@@ -200,6 +217,26 @@ function getDignity(body, sign) {
   if (PLANET_DOMICILE[body] && PLANET_DOMICILE[body].indexOf(sign) !== -1) return 'domicile';
   if (PLANET_FALL[body] === sign) return 'fall';
   return null;
+}
+// Groups items (already sorted ascending by getLon) into clusters wherever
+// consecutive items are within clusterDeg of each other, and returns a
+// stack index (0, 1, 2…) per item so overlapping symbols can be staggered
+// outward/inward instead of drawn on top of one another. Chains transitively
+// (A near B near C all cluster together even if A and C themselves are far
+// apart), which matches how visually crowded they'd actually look.
+function assignClusterStacks(sortedItems, getLon, clusterDeg) {
+  var n = sortedItems.length;
+  var stacks = new Array(n).fill(0);
+  var clusterStart = 0;
+  for (var i = 1; i <= n; i++) {
+    var atEnd = i === n;
+    var gap = atEnd ? Infinity : (getLon(sortedItems[i]) - getLon(sortedItems[i - 1]));
+    if (atEnd || gap >= clusterDeg) {
+      for (var k = clusterStart; k < i; k++) stacks[k] = k - clusterStart;
+      clusterStart = i;
+    }
+  }
+  return stacks;
 }
 function drawDignityRing(ctx, x, y, r, status) {
   var st = DIGNITY_STYLE[status];
@@ -473,13 +510,18 @@ function drawWheel(data) {
     return true;
   }).slice().sort(function(a,b){ return a['Longitude (°)'] - b['Longitude (°)']; });
 
-  var clusterDeg = 6, rShift = R * 0.075;
-  var lastLon = -1e9, lastShift = 0;
-  var placements = planets.map(function(p) {
+  // rShift must clear the glyph's own footprint (font ~0.088R) or "staggered"
+  // symbols still visually overlap; cap radial steps at 2 and fan any deeper
+  // overflow (a 4th+ planet in one exact-conjunction cluster) out angularly
+  // instead of collapsing it onto the innermost radius.
+  var clusterDeg = 7, rShift = R * 0.12, maxRadialSteps = 2, fanDeg = 9;
+  var stacks = assignClusterStacks(planets, function(p){ return p['Longitude (°)']; }, clusterDeg);
+  var placements = planets.map(function(p, i) {
     var lon = p['Longitude (°)'];
-    var shift = (lon - lastLon < clusterDeg) ? Math.min(lastShift + 1, 3) : 0;
-    lastLon = lon; lastShift = shift;
-    return { p: p, rSym: Math.max(r1 + R*0.06, rPl_sym - shift * rShift), a: lon2a(lon) };
+    var radialLevel = Math.min(stacks[i], maxRadialSteps);
+    var overflow = stacks[i] - radialLevel;
+    if (overflow > 0) lon += Math.ceil(overflow / 2) * fanDeg * (overflow % 2 === 0 ? 1 : -1);
+    return { p: p, rSym: Math.max(r1 + R*0.02, rPl_sym - radialLevel * rShift), a: lon2a(lon) };
   });
   placements.forEach(function(it){
     var t1 = pt(r3, it.a), t2 = pt(it.rSym + R*0.038, it.a);
@@ -1112,17 +1154,19 @@ function drawHarmMini(data, harmonic) {
   // (which is exactly what a tight H-h resonance looks like). Stagger their
   // symbols slightly inward so glyphs don't overlap.
   var sorted = names.slice().sort(function(x, y){ return bodyLonH[x] - bodyLonH[y]; });
+  var hStacks = assignClusterStacks(sorted, function(name){ return bodyLonH[name]; }, 5);
+  var hMaxRadial = 1, hRShift = R * 0.09, hFanDeg = 3;
   var placements = [];
-  var lastLon = -1e9, stack = 0;
-  sorted.forEach(function(name){
-    var lon = bodyLonH[name];
-    stack = (lon - lastLon < 4) ? Math.min(stack + 1, 3) : 0;
-    lastLon = lon;
-    placements.push({ name: name, r: rPlanet - stack * R * 0.08 });
+  sorted.forEach(function(name, i){
+    var radialLevel = Math.min(hStacks[i], hMaxRadial);
+    var overflow = hStacks[i] - radialLevel;
+    var ang = bodyPos[name];
+    if (overflow > 0) ang += (Math.ceil(overflow / 2) * hFanDeg * (overflow % 2 === 0 ? 1 : -1)) * Math.PI / 180;
+    placements.push({ name: name, r: rPlanet - radialLevel * hRShift, a: ang });
   });
 
   placements.forEach(function(it){
-    var ang = bodyPos[it.name];
+    var ang = it.a;
     var b = data.bodies.find(function(x){ return x.Body === it.name; });
     if (!b) return;
     var p = pt(it.r, ang);
@@ -1914,19 +1958,6 @@ function synRender(data, nameA, nameB) {
   if (legA) legA.textContent = nameA;
   if (legB) legB.textContent = nameB;
 
-  // Score
-  var sc = data.score || {};
-  var overall = sc.overall != null ? sc.overall : 50;
-  var circle = document.getElementById('syn-score-circle');
-  circle.textContent = Math.round(overall) + '%';
-  circle.style.background = overall >= 65 ? '#8fbf9a' : overall >= 45 ? '#e0b17a' : '#c17a68';
-  document.getElementById('syn-score-summary').textContent = sc.summary || '';
-  document.getElementById('syn-score-breakdown').innerHTML =
-    '<div class="syn-score-row"><span>Harmonious</span><span>' + (sc.harmony || 0).toFixed(1) + '</span></div>' +
-    '<div class="syn-score-row"><span>Tense</span><span>' + (sc.tension || 0).toFixed(1) + '</span></div>' +
-    '<div class="syn-score-row"><span>Conjunctions</span><span>' + (sc.conjunction || 0).toFixed(1) + '</span></div>' +
-    '<div class="syn-score-row"><span>Total cross-aspects</span><span>' + (sc.total_aspects || 0) + '</span></div>';
-
   // Cross-aspects table
   var tbody = document.getElementById('syn-cross-asp-tbody');
   tbody.innerHTML = '';
@@ -2298,11 +2329,17 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
 
   // Person A planets (outer ring, earth tones)
   var ANGLE_SET = {Asc:1, Desc:1, MC:1, IC:1};
-  bodiesAFiltered.forEach(function(b) {
-    if (ANGLE_SET[b.Body]) return;
-    if (!bodyVisA(b.Body)) return;
-    var a = lon2a(b['Longitude (°)']);
-    var r = (rAInner + rAOuter) / 2;
+  var planetsA = bodiesAFiltered.filter(function(b){
+    return !ANGLE_SET[b.Body] && bodyVisA(b.Body);
+  }).slice().sort(function(x, y){ return x['Longitude (°)'] - y['Longitude (°)']; });
+  var stacksA = assignClusterStacks(planetsA, function(b){ return b['Longitude (°)']; }, 7);
+  planetsA.forEach(function(b, i) {
+    var radialLevel = Math.min(stacksA[i], 1);
+    var overflow = stacksA[i] - radialLevel;
+    var lon = b['Longitude (°)'];
+    if (overflow > 0) lon += Math.ceil(overflow / 2) * 2.4 * (overflow % 2 === 0 ? 1 : -1);
+    var a = lon2a(lon);
+    var r = (rAInner + rAOuter) / 2 - radialLevel * R * 0.05;
     ctx.save();
     ctx.translate(cx + r * Math.cos(a), cy + r * Math.sin(a));
     ctx.rotate(a + Math.PI / 2);
@@ -2333,11 +2370,17 @@ function drawBiWheel(dataA, dataB, crossAspects, nameA, nameB) {
   });
 
   // Person B planets (inner ring, blue)
-  bodiesBFiltered.forEach(function(b) {
-    if (ANGLE_SET[b.Body]) return;
-    if (!bodyVisB(b.Body)) return;
-    var a = lon2a(b['Longitude (°)']);
-    var r = (rBInner + rBOuter) / 2;
+  var planetsB = bodiesBFiltered.filter(function(b){
+    return !ANGLE_SET[b.Body] && bodyVisB(b.Body);
+  }).slice().sort(function(x, y){ return x['Longitude (°)'] - y['Longitude (°)']; });
+  var stacksB = assignClusterStacks(planetsB, function(b){ return b['Longitude (°)']; }, 7);
+  planetsB.forEach(function(b, i) {
+    var radialLevel = Math.min(stacksB[i], 1);
+    var overflow = stacksB[i] - radialLevel;
+    var lon = b['Longitude (°)'];
+    if (overflow > 0) lon += Math.ceil(overflow / 2) * 2.4 * (overflow % 2 === 0 ? 1 : -1);
+    var a = lon2a(lon);
+    var r = (rBInner + rBOuter) / 2 - radialLevel * R * 0.05;
     ctx.save();
     ctx.translate(cx + r * Math.cos(a), cy + r * Math.sin(a));
     ctx.rotate(a + Math.PI / 2);
@@ -2466,22 +2509,34 @@ function drawCompositeWheel(compositeBodies, compositeAspects) {
   (compositeBodies || []).forEach(function(b) {
     if (!b.Body || b.Body.indexOf('House Cusp') >= 0) return;
     if (!compBodyVis(b.Body)) return;
+    if (!ANGLE_SET[b.Body]) return;
     var a = lon2a(b['Longitude (°)']);
-    if (ANGLE_SET[b.Body]) {
-      ctx.beginPath();
-      ctx.moveTo(cx + rZodIn * Math.cos(a), cy + rZodIn * Math.sin(a));
-      ctx.lineTo(cx + rAsp * 0.96 * Math.cos(a), cy + rAsp * 0.96 * Math.sin(a));
-      ctx.strokeStyle = '#c4c4c4'; ctx.lineWidth = 0.8; ctx.stroke();
-      ctx.save();
-      ctx.translate(cx + (rZodIn - 8) * Math.cos(a), cy + (rZodIn - 8) * Math.sin(a));
-      ctx.rotate(a + Math.PI/2);
-      ctx.fillStyle = '#4a4a4a'; ctx.font = 'bold 7px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText(b.Body, 0, 3);
-      ctx.restore();
-      return;
-    }
+    ctx.beginPath();
+    ctx.moveTo(cx + rZodIn * Math.cos(a), cy + rZodIn * Math.sin(a));
+    ctx.lineTo(cx + rAsp * 0.96 * Math.cos(a), cy + rAsp * 0.96 * Math.sin(a));
+    ctx.strokeStyle = '#c4c4c4'; ctx.lineWidth = 0.8; ctx.stroke();
     ctx.save();
-    ctx.translate(cx + rPlanet * Math.cos(a), cy + rPlanet * Math.sin(a));
+    ctx.translate(cx + (rZodIn - 8) * Math.cos(a), cy + (rZodIn - 8) * Math.sin(a));
+    ctx.rotate(a + Math.PI/2);
+    ctx.fillStyle = '#4a4a4a'; ctx.font = 'bold 7px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(b.Body, 0, 3);
+    ctx.restore();
+  });
+
+  var compPlanets = (compositeBodies || []).filter(function(b) {
+    return b.Body && b.Body.indexOf('House Cusp') < 0 && !ANGLE_SET[b.Body] && compBodyVis(b.Body);
+  }).slice().sort(function(x, y){ return x['Longitude (°)'] - y['Longitude (°)']; });
+  var compStacks = assignClusterStacks(compPlanets, function(b){ return b['Longitude (°)']; }, 7);
+  var compMaxRadial = 2, compRShift = R * 0.065, compFanDeg = 2.2;
+  compPlanets.forEach(function(b, i) {
+    var radialLevel = Math.min(compStacks[i], compMaxRadial);
+    var overflow = compStacks[i] - radialLevel;
+    var lon = b['Longitude (°)'];
+    if (overflow > 0) lon += Math.ceil(overflow / 2) * compFanDeg * (overflow % 2 === 0 ? 1 : -1);
+    var a = lon2a(lon);
+    var r = rPlanet - radialLevel * compRShift;
+    ctx.save();
+    ctx.translate(cx + r * Math.cos(a), cy + r * Math.sin(a));
     ctx.rotate(a + Math.PI/2);
     ctx.fillStyle = '#2c2c2c';
     ctx.font = 'bold 12px serif'; ctx.textAlign = 'center';
